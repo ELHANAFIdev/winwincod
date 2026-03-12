@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -130,7 +130,7 @@ model product {
   supplierId  String
   name        String
   description String?  @db.Text
-  images      String   @db.LongText
+  images      String   @db.Text
   sku         String   @unique(map: "Product_sku_key")
   costPrice   Decimal
   sellerPrice Decimal

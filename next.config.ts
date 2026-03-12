@@ -1,16 +1,19 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   typescript: {
-    // ⚠️ تحذير: هذا يسمح بعمل build حتى لو كان هناك أخطاء TypeScript
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // يتجاهل أخطاء ESLint أثناء البناء
-    ignoreDuringBuilds: true,
+    ignoreBuildErrors: true, // لتجاوز أخطاء تايب سكريبت وقت الرفع
   },
   images: {
-    domains:['res.cloudinary.com'], // السماح بصور كلاوديناري
-  }
-}
+    remotePatterns:[
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+};
 
-module.exports = nextConfig;
+export default nextConfig;
