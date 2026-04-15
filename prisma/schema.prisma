@@ -84,7 +84,11 @@ model order {
   productName    String
   quantity       Int
   codAmount      Decimal
+  shippingFee    Decimal      @default(0.0)
+  systemFee      Decimal      @default(0.0)
+  netProfit      Decimal      @default(0.0)
   status         order_status @default(DRAFT)
+  statusHistory  OrderStatusHistory[]
   trackingNumber String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -166,6 +170,18 @@ model depositrequest {
   updatedAt     DateTime      @updatedAt
 
   seller        user          @relation(fields: [sellerId], references: [id])
+}
+
+model OrderStatusHistory {
+  id        String       @id @default(uuid())
+  orderId   String
+  status    order_status
+  userId    String       // الشخص الذي غير الحالة
+  createdAt DateTime     @default(now())
+
+  order order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId], map: "OrderStatusHistory_orderId_idx")
 }
 
 // ====== Enums ======

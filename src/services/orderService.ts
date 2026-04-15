@@ -29,17 +29,26 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
       }
     });
 
-    // 2. تحديث الطلبات (هذا هو السطر الذي يجعلها تظهر في الكول سنتر)
+    // 2. تحديث الطلبات
     await tx.order.updateMany({
       where: { 
         id: { in: orderIds },
-        sellerId: sellerId // زيادة في الأمان
+        sellerId: sellerId
       },
       data: { 
         batchId: batch.id, 
-        status: 'PENDING_CONFIRMATION', // 👈 التأكد من تغيير الحالة هنا
+        status: 'PENDING_CONFIRMATION',
         updatedAt: new Date()
       }
+    });
+
+    // 3. إضافة سجل التتبع (OrderStatusHistory)
+    await tx.orderStatusHistory.createMany({
+      data: orderIds.map(id => ({
+        orderId: id,
+        status: 'PENDING_CONFIRMATION',
+        userId: sellerId
+      }))
     });
 
     return batch;
@@ -73,6 +82,21 @@ export async function payBatchFromWallet(sellerId: string, batchId: string) {
       }
     })
   ]);
+
+  // يجب جلب الايديات لتسجيل التتبع
+  const updatedOrders = await prisma.order.findMany({
+    where: { batchId: batchId, status: 'PROCESSING' }
+  });
+
+  if (updatedOrders.length > 0) {
+    await prisma.orderStatusHistory.createMany({
+      data: updatedOrders.map(o => ({
+        orderId: o.id,
+        status: 'PROCESSING',
+        userId: sellerId
+      }))
+    });
+  }
 
   return true;
 }
