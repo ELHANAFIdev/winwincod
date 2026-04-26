@@ -11,6 +11,8 @@ function OrderForm() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const availableCities = moroccanCities.find(r => r.region === selectedRegion)?.cities || [];
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -167,15 +169,33 @@ function OrderForm() {
         {errors.address && <p className="text-red-500 text-xs mt-1">{String(errors.address.message)}</p>}
       </div>
       
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <label className="block text-sm font-bold mb-2 text-gray-700">الجهة (Region)</label>
+            <select 
+              className="w-full border p-3 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              value={selectedRegion}
+              onChange={(e) => {
+                setSelectedRegion(e.target.value);
+                setValue("city", ""); // reset city
+              }}
+            >
+              <option value="">-- اختر الجهة --</option>
+              {moroccanCities.map(regionObj => (
+                <option key={regionObj.region} value={regionObj.region}>{regionObj.region}</option>
+              ))}
+            </select>
+        </div>
+
         <div>
             <label className="block text-sm font-bold mb-2 text-gray-700">المدينة</label>
             <select 
               {...register("city", { required: "المدينة مطلوبة" })} 
-              className="w-full border p-3 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full border p-3 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100 disabled:text-gray-400"
+              disabled={!selectedRegion}
             >
               <option value="">-- اختر المدينة --</option>
-              {moroccanCities.map(city => (
+              {availableCities.map(city => (
                 <option key={city} value={city}>{city}</option>
               ))}
             </select>
@@ -187,7 +207,7 @@ function OrderForm() {
             <input 
               type="number" 
               {...register("quantity", { required: true, min: 1 })} 
-              className="w-full border p-3 rounded-xl text-center font-bold" 
+              className="w-full border p-3 rounded-xl text-center font-bold outline-none focus:ring-2 focus:ring-blue-500" 
               defaultValue={1} 
               min={1} 
             />

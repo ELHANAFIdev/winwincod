@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <NavItem href="/admin/logistics" icon="🚚" label="شحن الطلبيات" active={pathname === "/admin/logistics"} isOpen={isOpen} isAdmin />
             <NavItem href="/admin/logistics/update" icon="📡" label="تحديث التوصيل" active={pathname === "/admin/logistics/update"} isOpen={isOpen} isAdmin />
             <NavItem href="/admin/deposits" icon="💰" label="طلبات الشحن" active={pathname === "/admin/deposits"} isOpen={isOpen} isAdmin highlight />
+            <NavItem href="/admin/withdrawals" icon="💳" label="سحوبات الأرباح" active={pathname === "/admin/withdrawals"} isOpen={isOpen} isAdmin highlight />
           </NavGroup>
 
           <NavGroup label="المخزون" isOpen={isOpen}>

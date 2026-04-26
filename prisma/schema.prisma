@@ -18,6 +18,9 @@ model user {
   phone     String?
   role      user_role @default(SELLER)
   isActive  Boolean   @default(true)
+  bankName        String?
+  bankAccountName String?
+  rib             String?
   createdAt DateTime  @default(now())
 
   // Relations
@@ -26,7 +29,8 @@ model user {
   logs         log[]
   orders       order[]      @relation("SellerOrders")
   orderBatches orderbatch[] // relation مع orderbatch
-  deposits  depositrequest[]
+  deposits          depositrequest[]
+  withdrawals       withdrawalrequest[]
 }
 
 model wallet {
@@ -184,6 +188,19 @@ model OrderStatusHistory {
   @@index([orderId], map: "OrderStatusHistory_orderId_idx")
 }
 
+model withdrawalrequest {
+  id            String            @id @default(cuid())
+  sellerId      String
+  amount        Decimal
+  receiptImage  String?       // رابط الوصل المرفق من المشرف عند الدفع
+  status        withdrawal_status @default(PENDING)
+  notes         String?    
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  seller        user              @relation(fields: [sellerId], references: [id])
+}
+
 // ====== Enums ======
 enum transaction_type {
   DEPOSIT
@@ -193,6 +210,12 @@ enum transaction_type {
 }
 
 enum deposit_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum withdrawal_status {
   PENDING
   APPROVED
   REJECTED

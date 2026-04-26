@@ -22,10 +22,37 @@ export async function GET() {
 
     if (!wallet) return errorResponse("المحفظة غير موجودة", 404);
 
+    const pendingOrders = await prisma.order.aggregate({
+      where: {
+        sellerId: user.id,
+        status: { in: ['SHIPPED', 'PROCESSING'] }
+      },
+      _sum: { netProfit: true }
+    });
+    const pendingBalance = pendingOrders._sum?.netProfit || 0;
+
+    // حساب الرصيد المتاح فعلياً للسحب بخصم طلبات السحب المعلقة
+    const pendingWithdrawalsReqs = await prisma.withdrawalrequest.aggregate({
+      where: { sellerId: user.id, status: "PENDING" },
+      _sum: { amount: true }
+    });
+    const pendingWithdrawals = Number(pendingWithdrawalsReqs._sum?.amount || 0);
+    const availableBalance = Number(wallet.balance) - pendingWithdrawals;
+
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id }});
+
     return NextResponse.json({ 
       success: true, 
-      balance: wallet.balance,
-      transactions: wallet.transactions 
+      balance: availableBalance,
+      totalBalance: wallet.balance,
+      pendingBalance: pendingBalance,
+      pendingWithdrawals: pendingWithdrawals,
+      transactions: wallet.transactions,
+      bank: {
+        bankName: dbUser?.bankName || "",
+        bankAccountName: dbUser?.bankAccountName || "",
+        rib: dbUser?.rib || ""
+      }
     });
 
   } catch (error) {
