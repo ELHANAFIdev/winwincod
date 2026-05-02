@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useId } from "react";
 import axios from "axios";
 
 export default function ImageUpload({ value, onSuccess }: { value: string, onSuccess: (url: string) => void }) {
   const [loading, setLoading] = useState(false);
+  const inputId = useId();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,17 +35,17 @@ export default function ImageUpload({ value, onSuccess }: { value: string, onSuc
         <div className="absolute inset-0 group">
           <img src={value} className="w-full h-full object-contain" alt="Product" />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-            <label className="cursor-pointer bg-white text-black px-4 py-2 rounded-lg font-bold text-sm">تغيير الصورة</label>
+            <label htmlFor={inputId} className="cursor-pointer bg-white text-black px-4 py-2 rounded-lg font-bold text-sm">تغيير الصورة</label>
           </div>
         </div>
       ) : (
-        <label className="flex flex-col items-center cursor-pointer hover:text-blue-600 transition">
+        <label htmlFor={inputId} className="flex flex-col items-center cursor-pointer hover:text-blue-600 transition">
           <span className="text-4xl mb-2">📸</span>
           <span className="text-sm font-bold">اضغط هنا لرفع صورة المنتج</span>
           <span className="text-[10px] text-gray-400 mt-1">PNG, JPG (Max 5MB)</span>
         </label>
       )}
-      <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
+      <input id={inputId} type="file" className="hidden" accept="image/*" onChange={handleUpload} />
     </div>
   );
 }
