@@ -11,24 +11,28 @@ datasource db {
 // ====== Models ======
 
 model user {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique(map: "User_email_key")
-  password  String
-  phone     String?
-  role      user_role @default(SELLER)
-  isActive  Boolean   @default(true)
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique(map: "User_email_key")
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String?
+  role          user_role @default(SELLER)
+  isActive      Boolean   @default(true)
   bankName        String?
   bankAccountName String?
   rib             String?
   createdAt DateTime  @default(now())
 
   // Relations
+  accounts      Account[]
+  sessions      Session[]
   savedProducts SellerProduct[]
   wallet       wallet?
   logs         log[]
   orders       order[]      @relation("SellerOrders")
-  orderBatches orderbatch[] // relation مع orderbatch
+  orderBatches orderbatch[]
   deposits          depositrequest[]
   withdrawals       withdrawalrequest[]
 }
@@ -199,6 +203,45 @@ model withdrawalrequest {
   updatedAt     DateTime          @updatedAt
 
   seller        user              @relation(fields: [sellerId], references: [id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 // ====== Enums ======
