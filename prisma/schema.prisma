@@ -12,6 +12,7 @@ datasource db {
 
 model user {
   id            String    @id @default(uuid())
+  seqId         Int?
   name          String
   email         String    @unique(map: "User_email_key")
   emailVerified DateTime?
@@ -75,6 +76,7 @@ model log {
 
 model order {
   id             String       @id @default(uuid())
+  seqId          Int?
   sellerId       String
   
   // 1. الربط مع الدفعة (Batch)
@@ -139,6 +141,7 @@ model SellerProduct {
 
 model product {
   id          String   @id @default(uuid())
+  seqId       Int?
   supplierId  String
   name        String
   description String?  @db.Text
