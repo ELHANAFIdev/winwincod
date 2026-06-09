@@ -8,60 +8,70 @@ export default function MyCatalogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // جلب القائمة من API الخطوة 2
-    axios.get("/api/seller/catalog").then(res => {
-      setItems(res.data.products);
-      setLoading(false);
-    });
+    axios.get("/api/seller/catalog")
+      .then(res => { setItems(res.data.products); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="p-10">جاري تحميل منتجاتك...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent"></div>
+      <span className="mr-3 text-[#4361EE] font-bold">جاري تحميل منتجاتك...</span>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">منتجاتي (قائمة العمل) 💼</h2>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-black text-[#1E293B]">منتجاتي 💼</h2>
+          <p className="text-slate-400 text-sm mt-0.5">المنتجات التي أضفتها لقائمة عملك</p>
+        </div>
+        <Link href="/seller/products" className="bg-[#4361EE] hover:bg-[#3254D4] text-white px-5 py-2.5 rounded-xl font-bold transition shadow-sm text-sm">
+          + إضافة منتجات
+        </Link>
+      </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
-          <p className="text-gray-500 mb-4">لم تضف أي منتج لقائمتك بعد.</p>
-          <Link href="/seller/products" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">
-            تصفح السوق وأضف منتجات
+        <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-20 text-center">
+          <p className="text-4xl mb-3">💼</p>
+          <p className="text-slate-400 font-bold mb-4">لم تضف أي منتج لقائمتك بعد</p>
+          <Link href="/seller/products" className="bg-[#4361EE] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#3254D4] transition">
+            تصفح السوق
           </Link>
         </div>
       ) : (
         <div className="grid gap-4">
           {items.map((item: any) => (
-            <div key={item.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 items-center">
-              
-              {/* صورة مصغرة */}
-             <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border">
-  {item.product.images ? (
-    <img src={item.product.images} className="w-full h-full object-cover" />
-  ) : (
-    <div className="flex items-center justify-center h-full text-2xl">📦</div>
-  )}
-</div>
+            <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 flex flex-col md:flex-row gap-5 items-center hover:shadow-md transition">
+              {/* Thumbnail */}
+              <div className="w-20 h-20 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] overflow-hidden flex-shrink-0">
+                {item.product.images ? (
+                  <img src={item.product.images} className="w-full h-full object-cover" alt={item.product.name} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-2xl">📦</div>
+                )}
+              </div>
 
-              {/* التفاصيل */}
+              {/* Info */}
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-800">{item.product.name}</h3>
-                <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                    <span>التكلفة: <strong className="text-blue-600">{Number(item.product.sellerPrice).toFixed(0)}</strong></span>
-                    <span>السوق: <strong className="text-green-600">{Number(item.product.marketPrice).toFixed(0)}</strong></span>
-                    <span>المخزون: {item.product.stock}</span>
+                <h3 className="font-bold text-[#1E293B]">{item.product.name}</h3>
+                <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                  <span className="text-slate-500">التكلفة: <strong className="text-[#4361EE]">{Number(item.product.sellerPrice).toFixed(0)} د.م</strong></span>
+                  <span className="text-slate-500">سعر السوق: <strong className="text-green-600">{Number(item.product.marketPrice).toFixed(0)} د.م</strong></span>
+                  <span className="text-slate-500">المخزون: <strong className={item.product.stock > 0 ? "text-[#1E293B]" : "text-red-500"}>{item.product.stock}</strong></span>
                 </div>
               </div>
 
-              {/* الأزرار (أهم جزء) */}
-              <div className="flex gap-3 w-full md:w-auto">
-                <button className="px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 font-medium text-sm">
-                   📥 تحميل الصور
+              {/* Actions */}
+              <div className="flex gap-3 w-full md:w-auto flex-shrink-0">
+                <button className="px-4 py-2 border border-[#E2E8F0] rounded-xl text-slate-600 hover:bg-[#F8FAFC] font-bold text-sm transition">
+                  📥 الصور
                 </button>
-                <Link 
-                    href={`/seller/orders/new?productId=${item.product.id}`}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-md text-sm flex items-center justify-center"
+                <Link
+                  href={`/seller/orders/new?productId=${item.product.id}`}
+                  className="px-6 py-2 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl font-bold text-sm transition shadow-sm"
                 >
-                   🚀 بيع الآن
+                  🚀 بيع الآن
                 </Link>
               </div>
             </div>
