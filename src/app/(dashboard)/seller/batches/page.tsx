@@ -24,48 +24,68 @@ export default function SellerBatches() {
     }
   };
 
-  if (loading) return <div className="p-10 text-center">جاري تحميل الدفعات...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent"></div>
+      <span className="mr-3 text-[#4361EE] font-bold">جاري تحميل الدفعات...</span>
+    </div>
+  );
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h1 className="text-xl font-bold mb-6">دفعاتي (Batches)</h1>
-      <table className="w-full text-right">
-        <thead>
-          <tr className="bg-gray-50 text-sm">
-            <th className="p-3">رقم الدفعة</th>
-            <th className="p-3">تاريخ الإنشاء</th>
-            <th className="p-3">المبلغ المطلوب</th>
-            <th className="p-3">الحالة</th>
-            <th className="p-3">الإجراء</th>
-          </tr>
-        </thead>
-        <tbody>
-          {batches.map((batch: any) => (
-            <tr key={batch.id} className="border-b">
-              <td className="p-3 text-xs font-mono">{batch.id}</td>
-              <td className="p-3">{new Date(batch.createdAt).toLocaleDateString()}</td>
-              <td className="p-3 font-bold text-blue-600">{Number(batch.totalAmount).toFixed(2)} د.م</td>
-              <td className="p-3">
-                {batch.isPaid ? (
-                  <span className="text-green-600 bg-green-50 px-2 py-1 rounded">تم الدفع</span>
-                ) : (
-                  <span className="text-red-600 bg-red-50 px-2 py-1 rounded">بانتظار الدفع</span>
-                )}
-              </td>
-              <td className="p-3">
-                {!batch.isPaid && Number(batch.totalAmount) > 0 && (
-                  <button 
-                    onClick={() => handlePay(batch.id)}
-                    className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-                  >
-                    دفع الآن
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-black text-[#1E293B]">دفعاتي</h2>
+        <p className="text-slate-400 text-sm mt-0.5">متابعة حالة الدفعات المُرسلة للمعالجة</p>
+      </div>
+
+      {batches.length === 0 ? (
+        <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
+          <p className="text-4xl mb-3">📦</p>
+          <p className="text-slate-400 font-bold">لا توجد دفعات حتى الآن</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+          <table className="w-full text-right text-sm">
+            <thead>
+              <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-slate-500 font-bold">
+                <th className="p-4">رقم الدفعة</th>
+                <th className="p-4">تاريخ الإنشاء</th>
+                <th className="p-4">عدد الطلبات</th>
+                <th className="p-4">المبلغ</th>
+                <th className="p-4">الحالة</th>
+                <th className="p-4">الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches.map((batch: any) => (
+                <tr key={batch.id} className="border-b border-[#E2E8F0] hover:bg-[#F8FAFC] transition">
+                  <td className="p-4 font-mono text-xs text-slate-400">#{batch.id.slice(-8).toUpperCase()}</td>
+                  <td className="p-4 text-slate-500">{new Date(batch.createdAt).toLocaleDateString("ar-MA")}</td>
+                  <td className="p-4 font-bold text-[#1E293B]">{batch.orders?.length || "—"}</td>
+                  <td className="p-4 font-bold text-[#4361EE]">{Number(batch.totalAmount).toFixed(2)} <span className="text-slate-400 font-normal">د.م</span></td>
+                  <td className="p-4">
+                    {batch.isPaid ? (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">تم الدفع ✅</span>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#FB923C]/10 text-[#FB923C] border border-[#FB923C]/20">بانتظار الدفع</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    {!batch.isPaid && Number(batch.totalAmount) > 0 && (
+                      <button
+                        onClick={() => handlePay(batch.id)}
+                        className="bg-[#4361EE] hover:bg-[#3254D4] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm"
+                      >
+                        دفع الآن
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

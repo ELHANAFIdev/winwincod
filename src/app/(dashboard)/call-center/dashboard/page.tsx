@@ -1,19 +1,11 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-// نوع البيانات للعرض
 type OrderTask = {
-  id: string;
-  customerName: string;
-  customerPhone: string;
-  city: string;
-  productName: string;
-  quantity: number;
-  codAmount: number;
-  seller: { name: string };
-  createdAt: string;
+  id: string; customerName: string; customerPhone: string;
+  city: string; productName: string; quantity: number;
+  codAmount: number; seller: { name: string }; createdAt: string;
 };
 
 export default function CallCenterDashboard() {
@@ -21,99 +13,98 @@ export default function CallCenterDashboard() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
-const fetchOrders = async () => {
-  try {
-    const res = await axios.get("/api/call-center/orders");
-    console.log("Orders received:", res.data.orders); // 👈 أضف هذا السطر للفحص في الكونسول (F12)
-    setOrders(res.data.orders);
-  } catch (error) {
-    console.error("Failed to fetch tasks");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // دالة تغيير الحالة
-  const updateStatus = async (orderId: string, status: 'CONFIRMED' | 'CANCELLED' | 'RETURNED') => {
-    if(!confirm(status === 'CONFIRMED' ? "تأكيد الطلب؟" : "إلغاء الطلب؟")) return;
-
-    setProcessingId(orderId);
+  const fetchOrders = async () => {
     try {
-      await axios.post("/api/call-center/update-status", {
-        orderId,
-        status,
-        notes: "تم التعامل من لوحة الكول سنتر"
-      });
-      
-      // إزالة الطلب من القائمة بعد معالجته
-      setOrders(prev => prev.filter(o => o.id !== orderId));
-      
-    } catch (error) {
-      alert("حدث خطأ أثناء التحديث");
-    } finally {
-      setProcessingId(null);
-    }
+      const res = await axios.get("/api/call-center/orders");
+      setOrders(res.data.orders);
+    } catch { console.error("Failed to fetch tasks"); } finally { setLoading(false); }
   };
 
-  if (loading) return <div className="text-center p-10">جاري تحميل المهام... ⏳</div>;
+  const updateStatus = async (orderId: string, status: "CONFIRMED" | "CANCELLED" | "RETURNED") => {
+    if (!confirm(status === "CONFIRMED" ? "تأكيد الطلب؟" : "إلغاء الطلب؟")) return;
+    setProcessingId(orderId);
+    try {
+      await axios.post("/api/call-center/update-status", { orderId, status, notes: "تم التعامل من لوحة الكول سنتر" });
+      setOrders(prev => prev.filter(o => o.id !== orderId));
+    } catch { alert("حدث خطأ أثناء التحديث"); } finally { setProcessingId(null); }
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent"></div>
+      <span className="mr-3 text-[#4361EE] font-bold">جاري تحميل المهام...</span>
+    </div>
+  );
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        قائمة الانتظار ({orders.length})
-      </h2>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-black text-[#1E293B]">قائمة التأكيد 📞</h2>
+          <p className="text-slate-400 text-sm mt-0.5">الطلبات بانتظار التواصل مع الزبائن</p>
+        </div>
+        <span className={`font-bold text-sm px-4 py-2 rounded-xl border ${
+          orders.length > 0
+            ? "bg-[#FB923C]/10 text-[#FB923C] border-[#FB923C]/20"
+            : "bg-green-50 text-green-700 border-green-100"
+        }`}>
+          {orders.length > 0 ? `${orders.length} طلب في الانتظار` : "لا توجد مهام 🎉"}
+        </span>
+      </div>
 
       {orders.length === 0 ? (
-        <div className="bg-white p-12 rounded-xl text-center shadow-sm">
-          <p className="text-gray-500 text-lg">🎉 لا توجد طلبات معلقة حالياً. عمل رائع!</p>
+        <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
+          <p className="text-4xl mb-3">🎉</p>
+          <p className="text-[#1E293B] font-bold text-lg">لا توجد طلبات معلقة حالياً</p>
+          <p className="text-slate-400 text-sm mt-1">عمل رائع! القائمة فارغة.</p>
         </div>
       ) : (
         <div className="grid gap-4">
-          {orders.map((order) => (
-            <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition">
-              
-              {/* تفاصيل الطلب */}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-gray-800">{order.customerName}</h3>
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                    {order.city}
-                  </span>
+          {orders.map(order => (
+            <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden hover:shadow-md transition">
+              <div className="w-full h-1 bg-[#4361EE]"></div>
+              <div className="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+                {/* Order info */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-black text-[#1E293B]">{order.customerName}</h3>
+                    <span className="bg-[#F8FAFC] border border-[#E2E8F0] text-slate-500 text-xs px-2.5 py-1 rounded-lg font-bold">
+                      {order.city}
+                    </span>
+                  </div>
+                  <div className="text-2xl font-mono font-black text-[#4361EE] tracking-wider">
+                    {order.customerPhone}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    المنتج: <span className="font-bold text-[#1E293B]">{order.productName} ×{order.quantity}</span>
+                    {" | "}
+                    المبلغ: <span className="font-bold text-green-600">{Number(order.codAmount).toFixed(2)} د.م</span>
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    البائع: {order.seller.name} · {new Date(order.createdAt).toLocaleDateString("ar-MA")}
+                  </p>
                 </div>
-                <div className="text-2xl font-mono text-blue-600 font-bold tracking-wider">
-                  {order.customerPhone}
+
+                {/* Action buttons */}
+                <div className="flex gap-3 w-full md:w-auto">
+                  <button
+                    onClick={() => updateStatus(order.id, "CANCELLED")}
+                    disabled={processingId === order.id}
+                    className="flex-1 md:flex-none px-5 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 disabled:opacity-50 text-sm"
+                  >
+                    ❌ إلغاء
+                  </button>
+                  <button
+                    onClick={() => updateStatus(order.id, "CONFIRMED")}
+                    disabled={processingId === order.id}
+                    className="flex-1 md:flex-none px-7 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition shadow-sm disabled:opacity-50 text-sm"
+                  >
+                    ✅ تأكيد
+                  </button>
                 </div>
-                <p className="text-sm text-gray-500">
-                  المنتج: <span className="font-medium text-gray-800">{order.productName} ({order.quantity})</span>
-                   | السعر: <span className="font-medium text-green-600">{Number(order.codAmount).toFixed(2)} د.م</span>
-                </p>
-                <p className="text-xs text-gray-400">
-                  البائع: {order.seller.name} | منذ: {new Date(order.createdAt).toLocaleDateString('ar-MA')}
-                </p>
               </div>
-
-              {/* أزرار التحكم */}
-              <div className="flex gap-3 w-full md:w-auto">
-                <button
-                  onClick={() => updateStatus(order.id, 'CANCELLED')}
-                  disabled={processingId === order.id}
-                  className="flex-1 md:flex-none px-6 py-3 bg-red-50 text-red-600 rounded-lg font-bold hover:bg-red-100 transition disabled:opacity-50"
-                >
-                  ❌ إلغاء
-                </button>
-                <button
-                  onClick={() => updateStatus(order.id, 'CONFIRMED')}
-                  disabled={processingId === order.id}
-                  className="flex-1 md:flex-none px-8 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg transition disabled:opacity-50"
-                >
-                  ✅ تأكيد
-                </button>
-              </div>
-
             </div>
           ))}
         </div>

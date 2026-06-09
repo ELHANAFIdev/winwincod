@@ -3,17 +3,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+const inputCls = "w-full border border-gray-200 focus:border-[#4361EE] p-3 rounded-xl outline-none transition bg-[#F8FAFC] focus:bg-white text-[#1E293B]";
+const labelCls = "text-xs font-bold text-slate-500 block mb-1.5";
+
 export default function SellerWalletPage() {
   const [balance, setBalance] = useState(0);
   const [pendingBalance, setPendingBalance] = useState(0);
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [history, setHistory] = useState([]);
-  
-  // Deposit state
   const [depositAmount, setDepositAmount] = useState("");
   const [loadingDeposit, setLoadingDeposit] = useState(false);
-
-  // Withdraw state
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [bankName, setBankName] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
@@ -34,128 +33,129 @@ export default function SellerWalletPage() {
     });
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const handleDeposit = async (e: any) => {
     e.preventDefault();
     setLoadingDeposit(true);
     try {
       await axios.post("/api/seller/wallet/deposit", { amount: Number(depositAmount) });
-      toast.success("تم إرسال طلب الشحن بنجاح! بانتظار مراجعة الإدارة.");
+      toast.success("تم إرسال طلب الشحن! بانتظار مراجعة الإدارة.");
       setDepositAmount("");
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "حدث خطأ في طلب الشحن");
-    } finally {
-      setLoadingDeposit(false);
-    }
+      toast.error(err.response?.data?.error || "حدث خطأ");
+    } finally { setLoadingDeposit(false); }
   };
 
   const handleWithdraw = async (e: any) => {
     e.preventDefault();
     setLoadingWithdraw(true);
     try {
-      await axios.post("/api/seller/wallet/withdraw", { 
-        amount: Number(withdrawAmount),
-        bankName,
-        bankAccountName,
-        rib
-      });
-      toast.success("تم تقديم طلب سحب الأرباح بنجاح!");
+      await axios.post("/api/seller/wallet/withdraw", { amount: Number(withdrawAmount), bankName, bankAccountName, rib });
+      toast.success("تم تقديم طلب السحب!");
       setWithdrawAmount("");
-      fetchData(); // تحديث الأرصدة
+      fetchData();
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "حدث خطأ أثناء السحب");
-    } finally {
-      setLoadingWithdraw(false);
-    }
+      toast.error(err.response?.data?.error || "حدث خطأ");
+    } finally { setLoadingWithdraw(false); }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* البطاقات المالية */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-8 rounded-2xl shadow-lg border border-green-400">
-          <p className="text-green-100 text-sm font-medium">الرصيد المتاح للسحب</p>
-          <h2 className="text-4xl font-black mt-2">{Number(balance).toFixed(2)} د.م</h2>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-black text-[#1E293B]">المحفظة</h2>
+        <p className="text-slate-400 text-sm mt-0.5">إدارة رصيدك وأرباحك</p>
+      </div>
+
+      {/* Balance cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="bg-[#4361EE] text-white p-6 rounded-2xl shadow-lg shadow-blue-200">
+          <p className="text-blue-100 text-sm font-bold mb-1">الرصيد المتاح للسحب</p>
+          <h2 className="text-3xl font-black">{Number(balance).toFixed(2)} <span className="text-xl">د.م</span></h2>
         </div>
-        <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-8 rounded-2xl shadow-lg border border-yellow-400">
-          <p className="text-orange-100 text-sm font-medium">أرباح قيد التوصيل (معلقة)</p>
-          <h2 className="text-4xl font-black mt-2">{Number(pendingBalance).toFixed(2)} د.م</h2>
+        <div className="bg-[#FB923C] text-white p-6 rounded-2xl shadow-lg shadow-orange-200">
+          <p className="text-orange-100 text-sm font-bold mb-1">أرباح قيد التوصيل</p>
+          <h2 className="text-3xl font-black">{Number(pendingBalance).toFixed(2)} <span className="text-xl">د.م</span></h2>
         </div>
-        <div className="bg-gradient-to-r from-purple-600 to-purple-500 text-white p-8 rounded-2xl shadow-lg border border-purple-400">
-          <p className="text-purple-100 text-sm font-medium">سحوبات قيد المعالجة من الإدارة</p>
-          <h2 className="text-4xl font-black mt-2">{Number(pendingWithdrawals).toFixed(2)} د.م</h2>
+        <div className="bg-white border border-[#E2E8F0] p-6 rounded-2xl shadow-sm">
+          <p className="text-slate-400 text-sm font-bold mb-1">سحوبات قيد المعالجة</p>
+          <h2 className="text-3xl font-black text-[#1E293B]">{Number(pendingWithdrawals).toFixed(2)} <span className="text-xl text-slate-400 font-normal">د.م</span></h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* نموذج طلب السحب */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm relative overflow-hidden border border-gray-100">
-          <h3 className="font-bold mb-6 text-xl text-gray-800 flex items-center gap-2">
-            <span>💸</span> سحب الأرباح
-          </h3>
-          <form onSubmit={handleWithdraw} className="space-y-5 relative z-10">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        {/* Withdraw form */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E2E8F0]">
+          <h3 className="font-bold text-[#1E293B] text-lg mb-5 flex items-center gap-2">💸 سحب الأرباح</h3>
+          <form onSubmit={handleWithdraw} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-500">اسم البنك</label>
-                <input required type="text" className="w-full bg-gray-50 focus:bg-white border-2 border-transparent focus:border-green-500 p-3 rounded-xl mt-1 outline-none transition" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="مثال: CIH Bank"/>
+                <label className={labelCls}>اسم البنك</label>
+                <input required type="text" className={inputCls} value={bankName} onChange={e => setBankName(e.target.value)} placeholder="CIH Bank" />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500">الاسم الكامل</label>
-                <input required type="text" className="w-full bg-gray-50 focus:bg-white border-2 border-transparent focus:border-green-500 p-3 rounded-xl mt-1 outline-none transition" value={bankAccountName} onChange={e => setBankAccountName(e.target.value)} placeholder="يطابق الحساب"/>
+                <label className={labelCls}>الاسم الكامل</label>
+                <input required type="text" className={inputCls} value={bankAccountName} onChange={e => setBankAccountName(e.target.value)} placeholder="يطابق الحساب" />
               </div>
             </div>
             <div>
-               <label className="text-xs font-bold text-gray-500">رقم الحساب (RIB - 24 رقم)</label>
-               <input required type="text" minLength={24} maxLength={24} className="w-full bg-gray-50 focus:bg-white border-2 border-transparent focus:border-green-500 p-3 rounded-xl mt-1 text-left tracking-widest font-mono outline-none transition" dir="ltr" value={rib} onChange={e => setRib(e.target.value)} placeholder="000000000000000000000000"/>
+              <label className={labelCls}>رقم الحساب (RIB — 24 رقم)</label>
+              <input required type="text" minLength={24} maxLength={24} dir="ltr" className={inputCls + " tracking-widest font-mono text-left"} value={rib} onChange={e => setRib(e.target.value)} placeholder="000000000000000000000000" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500">المبلغ المراد سحبه</label>
-              <input required type="number" step="0.01" max={balance} className="w-full border-2 border-green-200 focus:border-green-500 p-4 rounded-xl mt-1 text-green-700 font-black text-2xl outline-none transition" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} placeholder="0.00"/>
+              <label className={labelCls}>المبلغ المراد سحبه</label>
+              <div className="relative">
+                <input required type="number" step="0.01" max={balance} className="w-full border-2 border-[#4361EE]/30 focus:border-[#4361EE] p-3.5 rounded-xl outline-none font-black text-2xl text-[#4361EE] bg-[#EEF2FF]" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} placeholder="0.00" />
+                <span className="absolute left-4 top-4 text-[#4361EE] font-bold text-sm">د.م</span>
+              </div>
             </div>
-            <button disabled={loadingWithdraw || balance <= 0} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-green-200 hover:bg-green-700 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 transition transform">
+            <button disabled={loadingWithdraw || balance <= 0} className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-3.5 rounded-xl font-bold shadow-sm transition disabled:opacity-50">
               {loadingWithdraw ? "جاري الإرسال..." : "تأكيد السحب"}
             </button>
           </form>
         </div>
 
-        {/* نموذج شحن الرصيد */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-fit">
-          <h3 className="font-bold mb-6 text-xl text-gray-800 flex items-center gap-2">
-            <span>💳</span> شحن المحفظة (شراء رصيد)
-          </h3>
-          <form onSubmit={handleDeposit} className="space-y-5">
+        {/* Deposit form */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E2E8F0] h-fit">
+          <h3 className="font-bold text-[#1E293B] text-lg mb-5 flex items-center gap-2">💳 شحن المحفظة</h3>
+          <form onSubmit={handleDeposit} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-gray-500">المبلغ المنقول</label>
-              <input required type="number" step="0.01" className="w-full bg-gray-50 focus:bg-white border-2 border-transparent focus:border-blue-500 p-4 rounded-xl mt-1 font-bold outline-none transition" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} placeholder="0.00"/>
+              <label className={labelCls}>المبلغ المحوَّل</label>
+              <input required type="number" step="0.01" className={inputCls + " font-bold"} value={depositAmount} onChange={e => setDepositAmount(e.target.value)} placeholder="0.00" />
             </div>
-            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-              <p className="text-sm text-blue-800 leading-relaxed font-medium">الرجاء تحويل المبلغ المطابق لحسابنا البنكي (BMCE: 000...). بعد ذلك قم بالتأكيد عبر هذا النموذج وسيتم مراجعة طلبك وإضافة الرصيد.</p>
+            <div className="bg-[#EEF2FF] p-4 rounded-xl border border-blue-100">
+              <p className="text-sm text-[#4361EE] leading-relaxed font-medium">
+                حوّل المبلغ لحسابنا البنكي (BMCE: 000...) ثم قم بالتأكيد. ستُضاف بعد المراجعة.
+              </p>
             </div>
-            <button disabled={loadingDeposit} className="w-full bg-gray-800 text-white py-4 rounded-xl font-bold shadow-md shadow-gray-200 hover:bg-gray-900 disabled:opacity-50 transition">
-              {loadingDeposit ? "لحظة..." : "أرسلت الملبغ في البنك - تأكيد"}
+            <button disabled={loadingDeposit} className="w-full bg-[#1E293B] hover:bg-slate-700 text-white py-3.5 rounded-xl font-bold transition disabled:opacity-50">
+              {loadingDeposit ? "لحظة..." : "أرسلت المبلغ — تأكيد الطلب"}
             </button>
           </form>
         </div>
       </div>
 
-       {/* سجل العمليات */}
-       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-8">
-        <h3 className="font-bold mb-6 text-lg text-gray-800 px-2">سجل الحركات المالية 📖</h3>
-        <div className="space-y-2">
-          {history.length === 0 ? <p className="text-gray-500 text-sm p-4 text-center">لا توجد حركات مالية بعد.</p> : history.map((tx: any) => (
-            <div key={tx.id} className="flex justify-between items-center border-b border-gray-50 p-4 hover:bg-gray-50 rounded-xl transition">
-              <div>
-                <p className="font-bold text-sm text-gray-800">{tx.description || (tx.type === 'WITHDRAWAL' ? 'طلب سحب أرباح' : tx.type === 'DEPOSIT' ? 'شحن رصيد' : 'عملية مالية')}</p>
-                <p className="text-xs text-gray-400 mt-1">{new Date(tx.createdAt).toLocaleString('ar-MA')}</p>
+      {/* Transaction history */}
+      <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
+        <h3 className="font-bold text-[#1E293B] mb-5">سجل الحركات المالية 📖</h3>
+        <div className="space-y-1">
+          {history.length === 0 ? (
+            <p className="text-slate-400 text-sm text-center py-6">لا توجد حركات مالية بعد.</p>
+          ) : (
+            history.map((tx: any) => (
+              <div key={tx.id} className="flex justify-between items-center py-3.5 px-2 border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8FAFC] rounded-xl transition">
+                <div>
+                  <p className="font-bold text-sm text-[#1E293B]">
+                    {tx.description || (tx.type === "WITHDRAWAL" ? "طلب سحب أرباح" : tx.type === "DEPOSIT" ? "شحن رصيد" : "عملية مالية")}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString("ar-MA")}</p>
+                </div>
+                <div className={`font-black text-lg ${Number(tx.amount) > 0 ? "text-green-600" : "text-slate-500"}`}>
+                  {Number(tx.amount) > 0 ? "+" : ""}{Number(tx.amount).toFixed(2)} <span className="text-sm text-slate-400 font-normal">د.م</span>
+                </div>
               </div>
-              <div className={`font-bold text-lg ${Number(tx.amount) > 0 ? 'text-green-600' : 'text-gray-600'}`}>
-                {Number(tx.amount) > 0 ? '+' : ''}{Number(tx.amount).toFixed(2)} د.م
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
