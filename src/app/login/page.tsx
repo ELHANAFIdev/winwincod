@@ -25,7 +25,19 @@ export default function LoginPage() {
     const res = await signIn("credentials", { email, password, redirect: false });
 
     if (res?.error) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      try {
+        const check = await fetch(`/api/auth/login-status?email=${encodeURIComponent(email)}`);
+        const { status } = await check.json();
+        if (status === "pending") {
+          setError("حسابك في انتظار موافقة الإدارة. سيتم إشعارك عند التفعيل.");
+        } else if (status === "google_account") {
+          setError("هذا الحساب مرتبط بـ Google، استخدم زر تسجيل الدخول بـ Google.");
+        } else {
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        }
+      } catch {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      }
       setLoading(false);
     } else {
       const session = await getSession();
