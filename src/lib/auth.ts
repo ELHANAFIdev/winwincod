@@ -56,12 +56,32 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         if (!user.email) return false;
-        const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
-        // Block inactive existing users; allow new Google users (created with isActive: true by default)
-        if (dbUser && !dbUser.isActive) return false;
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!existingUser) {
+          // First Google sign-in: create user with pending-approval defaults
+          // before PrismaAdapter can create them with isActive: true
+          await prisma.user.create({
+            data: {
+              name: user.name ?? (profile as any)?.name ?? "مستخدم Google",
+              email: user.email,
+              image: user.image ?? (profile as any)?.picture ?? null,
+              emailVerified: new Date(),
+              role: "SELLER",
+              isActive: false,
+            },
+          });
+          // Redirect without creating a session — admin must approve first
+          return "/login?error=PendingApproval";
+        }
+
+        if (!existingUser.isActive) return "/login?error=PendingApproval";
       }
       return true;
     },

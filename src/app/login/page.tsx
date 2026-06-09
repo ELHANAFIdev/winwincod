@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, getSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -10,6 +10,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [pendingApproval, setPendingApproval] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "PendingApproval") setPendingApproval(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +75,12 @@ export default function LoginPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8">
             <h2 className="text-2xl font-black text-[#1E293B] mb-1">مرحباً بعودتك 👋</h2>
             <p className="text-slate-400 text-sm mb-8">سجل دخولك للوصول إلى لوحتك</p>
+
+            {pendingApproval && (
+              <div className="bg-orange-50 text-orange-700 p-3.5 mb-6 rounded-xl text-sm font-bold border border-orange-100 flex items-center gap-2">
+                <span>⏳</span> تم تسجيل طلبك بنجاح! في انتظار موافقة الإدارة.
+              </div>
+            )}
 
             {error && (
               <div className="bg-red-50 text-red-600 p-3.5 mb-6 rounded-xl text-sm font-bold border border-red-100 flex items-center gap-2">
