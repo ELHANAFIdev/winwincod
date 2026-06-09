@@ -1,12 +1,11 @@
 "use client";
 import Link from "next/link";
 
-// 1. مكون المجموعة (NavGroup) - يظهر العنوان فقط إذا كانت القائمة مفتوحة
 export function NavGroup({ label, children, isOpen }: any) {
   return (
     <div className="space-y-1">
       {isOpen && (
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-2 mt-4">
+        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest px-4 mb-2 mt-4">
           {label}
         </p>
       )}
@@ -15,30 +14,26 @@ export function NavGroup({ label, children, isOpen }: any) {
   );
 }
 
-// 2. مكون الرابط (NavItem) - يدعم التنسيق الداكن (Admin) والفاتح (Seller)
-export function NavItem({ href, icon, label, active, isOpen, highlight = false, isAdmin = false }: any) {
-  
-  // تنسيق ألوان البائع (Light Theme)
-  const sellerClass = active 
-    ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600 rounded-l-none" 
-    : "hover:bg-gray-50 text-gray-600 rounded-xl";
+export function NavItem({ href, icon, label, active, isOpen, highlight = false }: any) {
+  const activeClass = highlight
+    ? "bg-[#FB923C] text-white shadow-lg shadow-orange-500/25 rounded-xl"
+    : "bg-[#4361EE] text-white shadow-lg shadow-blue-500/25 rounded-xl";
 
-  // تنسيق ألوان المدير (Dark Theme)
-  const adminClass = active 
-    ? (highlight ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "bg-slate-800 text-white border-l-4 border-blue-500 rounded-l-none") 
-    : (highlight ? "border border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "hover:bg-slate-800 hover:text-white rounded-xl text-slate-400");
+  const inactiveClass = highlight
+    ? "text-orange-200 border border-orange-300/20 hover:bg-white/10 rounded-xl"
+    : "text-white/80 hover:bg-white/10 rounded-xl";
 
-  const baseClass = isAdmin ? adminClass : sellerClass;
+  const cls = active ? activeClass : inactiveClass;
 
   return (
-    <Link 
+    <Link
       href={href}
-      className={`flex items-center gap-4 p-3 transition-all duration-200 whitespace-nowrap overflow-hidden
-      ${baseClass} ${!isOpen && "justify-center px-0"}`}
+      className={`flex items-center gap-3 p-3 transition-all duration-200 whitespace-nowrap overflow-hidden font-bold text-sm
+        ${cls} ${!isOpen && "justify-center px-0"}`}
       title={label}
     >
-      <span className="text-xl min-w-[24px] flex justify-center">{icon}</span>
-      {isOpen && <span className="text-sm font-bold truncate">{label}</span>}
+      <span className="text-lg min-w-[22px] flex justify-center">{icon}</span>
+      {isOpen && <span className="truncate">{label}</span>}
     </Link>
   );
 }
