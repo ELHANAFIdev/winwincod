@@ -1,14 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 import axios from "axios";
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
-  const[balance, setBalance] = useState("0.00");
+  const [balance, setBalance] = useState("0.00");
   const pathname = usePathname();
+  const { data: session, status } = useSession();
 
   // جلب الرصيد من الـ API بدلاً من قاعدة البيانات المباشرة لتجنب أخطاء السيرفر
   useEffect(() => {
@@ -18,6 +19,31 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       })
       .catch(() => console.log("جاري تحميل المحفظة"));
   }, [pathname]); // تحديث الرصيد عند تغيير الصفحة
+
+  if (status === "loading") {
+    return <div className="min-h-screen flex items-center justify-center font-bold text-blue-600">جاري التحميل...</div>;
+  }
+
+  // @ts-ignore
+  if (session?.user?.isActive === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6" dir="rtl">
+        <div className="bg-white p-10 rounded-2xl shadow-xl text-center max-w-lg border border-red-100">
+          <div className="text-6xl mb-6">⏳</div>
+          <h2 className="text-2xl font-black text-red-600 mb-4">حسابك قيد المراجعة</h2>
+          <p className="text-gray-600 font-medium leading-relaxed mb-8">
+            شكراً لتسجيلك! حسابك الآن بانتظار موافقة الإدارة. لن تتمكن من الدخول إلى لوحة التحكم حتى يتم تفعيله.
+          </p>
+          <button 
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="bg-red-50 text-red-600 font-bold px-8 py-3 rounded-lg hover:bg-red-100 transition"
+          >
+            تسجيل الخروج
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans" dir="rtl">

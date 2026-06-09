@@ -2,6 +2,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
 
@@ -14,6 +15,17 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login", // صفحة الدخول المخصصة
   },
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -29,9 +41,19 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         });
 
-        // التحقق من وجود المستخدم وهل حسابه مفعل
-        if (!user || !user.isActive) {
-          throw new Error("المستخدم غير موجود أو الحساب معطل");
+        // التحقق من وجود المستخدم
+        if (!user) {
+          throw new Error("البريد الإلكتروني أو كلمة المرور خطأ");
+        }
+
+        // التحقق من حالة الحساب
+        if (!user.isActive) {
+          throw new Error("حسابك قيد المراجعة ولم يتم تفعيله بعد من قبل الإدارة.");
+        }
+
+        // التحقق مما إذا كان المستخدم مسجلاً عبر Google ولا يملك كلمة مرور
+        if (!user.password) {
+          throw new Error("يرجى تسجيل الدخول باستخدام حساب Google الخاص بك.");
         }
 
         // التحقق من كلمة المرور
@@ -56,16 +78,33 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.isActive = user.isActive;
       }
       return token;
     },
     // 2. قراءة الدور من التوكن وإضافته للجلسة في المتصفح
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string;
+        session.user.role = token.role as string || "SELLER"; // Default to SELLER for Google users
         session.user.id = token.id as string;
+        session.user.isActive = token.isActive as boolean;
       }
       return session;
     },
+  },
+  events: {
+    async createUser({ user }) {
+      // إنشاء محفظة برصيد صفر للمستخدم الجديد المضاف عبر Google
+      try {
+        await prisma.wallet.create({
+          data: {
+            userId: user.id,
+            balance: 0.0,
+          }
+        });
+      } catch (error) {
+        console.error("Wallet creation error:", error);
+      }
+    }
   }
 };

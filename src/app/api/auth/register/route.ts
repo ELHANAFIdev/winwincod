@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // تشفير كلمة المرور
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // إنشاء المستخدم (غير مفعل افتراضياً)
+    // إنشاء المستخدم (غير مفعل افتراضياً) مع إنشاء محفظة برصيد صفر
     await prisma.user.create({
       data: {
         name,
@@ -39,6 +39,11 @@ export async function POST(req: Request) {
         phone,
         role: "SELLER",
         isActive: false, // 👈 أهم نقطة: الحساب معطل حتى يوافق المدير
+        wallet: {
+          create: {
+            balance: 0.0
+          }
+        }
       },
     });
 
