@@ -11,14 +11,13 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
-  // جلب الرصيد من الـ API بدلاً من قاعدة البيانات المباشرة لتجنب أخطاء السيرفر
   useEffect(() => {
     axios.get("/api/seller/wallet")
       .then(res => {
         if (res.data.balance) setBalance(Number(res.data.balance).toFixed(2));
       })
-      .catch(() => console.log("جاري تحميل المحفظة"));
-  }, [pathname]); // تحديث الرصيد عند تغيير الصفحة
+      .catch(() => {});
+  }, [pathname]);
 
   if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center font-bold text-blue-600">جاري التحميل...</div>;
@@ -46,12 +45,23 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans" dir="rtl">
-      {/* Sidebar الفاتح */}
-      <aside className={`${isOpen ? "w-64" : "w-20"} bg-white border-l border-gray-200 transition-all duration-300 fixed h-full z-40 flex flex-col shadow-sm`}>
-        <div className="p-6 flex items-center justify-between border-b border-gray-50">
-          {isOpen && <h1 className="text-xl font-black text-blue-600">WINWIN <span className="text-slate-800">COD</span></h1>}
-          <button onClick={() => setIsOpen(!isOpen)} className="text-gray-400 hover:bg-gray-100 p-2 rounded-lg transition">
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
+      {/* Sidebar */}
+      <aside className={`${isOpen ? "w-64" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
+        {/* Logo */}
+        <div className="p-5 flex items-center justify-between border-b border-white/10">
+          {isOpen && (
+            <div>
+              <h1 className="text-lg font-black text-white leading-tight">
+                WINWIN <span className="text-[#FB923C]">COD</span>
+              </h1>
+              <p className="text-[10px] text-white/50 font-medium">لوحة البائع</p>
+            </div>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
+          >
             {isOpen ? "✕" : "☰"}
           </button>
         </div>
@@ -70,35 +80,50 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           </NavGroup>
 
           <NavGroup label="المالية" isOpen={isOpen}>
-            <NavItem href="/seller/wallet" icon="💰" label="المحفظة" active={pathname === "/seller/wallet"} isOpen={isOpen} />
+            <NavItem href="/seller/wallet" icon="💰" label="المحفظة" active={pathname === "/seller/wallet"} isOpen={isOpen} highlight />
             <NavItem href="/seller/dashboard" icon="📊" label="الإحصائيات" active={pathname === "/seller/dashboard"} isOpen={isOpen} />
           </NavGroup>
         </nav>
 
-        <div className="p-4 border-t border-gray-50">
-          <button onClick={() => signOut()} className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-500 hover:bg-red-50 transition font-bold ${!isOpen && "justify-center"}`}>
+        {/* Balance widget inside sidebar */}
+        {isOpen && (
+          <div className="mx-3 mb-3 bg-white/10 rounded-xl p-3 border border-white/10">
+            <p className="text-[10px] text-white/50 font-bold mb-1">رصيد المحفظة</p>
+            <p className={`text-lg font-black ${Number(balance) >= 0 ? "text-green-300" : "text-red-300"}`}>
+              {balance} <span className="text-sm font-bold">د.م</span>
+            </p>
+          </div>
+        )}
+
+        <div className="p-3 border-t border-white/10">
+          <button
+            onClick={() => signOut()}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-300 hover:bg-red-500/15 transition font-bold ${!isOpen && "justify-center"}`}
+          >
             <span>🚪</span>
-            {isOpen && <span>خروج</span>}
+            {isOpen && <span className="text-sm">خروج</span>}
           </button>
         </div>
       </aside>
 
       <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-20"} flex flex-col`}>
-        {/* Header علوي يظهر الرصيد */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-30">
-           <div className="text-sm font-bold text-gray-600">لوحة تحكم البائع</div>
-           <div className="flex items-center gap-4">
-             <div className="bg-gray-100 text-gray-800 px-4 py-1.5 rounded-lg font-bold text-sm border border-gray-200">
-               الرصيد: <span className={Number(balance) >= 0 ? "text-green-600" : "text-red-600"}>{balance} د.م</span>
-             </div>
-             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold border-2 border-blue-200">
-               S
-             </div>
-           </div>
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-8 sticky top-0 z-30 shadow-sm">
+          <div className="text-sm font-bold text-[#1E293B]">لوحة تحكم البائع</div>
+          <div className="flex items-center gap-3">
+            <div className="bg-[#F8FAFC] text-[#1E293B] px-4 py-1.5 rounded-lg font-bold text-sm border border-[#E2E8F0]">
+              الرصيد:{" "}
+              <span className={Number(balance) >= 0 ? "text-green-600" : "text-red-500"}>
+                {balance} د.م
+              </span>
+            </div>
+            <div className="w-9 h-9 bg-[#4361EE] rounded-full flex items-center justify-center text-white font-black text-sm">
+              S
+            </div>
+          </div>
         </header>
-        <div className="p-8">
-            {children}
-        </div>
+
+        <div className="p-8">{children}</div>
       </main>
     </div>
   );

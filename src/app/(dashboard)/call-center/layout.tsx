@@ -5,31 +5,44 @@ import { signOut } from "next-auth/react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 
 export default function CallCenterLayout({ children }: { children: React.ReactNode }) {
-  const[isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans" dir="rtl">
-      {/* Sidebar (لون مختلف لتمييز دور الكول سنتر) */}
-      <aside className={`${isOpen ? "w-64" : "w-20"} bg-purple-900 text-white transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl`}>
-        <div className="p-6 flex items-center justify-between border-b border-purple-800">
-          {isOpen && <h1 className="text-xl font-black">Call Center 🎧</h1>}
-          <button onClick={() => setIsOpen(!isOpen)} className="text-white hover:bg-purple-800 p-2 rounded-lg transition">
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
+      {/* Sidebar */}
+      <aside className={`${isOpen ? "w-64" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
+        {/* Logo */}
+        <div className="p-5 flex items-center justify-between border-b border-white/10">
+          {isOpen && (
+            <div>
+              <h1 className="text-lg font-black text-white leading-tight">
+                WINWIN <span className="text-[#FB923C]">COD</span>
+              </h1>
+              <p className="text-[10px] text-white/50 font-medium">كول سنتر 🎧</p>
+            </div>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
+          >
             {isOpen ? "✕" : "☰"}
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
           <NavGroup label="المهام" isOpen={isOpen}>
-            {/* استخدمنا isAdmin=true هنا لكي يأخذ التنسيق الداكن من SidebarItems */}
-            <NavItem href="/call-center/dashboard" icon="📞" label="قائمة التأكيد" active={pathname === "/call-center/dashboard"} isOpen={isOpen} isAdmin />
+            <NavItem href="/call-center/dashboard" icon="📞" label="قائمة التأكيد" active={pathname === "/call-center/dashboard"} isOpen={isOpen} />
           </NavGroup>
         </nav>
 
-        <div className="p-4 border-t border-purple-800">
-          <button onClick={() => signOut()} className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-300 hover:bg-red-900/50 transition font-bold ${!isOpen && "justify-center"}`}>
+        <div className="p-3 border-t border-white/10">
+          <button
+            onClick={() => signOut()}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-300 hover:bg-red-500/15 transition font-bold ${!isOpen && "justify-center"}`}
+          >
             <span>🚪</span>
-            {isOpen && <span>تسجيل الخروج</span>}
+            {isOpen && <span className="text-sm">تسجيل الخروج</span>}
           </button>
         </div>
       </aside>
