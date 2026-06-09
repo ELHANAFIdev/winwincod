@@ -1,31 +1,19 @@
-"use client";
-
 export const dynamic = "force-dynamic";
 
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export default function AuthRedirectPage() {
-  const { data: session, status } = useSession();
+export default async function RedirectPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status === "loading") return;
-    if (!session) {
-      window.location.href = "/login";
-      return;
-    }
-    if (session.user?.role === "ADMIN") {
-      window.location.href = "/admin/dashboard";
-    } else if (session.user?.role === "CALL_CENTER") {
-      window.location.href = "/call-center/dashboard";
-    } else {
-      window.location.href = "/seller/dashboard";
-    }
-  }, [session, status]);
+  if (!session) {
+    redirect("/login");
+  }
 
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <p className="text-gray-500 text-sm">جاري التحويل...</p>
-    </div>
-  );
+  const role = (session.user as any)?.role;
+
+  if (role === "ADMIN") redirect("/admin/dashboard");
+  if (role === "CALL_CENTER") redirect("/call-center/dashboard");
+  redirect("/seller/dashboard");
 }
