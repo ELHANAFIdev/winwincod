@@ -2,61 +2,88 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getSessionUser();
     if (!user || user.role !== "SELLER") return errorResponse("غير مصرح", 401);
 
-    // 1. جلب إحصائيات عامة
-    const totalOrders = await prisma.order.count({ where: { sellerId: user.id } });
-    
-    // 2. توزيع الحالات (Pie Chart Data)
-    const statusGroups = await prisma.order.groupBy({
-      by: ['status'],
-      where: { sellerId: user.id },
-      _count: { id: true }
+    const { searchParams } = new URL(request.url);
+    const fromParam = searchParams.get("from");
+    const toParam = searchParams.get("to");
+
+    const now = new Date();
+    const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const dateFilter = {
+      gte: fromParam ? new Date(`${fromParam}T00:00:00.000Z`) : defaultFrom,
+      lte: toParam ? new Date(`${toParam}T23:59:59.999Z`) : now,
+    };
+
+    const where = { sellerId: user.id, createdAt: dateFilter };
+
+    const [totalOrders, statusGroups, deliveredAgg, recentOrders] = await Promise.all([
+      prisma.order.count({ where }),
+      prisma.order.groupBy({
+        by: ["status"],
+        where,
+        _count: { id: true },
+      }),
+      prisma.order.aggregate({
+        where: { sellerId: user.id, status: "DELIVERED", createdAt: dateFilter },
+        _count: { id: true },
+        _sum: { netProfit: true },
+      }),
+      prisma.order.findMany({
+        where,
+        select: { createdAt: true },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
+
+    const delivered = deliveredAgg._count.id;
+    const returned = statusGroups.find((g) => g.status === "RETURNED")?._count?.id ?? 0;
+    const totalProfit = Number(deliveredAgg._sum.netProfit ?? 0);
+    const deliveryRate =
+      delivered + returned > 0
+        ? Math.round((delivered / (delivered + returned)) * 100)
+        : 0;
+
+    // Bar chart: group orders by day within the range
+    const salesByDay: Record<string, number> = {};
+    recentOrders.forEach((order) => {
+      const date = order.createdAt.toISOString().split("T")[0];
+      salesByDay[date] = (salesByDay[date] || 0) + 1;
     });
 
-    const pieData = statusGroups.map(g => ({
-      name: g.status,
-      value: g._count.id
-    }));
+    const barData = Object.entries(salesByDay)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, orders]) => ({
+        date: new Date(date).toLocaleDateString("ar-MA", {
+          month: "short",
+          day: "numeric",
+        }),
+        orders,
+      }))
+      .slice(-14); // show max 14 bars
 
-    // 3. مبيعات آخر 7 أيام (Bar Chart Data)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Pie chart: status distribution
+    const pieData = statusGroups
+      .filter((g) => g._count.id > 0)
+      .map((g) => ({ name: g.status, value: g._count.id }));
 
-    const recentOrders = await prisma.order.findMany({
-      where: {
-        sellerId: user.id,
-        createdAt: { gte: sevenDaysAgo }
-      },
-      select: { createdAt: true, codAmount: true }
-    });
-
-    // تجميع البيانات حسب اليوم
-    const salesByDay: any = {};
-    recentOrders.forEach(order => {
-      const date = order.createdAt.toISOString().split('T')[0]; // YYYY-MM-DD
-      salesByDay[date] = (salesByDay[date] || 0) + 1; // عدد الطلبات
-    });
-
-    // تنسيق المصفوفة للرسم البياني
-    const barData = Object.keys(salesByDay).map(date => ({
-      date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }), // Mon, Tue...
-      orders: salesByDay[date]
-    })).slice(-7); // ضمان آخر 7 أيام
-
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       totalOrders,
+      delivered,
+      returned,
+      deliveryRate,
+      totalProfit,
       pieData,
-      barData
+      barData,
     });
-
-  } catch (error) {
+  } catch {
     return errorResponse("فشل جلب الإحصائيات", 500);
   }
 }
