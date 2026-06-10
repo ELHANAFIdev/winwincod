@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
-import type { Adapter } from "next-auth/adapters";
+import type { Adapter, AdapterUser } from "next-auth/adapters";
 
 // PrismaAdapter runs createUser BEFORE the signIn callback fires.
 // The schema default isActive:true would let new Google users bypass approval,
@@ -12,7 +12,7 @@ import type { Adapter } from "next-auth/adapters";
 const baseAdapter = PrismaAdapter(prisma);
 const customAdapter: Adapter = {
   ...baseAdapter,
-  createUser: async (data) => {
+  createUser: async (data: Omit<AdapterUser, "id">) => {
     return prisma.user.create({
       data: {
         name: data.name ?? "مستخدم Google",
