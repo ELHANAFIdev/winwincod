@@ -41,21 +41,137 @@ body {
 ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-/* Landing page float animations */
+html { scroll-behavior: smooth; }
+
+/* ─── Float (hero cards) ───────────────────────────────── */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-14px); }
 }
 @keyframes float2 {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-10px); }
 }
 @keyframes float3 {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-18px); }
 }
 .animate-float  { animation: float  4s ease-in-out infinite; }
 .animate-float2 { animation: float2 5s ease-in-out infinite 1.2s; }
 .animate-float3 { animation: float3 3.5s ease-in-out infinite 0.6s; }
 
-html { scroll-behavior: smooth; }
+/* ─── Hero grid overlay ────────────────────────────────── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─── Headline: fade + slide up ───────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-fsu    { animation: fadeSlideUp .65s ease-out .05s  both; }
+.anim-fsu-1  { animation: fadeSlideUp .65s ease-out .20s  both; }
+.anim-fsu-2  { animation: fadeSlideUp .65s ease-out .40s  both; }
+.anim-fsu-3  { animation: fadeSlideUp .65s ease-out .60s  both; }
+.anim-fsu-4  { animation: fadeSlideUp .65s ease-out .80s  both; }
+.anim-fsu-5  { animation: fadeSlideUp .65s ease-out 1.00s both; }
+
+/* ─── "بـ 0 درهم" orange glow pulse ───────────────────── */
+@keyframes glowPulse {
+  0%,100% {
+    text-shadow:
+      0 0 18px rgba(251,146,60,.50),
+      0 0 40px rgba(251,146,60,.25);
+  }
+  50% {
+    text-shadow:
+      0 0 30px rgba(251,146,60,.90),
+      0 0 70px rgba(251,146,60,.55),
+      0 0 110px rgba(251,146,60,.25);
+  }
+}
+.anim-glow { animation: glowPulse 2.4s ease-in-out infinite; }
+
+/* ─── Blinking dot ─────────────────────────────────────── */
+@keyframes blinkDot {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .15; }
+}
+.anim-blink { animation: blinkDot 1.3s ease-in-out infinite; }
+
+/* ─── Animated blobs ───────────────────────────────────── */
+@keyframes blob1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(40px,-30px) scale(1.10); }
+  66%      { transform: translate(-20px,18px) scale(.92); }
+}
+@keyframes blob2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(-35px,28px) scale(1.07); }
+  66%      { transform: translate(22px,-22px) scale(.93); }
+}
+@keyframes blob3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(28px,38px) scale(1.05); }
+}
+.anim-blob1 { animation: blob1  9s ease-in-out infinite; }
+.anim-blob2 { animation: blob2 12s ease-in-out infinite 2s; }
+.anim-blob3 { animation: blob3 15s ease-in-out infinite 5s; }
+
+/* ─── Floating particles ───────────────────────────────── */
+@keyframes p1 { 0%,100%{transform:translate(0,0);opacity:.4} 40%{transform:translate(14px,-24px);opacity:.9} 80%{transform:translate(-8px,-12px);opacity:.3} }
+@keyframes p2 { 0%,100%{transform:translate(0,0);opacity:.6} 55%{transform:translate(-20px,28px);opacity:.2} }
+@keyframes p3 { 0%,100%{transform:translate(0,0);opacity:.3} 35%{transform:translate(22px,-8px);opacity:.8} 70%{transform:translate(-4px,18px);opacity:.4} }
+@keyframes p4 { 0%,100%{transform:translate(0,0);opacity:.2} 50%{transform:translate(10px,-28px);opacity:.7} }
+@keyframes p5 { 0%,100%{transform:translate(0,0);opacity:.5} 45%{transform:translate(-14px,14px);opacity:.1} 85%{transform:translate(18px,-4px);opacity:.7} }
+@keyframes p6 { 0%,100%{transform:translate(0,0);opacity:.4} 60%{transform:translate(-6px,-18px);opacity:.9} }
+.anim-p1 { animation: p1  6s ease-in-out infinite; }
+.anim-p2 { animation: p2  8s ease-in-out infinite 1.0s; }
+.anim-p3 { animation: p3  7s ease-in-out infinite 3.0s; }
+.anim-p4 { animation: p4  9s ease-in-out infinite 0.5s; }
+.anim-p5 { animation: p5  5s ease-in-out infinite 2.5s; }
+.anim-p6 { animation: p6 10s ease-in-out infinite 4.0s; }
+
+/* ─── Arrow pulse (→ in CTA button) ───────────────────── */
+@keyframes arrowPulse {
+  0%,100% { transform: translateX(0); }
+  50%      { transform: translateX(-5px); }
+}
+.anim-arrow { animation: arrowPulse 1.1s ease-in-out infinite; }
+
+/* ─── Scroll indicator bounce ──────────────────────────── */
+@keyframes scrollBounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(7px); }
+}
+.anim-scroll { animation: scrollBounce 1.4s ease-in-out infinite; }
+
+/* ─── Notification card bounce-in ─────────────────────── */
+@keyframes bounceIn {
+  0%   { opacity:0; transform:scale(.4) translateY(-12px); }
+  60%  { opacity:1; transform:scale(1.06) translateY(4px); }
+  80%  { transform:scale(.97); }
+  100% { opacity:1; transform:scale(1) translateY(0); }
+}
+.anim-bounce-in  { animation: bounceIn .65s cubic-bezier(.36,.07,.19,.97) 1.1s both; }
+
+/* ─── New-order card slide in from right ───────────────── */
+@keyframes slideRight {
+  from { opacity:0; transform:translateX(44px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.anim-slide-right { animation: slideRight .55s ease-out 1.6s both; }
+
+/* ─── Stats stagger fade-in ────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.anim-s1 { animation: fadeUp .5s ease-out .85s  both; }
+.anim-s2 { animation: fadeUp .5s ease-out 1.00s both; }
+.anim-s3 { animation: fadeUp .5s ease-out 1.15s both; }
+.anim-s4 { animation: fadeUp .5s ease-out 1.30s both; }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import LandingNavbar from "./LandingNavbar";
+import HeroSection from "./HeroSection";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -20,137 +21,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════
           1. HERO
       ══════════════════════════════════════════ */}
-      <section className="relative bg-gradient-to-br from-[#4361EE] via-[#3a58e8] to-[#3254D4] min-h-screen flex items-center overflow-hidden pt-16">
-        {/* Background decorations */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/5 rounded-full" />
-          <div className="absolute top-1/4 -right-24 w-72 h-72 bg-white/5 rounded-full" />
-          <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-[#FB923C]/10 rounded-full" />
-          <div className="absolute top-1/2 left-1/4 w-2 h-2 bg-white/40 rounded-full" />
-          <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-[#FB923C]/60 rounded-full" />
-          <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full" />
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center relative z-10 w-full">
-          {/* Left: copy */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white/90 text-sm font-bold mb-8">
-              <span className="w-2 h-2 bg-[#FB923C] rounded-full animate-pulse" />
-              منصة الدروب شيبينغ #1 في المغرب
-            </div>
-
-            <h1 className="text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
-              تاجر بدون<br />
-              <span className="text-[#FB923C]">رأس مال</span>
-            </h1>
-            <h2 className="text-2xl lg:text-3xl font-bold text-white/80 mb-6">
-              بنظام الدفع عند الاستلام
-            </h2>
-            <p className="text-white/70 text-lg leading-relaxed mb-10 max-w-lg">
-              نوفر لك المنتجات، التخزين، والتوصيل لجميع أنحاء المغرب.
-              مهمتك الوحيدة هي التسويق وجني الأرباح — بدون مخاطرة، بدون مخزون.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/register"
-                className="bg-[#FB923C] hover:bg-orange-500 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-orange-500/30 transition hover:-translate-y-0.5"
-              >
-                ابدأ مجاناً الآن ←
-              </Link>
-              <a
-                href="#how-it-works"
-                className="flex items-center gap-2 border-2 border-white/30 hover:border-white/60 text-white px-6 py-4 rounded-2xl text-base font-bold transition hover:bg-white/5"
-              >
-                <span className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">▶</span>
-                شاهد كيف يعمل
-              </a>
-            </div>
-
-            {/* Stats bar */}
-            <div className="flex flex-wrap gap-6 mt-12 pt-8 border-t border-white/20">
-              {[
-                { num: "+1000", label: "بائع نشط" },
-                { num: "95%",   label: "نسبة التسليم" },
-                { num: "24h",   label: "دعم متواصل" },
-                { num: "+50",   label: "مدينة مغربية" },
-              ].map(({ num, label }) => (
-                <div key={label} className="text-center">
-                  <p className="text-2xl font-black text-white">{num}</p>
-                  <p className="text-white/60 text-xs font-bold mt-0.5">{label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: floating cards mockup */}
-          <div className="hidden lg:flex items-center justify-center relative h-[500px]">
-            {/* Card 1 — new order notification */}
-            <div className="animate-float absolute top-8 right-4 bg-white rounded-2xl shadow-2xl shadow-blue-900/30 p-4 w-64 border border-white/60">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-[#EEF2FF] rounded-xl flex items-center justify-center text-sm">📦</div>
-                <div>
-                  <p className="text-[10px] font-black text-[#4361EE] uppercase tracking-wider">طلب جديد</p>
-                  <p className="text-[10px] text-slate-400">منذ ثوانٍ</p>
-                </div>
-                <span className="mr-auto w-2 h-2 bg-[#4361EE] rounded-full animate-pulse" />
-              </div>
-              <p className="font-black text-[#1E293B] text-sm">يونس المغراوي</p>
-              <p className="text-xs text-slate-400 mb-2">الدار البيضاء — مرتيل</p>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-black text-[#1E293B]">450 <span className="text-xs font-bold text-slate-400">د.م</span></span>
-                <span className="bg-[#EEF2FF] text-[#4361EE] text-[10px] font-black px-2 py-1 rounded-full">قيد التجهيز</span>
-              </div>
-            </div>
-
-            {/* Card 2 — delivered */}
-            <div className="animate-float2 absolute top-1/2 -translate-y-1/2 left-0 bg-white rounded-2xl shadow-2xl shadow-blue-900/30 p-4 w-56 border border-white/60">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-green-50 rounded-xl flex items-center justify-center text-sm">✅</div>
-                <p className="text-[10px] font-black text-green-600 uppercase tracking-wider">تم التسليم</p>
-              </div>
-              <p className="font-black text-[#1E293B] text-sm">سعاد الحسني</p>
-              <p className="text-xs text-slate-400 mb-3">مراكش</p>
-              <div className="bg-green-50 rounded-xl p-2.5 text-center">
-                <p className="text-[10px] text-green-600 font-bold">ربحك الصافي</p>
-                <p className="text-xl font-black text-green-600">+120 <span className="text-xs">د.م</span></p>
-              </div>
-            </div>
-
-            {/* Card 3 — daily earnings */}
-            <div className="animate-float3 absolute bottom-8 right-8 bg-gradient-to-br from-[#4361EE] to-[#3254D4] rounded-2xl shadow-2xl shadow-blue-900/40 p-4 w-52 text-white">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black uppercase tracking-wider text-blue-200">أرباح اليوم</p>
-                <span className="text-lg">💰</span>
-              </div>
-              <p className="text-3xl font-black mb-1">3,240</p>
-              <p className="text-sm font-bold text-blue-200 mb-3">درهم مغربي</p>
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-200">
-                <span className="text-green-300">↑</span> 12 طلب مسلّم اليوم
-              </div>
-            </div>
-
-            {/* Card 4 — center main card */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-6 w-72 text-white text-center shadow-xl">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">🚀</div>
-              <p className="text-lg font-black mb-1">لوحة تحكم واحدة</p>
-              <p className="text-white/70 text-sm">لإدارة كل طلباتك وأرباحك في مكان واحد</p>
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {["📦 طلبات", "🚚 شحن", "💵 أرباح"].map((item) => (
-                  <div key={item} className="bg-white/10 rounded-xl py-2 text-[11px] font-bold text-white/80">{item}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 60V30C240 0 480 60 720 40C960 20 1200 50 1440 20V60H0Z" fill="#F8FAFC" />
-          </svg>
-        </div>
-      </section>
+      <HeroSection isLoggedIn={isLoggedIn} dashboardUrl={dashboardUrl} />
 
       {/* ══════════════════════════════════════════
           2. HOW IT WORKS
