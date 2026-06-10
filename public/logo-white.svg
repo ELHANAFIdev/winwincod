@@ -1,0 +1,10 @@
+<svg viewBox="0 0 180 44" xmlns="http://www.w3.org/2000/svg">
+  <!-- Box icon -->
+  <rect x="2" y="14" width="28" height="22" rx="3" fill="#FB923C"/>
+  <path d="M2 14 L8 6 L24 6 L30 14Z" fill="#FB923C" opacity="0.8"/>
+  <line x1="16" y1="6" x2="16" y2="14" stroke="white" stroke-width="1.5"/>
+  <path d="M8 26 L13 31 L22 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Text -->
+  <text x="38" y="30" font-family="Cairo,sans-serif" font-size="20" font-weight="700" fill="white">WinWin</text>
+  <text x="120" y="30" font-family="Cairo,sans-serif" font-size="20" font-weight="700" fill="#FB923C">COD</text>
+</svg>

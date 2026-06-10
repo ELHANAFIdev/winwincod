@@ -26,10 +26,8 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
         <div className="p-5 flex items-center justify-between border-b border-white/10">
           {isOpen && (
             <div>
-              <h1 className="text-lg font-black text-white leading-tight">
-                WINWIN <span className="text-[#FB923C]">COD</span>
-              </h1>
-              <p className="text-[10px] text-white/50 font-medium">لوحة البائع</p>
+              <img src="/logo-white.svg" alt="WinWin COD" className="h-8 w-auto" />
+              <p className="text-[10px] text-white/50 font-medium mt-1">لوحة البائع</p>
             </div>
           )}
           <button
