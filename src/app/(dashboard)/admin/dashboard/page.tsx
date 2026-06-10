@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import prisma from "@/lib/prisma";
 import ActivityTable from "./ActivityTable";
 import DateFilter from "./DateFilter";
 
-type SearchParams = Promise<{ from?: string; to?: string }>;
+type SearchParams = Promise<{ from?: string; to?: string; period?: string }>;
 
 function fmtRef(id: string, prefix: string) {
   return `${prefix}-${id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
@@ -21,9 +22,19 @@ const AVATAR_COLORS = [
   "bg-purple-400 text-white",
 ];
 
+const PERIOD_LABELS: Record<string, string> = {
+  today: "اليوم",
+  week: "هذا الأسبوع",
+  month: "هذا الشهر",
+  year: "هذه السنة",
+  custom: "هذه الفترة",
+};
+
 export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
   const now = new Date();
+  const period = sp.period ?? "month";
+  const periodLabel = PERIOD_LABELS[period] ?? "هذا الشهر";
 
   const periodFrom = sp.from
     ? new Date(sp.from)
@@ -31,6 +42,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
   const periodTo = sp.to ? new Date(sp.to + "T23:59:59") : now;
 
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateFilter = { createdAt: { gte: periodFrom, lte: periodTo } };
 
   const [
     totalOrders,
@@ -49,13 +61,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
     finishedOrders,
   ] = await Promise.all([
     prisma.order.count(),
-    prisma.order.count({ where: { status: "DELIVERED" } }),
-    prisma.order.count({ where: { status: "RETURNED" } }),
-    prisma.order.count({ where: { status: "SHIPPED" } }),
-    prisma.order.count({ where: { createdAt: { gte: periodFrom, lte: periodTo } } }),
+    prisma.order.count({ where: { status: "DELIVERED", ...dateFilter } }),
+    prisma.order.count({ where: { status: "RETURNED", ...dateFilter } }),
+    prisma.order.count({ where: { status: "SHIPPED", ...dateFilter } }),
+    prisma.order.count({ where: dateFilter }),
     prisma.order.count({ where: { createdAt: { gte: startOfDay } } }),
     prisma.order.aggregate({
-      where: { status: "DELIVERED", createdAt: { gte: periodFrom, lte: periodTo } },
+      where: { status: "DELIVERED", ...dateFilter },
       _sum: { codAmount: true },
     }),
     prisma.order.count({
@@ -65,6 +77,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
     prisma.user.count({ where: { role: "SELLER", isActive: true } }),
     prisma.order.findMany({
       take: 60,
+      where: dateFilter,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -79,16 +92,17 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
     prisma.order.groupBy({
       by: ["sellerId"],
       _count: { sellerId: true },
+      where: dateFilter,
       orderBy: { _count: { sellerId: "desc" } },
       take: 5,
     }),
     prisma.order.groupBy({
       by: ["sellerId"],
       _sum: { codAmount: true },
-      where: { status: "DELIVERED" },
+      where: { status: "DELIVERED", ...dateFilter },
     }),
     prisma.order.findMany({
-      where: { status: { in: ["DELIVERED", "SHIPPED", "PROCESSING"] } },
+      where: { status: { in: ["DELIVERED", "SHIPPED", "PROCESSING"] }, ...dateFilter },
       select: {
         quantity: true,
         product: { select: { sellerPrice: true, costPrice: true } },
@@ -134,8 +148,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 
   const walletBalance = Number(walletAgg._sum.balance ?? 0);
   const periodRev = Number(periodRevAgg._sum.codAmount ?? 0);
-
-  const isCustomPeriod = !!sp.from || !!sp.to;
   const fromStr = toYMD(periodFrom);
   const toStr = toYMD(periodTo);
 
@@ -159,21 +171,33 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           <h1 className="text-2xl font-black text-[#1E293B]">لوحة التحكم الرئيسية</h1>
           <p className="text-slate-400 text-sm mt-0.5">نظرة عامة على أداء المنصة</p>
         </div>
-        <DateFilter from={fromStr} to={toStr} />
+        <div className="text-sm text-slate-500 font-medium bg-white px-4 py-2.5 rounded-xl border border-[#E2E8F0] shadow-sm w-fit whitespace-nowrap">
+          📅{" "}
+          {now.toLocaleDateString("ar-MA", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </div>
       </div>
+
+      {/* Date Filter */}
+      <Suspense fallback={<div className="h-14 bg-white rounded-2xl border border-[#E2E8F0] animate-pulse" />}>
+        <DateFilter period={period} from={fromStr} to={toStr} />
+      </Suspense>
 
       {/* ── Row 1: Period summary (4 compact cards) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label={isCustomPeriod ? "طلبات الفترة" : "طلبات هذا الشهر"}
+          label={`طلبات ${periodLabel}`}
           value={periodOrders.toLocaleString("ar-MA")}
           icon="📦"
           iconBg="#EEF2FF"
           color="#4361EE"
-          sub={isCustomPeriod ? `${fromStr} ← ${toStr}` : undefined}
         />
         <StatCard
-          label={isCustomPeriod ? "إيرادات الفترة" : "إيرادات هذا الشهر"}
+          label={`إيرادات ${periodLabel}`}
           value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon="💰"
           iconBg="#ECFDF5"
@@ -187,7 +211,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           color="#EA580C"
         />
         <StatCard
-          label="معدل الإرجاع"
+          label={`معدل الإرجاع ${periodLabel}`}
           value={`${returnRate}%`}
           icon="↩️"
           iconBg="#FEF2F2"
@@ -201,10 +225,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] p-5 rounded-2xl text-white shadow-lg shadow-blue-200 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-20 h-20 bg-white/5 rounded-full -translate-x-6 -translate-y-6" />
           <div className="relative z-10">
-            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-lg mb-3">
-              💹
-            </div>
-            <p className="text-blue-100 text-xs font-bold mb-1">ربح المنصة المتوقع</p>
+            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-lg mb-3">💹</div>
+            <p className="text-blue-100 text-xs font-bold mb-1">ربح المنصة — {periodLabel}</p>
             <p className="text-2xl font-black">
               {platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })}{" "}
               <span className="text-sm font-bold opacity-80">د.م</span>
@@ -216,7 +238,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         {/* Delivery Rate */}
         <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
           <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center text-lg mb-3">✅</div>
-          <p className="text-slate-400 text-xs font-bold mb-1">نسبة نجاح التوصيل</p>
+          <p className="text-slate-400 text-xs font-bold mb-1">نسبة التسليم — {periodLabel}</p>
           <p className="text-2xl font-black text-green-600">{deliveryRate}%</p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div className="bg-green-500 h-full rounded-full" style={{ width: `${deliveryRate}%` }} />
@@ -227,13 +249,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           </p>
         </div>
 
-        {/* Today's Orders */}
+        {/* Today's Orders — always today, independent of filter */}
         <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
           <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center text-lg mb-3">🔥</div>
           <p className="text-slate-400 text-xs font-bold mb-1">طلبات اليوم</p>
-          <p className="text-2xl font-black text-[#FB923C]">
-            {todayOrders.toLocaleString("ar-MA")}
-          </p>
+          <p className="text-2xl font-black text-[#FB923C]">{todayOrders.toLocaleString("ar-MA")}</p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div
               className="bg-[#FB923C] h-full rounded-full"
@@ -251,25 +271,22 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
           <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-lg mb-3">👥</div>
           <p className="text-slate-400 text-xs font-bold mb-1">البائعون النشطون</p>
-          <p className="text-2xl font-black text-[#1E293B]">
-            {activeSellers.toLocaleString("ar-MA")}
-          </p>
+          <p className="text-2xl font-black text-[#1E293B]">{activeSellers.toLocaleString("ar-MA")}</p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div className="bg-purple-400 h-full rounded-full" style={{ width: "70%" }} />
           </div>
           <p className="text-[10px] text-slate-400 mt-2">
-            سيولة:{" "}
-            {walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م
+            سيولة: {walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م
           </p>
         </div>
       </div>
 
-      {/* ── Row 3: Status Boxes (4 compact) ── */}
+      {/* ── Row 3: Status Boxes ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="إجمالي الطلبات" value={totalOrders.toLocaleString("ar-MA")} icon="📊" iconBg="#EEF2FF" color="#4361EE" tint="#EEF2FF" />
-        <StatCard label="في الطريق" value={shippedOrders.toLocaleString("ar-MA")} icon="🚚" iconBg="#FFFBEB" color="#B45309" tint="#FFFBEB" />
-        <StatCard label="تم التسليم" value={deliveredOrders.toLocaleString("ar-MA")} icon="✅" iconBg="#ECFDF5" color="#065F46" tint="#ECFDF5" />
-        <StatCard label="مرتجعات" value={returnedOrders.toLocaleString("ar-MA")} icon="↩️" iconBg="#FEF2F2" color="#991B1B" tint="#FEF2F2" />
+        <StatCard label={`طلبات ${periodLabel}`} value={periodOrders.toLocaleString("ar-MA")} icon="📊" iconBg="#EEF2FF" color="#4361EE" tint="#EEF2FF" />
+        <StatCard label={`في الطريق`} value={shippedOrders.toLocaleString("ar-MA")} icon="🚚" iconBg="#FFFBEB" color="#B45309" tint="#FFFBEB" />
+        <StatCard label={`تم التسليم`} value={deliveredOrders.toLocaleString("ar-MA")} icon="✅" iconBg="#ECFDF5" color="#065F46" tint="#ECFDF5" />
+        <StatCard label={`مرتجعات`} value={returnedOrders.toLocaleString("ar-MA")} icon="↩️" iconBg="#FEF2F2" color="#991B1B" tint="#FEF2F2" />
       </div>
 
       {/* ── Activity Table + Top Sellers ── */}
@@ -281,7 +298,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         {/* Top 5 Sellers */}
         <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6">
           <h3 className="font-black text-[#1E293B] text-lg mb-1">أفضل 5 بائعين</h3>
-          <p className="text-slate-400 text-xs mb-5">مرتبون حسب إجمالي الطلبات</p>
+          <p className="text-slate-400 text-xs mb-5">{periodLabel} — مرتبون حسب الطلبات</p>
 
           {topSellers.length === 0 ? (
             <div className="text-center py-12">
@@ -291,10 +308,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           ) : (
             <div className="space-y-2">
               {topSellers.map((seller, idx) => (
-                <div
-                  key={seller.id}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#F8FAFC] transition"
-                >
+                <div key={seller.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#F8FAFC] transition">
                   <div className="w-7 flex-shrink-0 text-center">
                     {idx < 3 ? (
                       <span className="text-xl">{MEDALS[idx]}</span>
@@ -304,9 +318,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
                       </span>
                     )}
                   </div>
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black flex-shrink-0 ${AVATAR_COLORS[idx]}`}
-                  >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black flex-shrink-0 ${AVATAR_COLORS[idx]}`}>
                     {seller.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -332,31 +344,15 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 }
 
 function StatCard({
-  label,
-  value,
-  icon,
-  iconBg,
-  color,
-  tint,
-  sub,
+  label, value, icon, iconBg, color, tint, sub,
 }: {
-  label: string;
-  value: string;
-  icon: string;
-  iconBg: string;
-  color: string;
-  tint?: string;
-  sub?: string;
+  label: string; value: string; icon: string; iconBg: string;
+  color: string; tint?: string; sub?: string;
 }) {
   return (
-    <div
-      className="rounded-2xl border border-black/5 shadow-sm p-4"
-      style={{ background: tint ?? "#ffffff" }}
-    >
+    <div className="rounded-2xl border border-black/5 shadow-sm p-4" style={{ background: tint ?? "#ffffff" }}>
       <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-bold leading-tight" style={{ color, opacity: 0.7 }}>
-          {label}
-        </p>
+        <p className="text-xs font-bold leading-tight" style={{ color, opacity: 0.7 }}>{label}</p>
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0"
           style={{ background: tint ? "rgba(255,255,255,0.6)" : iconBg }}
@@ -364,9 +360,7 @@ function StatCard({
           {icon}
         </div>
       </div>
-      <p className="text-2xl font-black" style={{ color }}>
-        {value}
-      </p>
+      <p className="text-2xl font-black" style={{ color }}>{value}</p>
       {sub && <p className="text-[10px] text-slate-400 mt-1.5 font-mono">{sub}</p>}
     </div>
   );
