@@ -29,16 +29,33 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
 const PAGE_SIZE = 10;
 
 export default function ActivityTable({ orders }: { orders: Order[] }) {
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
 
-  const filtered =
-    statusFilter === "ALL" ? orders : orders.filter((o) => o.status === statusFilter);
+  const q = search.trim().toLowerCase();
+
+  const filtered = orders.filter((o) => {
+    const matchesStatus = statusFilter === "ALL" || o.status === statusFilter;
+    const matchesSearch =
+      !q ||
+      o.ref.toLowerCase().includes(q) ||
+      o.productName.toLowerCase().includes(q) ||
+      o.sellerName.toLowerCase().includes(q) ||
+      o.city.toLowerCase().includes(q);
+    return matchesStatus && matchesSearch;
+  });
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleFilter = (s: string) => {
     setStatusFilter(s);
+    setPage(1);
+  };
+
+  const handleSearch = (s: string) => {
+    setSearch(s);
     setPage(1);
   };
 
@@ -49,29 +66,64 @@ export default function ActivityTable({ orders }: { orders: Order[] }) {
 
   return (
     <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-      <div className="p-5 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h3 className="font-black text-[#1E293B] text-lg">آخر النشاطات</h3>
-          <p className="text-slate-400 text-xs mt-0.5">{filtered.length} طلب</p>
+      {/* Header */}
+      <div className="p-5 border-b border-[#E2E8F0]">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-black text-[#1E293B] text-lg">آخر النشاطات</h3>
+            <p className="text-slate-400 text-xs mt-0.5">{filtered.length} طلب</p>
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => handleFilter(e.target.value)}
+            className="border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm text-[#1E293B] outline-none focus:border-[#4361EE] bg-[#F8FAFC] transition"
+          >
+            <option value="ALL">جميع الحالات</option>
+            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => handleFilter(e.target.value)}
-          className="border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm text-[#1E293B] outline-none focus:border-[#4361EE] bg-[#F8FAFC] transition"
-        >
-          <option value="ALL">جميع الحالات</option>
-          {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v.label}
-            </option>
-          ))}
-        </select>
+
+        {/* Search bar */}
+        <div className="relative">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm select-none">
+            🔍
+          </span>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="بحث برقم الطلب، المنتج، البائع أو المدينة..."
+            className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl pr-9 pl-4 py-2.5 text-sm text-[#1E293B] outline-none focus:border-[#4361EE] transition placeholder:text-slate-300"
+          />
+          {search && (
+            <button
+              onClick={() => handleSearch("")}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition text-xs"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {paginated.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-4xl mb-2">📋</p>
-          <p className="text-slate-400 font-bold text-sm">لا توجد طلبات بهذه الحالة</p>
+          <p className="text-slate-400 font-bold text-sm">
+            {search ? "لا نتائج للبحث" : "لا توجد طلبات بهذه الحالة"}
+          </p>
+          {search && (
+            <button
+              onClick={() => handleSearch("")}
+              className="mt-3 text-xs text-[#4361EE] font-bold hover:underline"
+            >
+              مسح البحث
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -108,7 +160,9 @@ export default function ActivityTable({ orders }: { orders: Order[] }) {
                         <p className="text-[10px] text-slate-400 font-mono">{order.sellerRef}</p>
                       </td>
                       <td className="p-4">
-                        <p className="text-[#1E293B] text-xs truncate max-w-[130px]">{order.productName}</p>
+                        <p className="text-[#1E293B] text-xs truncate max-w-[130px]">
+                          {order.productName}
+                        </p>
                         <p className="text-[10px] text-slate-400">{order.city}</p>
                       </td>
                       <td className="p-4 whitespace-nowrap">

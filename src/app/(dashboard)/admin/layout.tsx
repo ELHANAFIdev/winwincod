@@ -11,7 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
       {/* Sidebar */}
-      <aside className={`${isOpen ? "w-72" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
+      <aside className={`${isOpen ? "w-64" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
         {/* Logo */}
         <div className="p-5 flex items-center justify-between border-b border-white/10">
           {isOpen && (
@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <NavGroup label="العمليات" isOpen={isOpen}>
             <NavItem href="/admin/logistics" icon="🚚" label="شحن الطلبيات" active={pathname === "/admin/logistics"} isOpen={isOpen} />
-            <NavItem href="/admin/logistics/update" icon="📡" label="تحديث التوصيل" active={pathname === "/admin/logistics/update"} isOpen={isOpen} />
+            <NavItem href="/admin/logistics/update" icon="🔄" label="تحديث التوصيل" active={pathname === "/admin/logistics/update"} isOpen={isOpen} />
             <NavItem href="/admin/deposits" icon="💰" label="طلبات الشحن" active={pathname === "/admin/deposits"} isOpen={isOpen} highlight />
             <NavItem href="/admin/withdrawals" icon="💳" label="سحوبات الأرباح" active={pathname === "/admin/withdrawals"} isOpen={isOpen} highlight />
           </NavGroup>
@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </NavGroup>
 
           <NavGroup label="المستخدمين" isOpen={isOpen}>
-            <NavItem href="/admin/users/requests" icon="🆕" label="طلبات الانضمام" active={pathname === "/admin/users/requests"} isOpen={isOpen} />
+            <NavItem href="/admin/users/requests" icon="🔔" label="طلبات الانضمام" active={pathname === "/admin/users/requests"} isOpen={isOpen} />
             <NavItem href="/admin/users" icon="👥" label="كل المستخدمين" active={pathname === "/admin/users"} isOpen={isOpen} />
           </NavGroup>
         </nav>
@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-72" : "mr-20"} p-8`}>
+      <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-20"} p-8`}>
         {children}
       </main>
     </div>

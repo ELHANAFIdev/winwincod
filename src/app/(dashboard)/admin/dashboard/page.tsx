@@ -1,8 +1,15 @@
 import prisma from "@/lib/prisma";
 import ActivityTable from "./ActivityTable";
+import DateFilter from "./DateFilter";
+
+type SearchParams = Promise<{ from?: string; to?: string }>;
 
 function fmtRef(id: string, prefix: string) {
   return `${prefix}-${id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+}
+
+function toYMD(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -14,9 +21,15 @@ const AVATAR_COLORS = [
   "bg-purple-400 text-white",
 ];
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
+  const sp = await searchParams;
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const periodFrom = sp.from
+    ? new Date(sp.from)
+    : new Date(now.getFullYear(), now.getMonth(), 1);
+  const periodTo = sp.to ? new Date(sp.to + "T23:59:59") : now;
+
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const [
@@ -24,9 +37,9 @@ export default async function AdminDashboard() {
     deliveredOrders,
     returnedOrders,
     shippedOrders,
-    monthlyOrders,
+    periodOrders,
     todayOrders,
-    monthlyRevAgg,
+    periodRevAgg,
     pendingCount,
     walletAgg,
     activeSellers,
@@ -39,10 +52,10 @@ export default async function AdminDashboard() {
     prisma.order.count({ where: { status: "DELIVERED" } }),
     prisma.order.count({ where: { status: "RETURNED" } }),
     prisma.order.count({ where: { status: "SHIPPED" } }),
-    prisma.order.count({ where: { createdAt: { gte: startOfMonth } } }),
+    prisma.order.count({ where: { createdAt: { gte: periodFrom, lte: periodTo } } }),
     prisma.order.count({ where: { createdAt: { gte: startOfDay } } }),
     prisma.order.aggregate({
-      where: { status: "DELIVERED", createdAt: { gte: startOfMonth } },
+      where: { status: "DELIVERED", createdAt: { gte: periodFrom, lte: periodTo } },
       _sum: { codAmount: true },
     }),
     prisma.order.count({
@@ -114,13 +127,17 @@ export default async function AdminDashboard() {
       : "0.0";
 
   const platformProfit = finishedOrders.reduce((acc, order) => {
-    const sp = Number(order.product?.sellerPrice ?? 0);
+    const sp2 = Number(order.product?.sellerPrice ?? 0);
     const cp = Number(order.product?.costPrice ?? 0);
-    return acc + (sp - cp) * order.quantity;
+    return acc + (sp2 - cp) * order.quantity;
   }, 0);
 
   const walletBalance = Number(walletAgg._sum.balance ?? 0);
-  const monthlyRev = Number(monthlyRevAgg._sum.codAmount ?? 0);
+  const periodRev = Number(periodRevAgg._sum.codAmount ?? 0);
+
+  const isCustomPeriod = !!sp.from || !!sp.to;
+  const fromStr = toYMD(periodFrom);
+  const toStr = toYMD(periodTo);
 
   const serializedOrders = recentOrders.map((o) => ({
     id: o.id,
@@ -137,127 +154,91 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
         <div>
           <h1 className="text-2xl font-black text-[#1E293B]">لوحة التحكم الرئيسية</h1>
           <p className="text-slate-400 text-sm mt-0.5">نظرة عامة على أداء المنصة</p>
         </div>
-        <div className="text-sm text-slate-500 font-medium bg-white px-4 py-2.5 rounded-xl border border-[#E2E8F0] shadow-sm w-fit">
-          📅{" "}
-          {now.toLocaleDateString("ar-MA", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </div>
+        <DateFilter from={fromStr} to={toStr} />
       </div>
 
-      {/* Summary Bar */}
+      {/* ── Row 1: Period summary (4 compact cards) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "طلبات هذا الشهر",
-            value: monthlyOrders.toLocaleString("ar-MA"),
-            icon: "📦",
-            bg: "#EEF2FF",
-            color: "#4361EE",
-          },
-          {
-            label: "إيرادات هذا الشهر",
-            value: `${monthlyRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`,
-            icon: "💰",
-            bg: "#ECFDF5",
-            color: "#059669",
-          },
-          {
-            label: "طلبات قيد الانتظار",
-            value: pendingCount.toLocaleString("ar-MA"),
-            icon: "⏳",
-            bg: "#FFF7ED",
-            color: "#EA580C",
-          },
-          {
-            label: "معدل الإرجاع",
-            value: `${returnRate}%`,
-            icon: "↩️",
-            bg: "#FEF2F2",
-            color: "#DC2626",
-          },
-        ].map(({ label, value, icon, bg, color }) => (
-          <div
-            key={label}
-            className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-sm flex items-center gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-              style={{ background: bg }}
-            >
-              {icon}
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 font-bold leading-tight">{label}</p>
-              <p className="text-xl font-black mt-0.5" style={{ color }}>
-                {value}
-              </p>
-            </div>
-          </div>
-        ))}
+        <StatCard
+          label={isCustomPeriod ? "طلبات الفترة" : "طلبات هذا الشهر"}
+          value={periodOrders.toLocaleString("ar-MA")}
+          icon="📦"
+          iconBg="#EEF2FF"
+          color="#4361EE"
+          sub={isCustomPeriod ? `${fromStr} ← ${toStr}` : undefined}
+        />
+        <StatCard
+          label={isCustomPeriod ? "إيرادات الفترة" : "إيرادات هذا الشهر"}
+          value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
+          icon="💰"
+          iconBg="#ECFDF5"
+          color="#059669"
+        />
+        <StatCard
+          label="طلبات قيد الانتظار"
+          value={pendingCount.toLocaleString("ar-MA")}
+          icon="⏳"
+          iconBg="#FFF7ED"
+          color="#EA580C"
+        />
+        <StatCard
+          label="معدل الإرجاع"
+          value={`${returnRate}%`}
+          icon="↩️"
+          iconBg="#FEF2F2"
+          color="#DC2626"
+        />
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* ── Row 2: KPI Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Platform Profit */}
-        <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] p-6 rounded-2xl text-white shadow-lg shadow-blue-200 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-24 h-24 bg-white/5 rounded-full -translate-x-8 -translate-y-8" />
+        <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] p-5 rounded-2xl text-white shadow-lg shadow-blue-200 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-20 h-20 bg-white/5 rounded-full -translate-x-6 -translate-y-6" />
           <div className="relative z-10">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl mb-4">
+            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-lg mb-3">
               💹
             </div>
             <p className="text-blue-100 text-xs font-bold mb-1">ربح المنصة المتوقع</p>
-            <h3 className="text-2xl font-black">
+            <p className="text-2xl font-black">
               {platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })}{" "}
-              <span className="text-base font-bold opacity-80">د.م</span>
-            </h3>
-            <p className="text-[10px] text-blue-200 mt-3">
-              الفرق بين سعر المورد وسعر البائع
+              <span className="text-sm font-bold opacity-80">د.م</span>
             </p>
+            <p className="text-[10px] text-blue-200 mt-2">الفرق بين سعر المورد وسعر البائع</p>
           </div>
         </div>
 
         {/* Delivery Rate */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
-          <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-xl mb-4">
-            ✅
-          </div>
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+          <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center text-lg mb-3">✅</div>
           <p className="text-slate-400 text-xs font-bold mb-1">نسبة نجاح التوصيل</p>
-          <h3 className="text-2xl font-black text-green-600">{deliveryRate}%</h3>
-          <div className="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
-            <div
-              className="bg-green-500 h-full rounded-full transition-all"
-              style={{ width: `${deliveryRate}%` }}
-            />
+          <p className="text-2xl font-black text-green-600">{deliveryRate}%</p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
+            <div className="bg-green-500 h-full rounded-full" style={{ width: `${deliveryRate}%` }} />
           </div>
           <p className="text-[10px] text-slate-400 mt-2">
-            {deliveredOrders.toLocaleString("ar-MA")} تسليم من{" "}
+            {deliveredOrders.toLocaleString("ar-MA")} من{" "}
             {(deliveredOrders + returnedOrders).toLocaleString("ar-MA")}
           </p>
         </div>
 
         {/* Today's Orders */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
-          <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-xl mb-4">
-            🔥
-          </div>
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+          <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center text-lg mb-3">🔥</div>
           <p className="text-slate-400 text-xs font-bold mb-1">طلبات اليوم</p>
-          <h3 className="text-2xl font-black text-[#FB923C]">
+          <p className="text-2xl font-black text-[#FB923C]">
             {todayOrders.toLocaleString("ar-MA")}
-          </h3>
-          <div className="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div
-              className="bg-[#FB923C] h-full rounded-full transition-all"
+              className="bg-[#FB923C] h-full rounded-full"
               style={{
-                width: `${totalOrders > 0 ? Math.min((todayOrders / Math.max(monthlyOrders, 1)) * 30 * 100, 100) : 0}%`,
+                width: `${totalOrders > 0 ? Math.min((todayOrders / Math.max(periodOrders, 1)) * 30 * 100, 100) : 0}%`,
               }}
             />
           </div>
@@ -267,32 +248,31 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Active Sellers */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
-          <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-xl mb-4">
-            👥
-          </div>
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+          <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-lg mb-3">👥</div>
           <p className="text-slate-400 text-xs font-bold mb-1">البائعون النشطون</p>
-          <h3 className="text-2xl font-black text-[#1E293B]">
+          <p className="text-2xl font-black text-[#1E293B]">
             {activeSellers.toLocaleString("ar-MA")}
-          </h3>
-          <div className="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div className="bg-purple-400 h-full rounded-full" style={{ width: "70%" }} />
           </div>
           <p className="text-[10px] text-slate-400 mt-2">
-            سيولة المحافظ: {walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م
+            سيولة:{" "}
+            {walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م
           </p>
         </div>
       </div>
 
-      {/* Status Boxes */}
+      {/* ── Row 3: Status Boxes (4 compact) ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatusBox title="إجمالي الطلبات" value={totalOrders} icon="📊" bg="#EEF2FF" fg="#4361EE" />
-        <StatusBox title="في الطريق" value={shippedOrders} icon="🚚" bg="#FFFBEB" fg="#B45309" />
-        <StatusBox title="تم التسليم" value={deliveredOrders} icon="✅" bg="#ECFDF5" fg="#065F46" />
-        <StatusBox title="مرتجعات" value={returnedOrders} icon="↩️" bg="#FEF2F2" fg="#991B1B" />
+        <StatCard label="إجمالي الطلبات" value={totalOrders.toLocaleString("ar-MA")} icon="📊" iconBg="#EEF2FF" color="#4361EE" tint="#EEF2FF" />
+        <StatCard label="في الطريق" value={shippedOrders.toLocaleString("ar-MA")} icon="🚚" iconBg="#FFFBEB" color="#B45309" tint="#FFFBEB" />
+        <StatCard label="تم التسليم" value={deliveredOrders.toLocaleString("ar-MA")} icon="✅" iconBg="#ECFDF5" color="#065F46" tint="#ECFDF5" />
+        <StatCard label="مرتجعات" value={returnedOrders.toLocaleString("ar-MA")} icon="↩️" iconBg="#FEF2F2" color="#991B1B" tint="#FEF2F2" />
       </div>
 
-      {/* Activity Table + Top Sellers */}
+      {/* ── Activity Table + Top Sellers ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
           <ActivityTable orders={serializedOrders} />
@@ -315,11 +295,11 @@ export default async function AdminDashboard() {
                   key={seller.id}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#F8FAFC] transition"
                 >
-                  <div className="w-7 text-center text-xl flex-shrink-0">
+                  <div className="w-7 flex-shrink-0 text-center">
                     {idx < 3 ? (
-                      MEDALS[idx]
+                      <span className="text-xl">{MEDALS[idx]}</span>
                     ) : (
-                      <span className="text-xs font-black text-slate-400 w-7 h-7 flex items-center justify-center rounded-full bg-slate-100">
+                      <span className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-slate-100 text-xs font-black text-slate-400">
                         {idx + 1}
                       </span>
                     )}
@@ -351,33 +331,43 @@ export default async function AdminDashboard() {
   );
 }
 
-function StatusBox({
-  title,
+function StatCard({
+  label,
   value,
   icon,
-  bg,
-  fg,
+  iconBg,
+  color,
+  tint,
+  sub,
 }: {
-  title: string;
-  value: number;
+  label: string;
+  value: string;
   icon: string;
-  bg: string;
-  fg: string;
+  iconBg: string;
+  color: string;
+  tint?: string;
+  sub?: string;
 }) {
   return (
     <div
-      className="p-5 rounded-2xl border border-black/5 shadow-sm"
-      style={{ background: bg }}
+      className="rounded-2xl border border-black/5 shadow-sm p-4"
+      style={{ background: tint ?? "#ffffff" }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-bold" style={{ color: fg, opacity: 0.7 }}>
-          {title}
+      <div className="flex items-start justify-between mb-3">
+        <p className="text-xs font-bold leading-tight" style={{ color, opacity: 0.7 }}>
+          {label}
         </p>
-        <span className="text-lg">{icon}</span>
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+          style={{ background: tint ? "rgba(255,255,255,0.6)" : iconBg }}
+        >
+          {icon}
+        </div>
       </div>
-      <p className="text-3xl font-black" style={{ color: fg }}>
-        {value.toLocaleString("ar-MA")}
+      <p className="text-2xl font-black" style={{ color }}>
+        {value}
       </p>
+      {sub && <p className="text-[10px] text-slate-400 mt-1.5 font-mono">{sub}</p>}
     </div>
   );
 }
