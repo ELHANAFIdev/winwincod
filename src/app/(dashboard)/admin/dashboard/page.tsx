@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import prisma from "@/lib/prisma";
 import ActivityTable from "./ActivityTable";
 import DateFilter from "./DateFilter";
+import { PERIOD_LABELS } from "@/components/ui/DateDropdown";
 
 type SearchParams = Promise<{ from?: string; to?: string; period?: string }>;
 
@@ -21,14 +22,6 @@ const AVATAR_COLORS = [
   "bg-[#4361EE] text-white",
   "bg-purple-400 text-white",
 ];
-
-const PERIOD_LABELS: Record<string, string> = {
-  today: "اليوم",
-  week: "هذا الأسبوع",
-  month: "هذا الشهر",
-  year: "هذه السنة",
-  custom: "هذه الفترة",
-};
 
 export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;

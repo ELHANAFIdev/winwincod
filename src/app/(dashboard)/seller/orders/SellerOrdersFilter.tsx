@@ -8,7 +8,7 @@ interface Props {
   to: string;
 }
 
-export default function DateFilter({ period, from, to }: Props) {
+export default function SellerOrdersFilter({ period, from, to }: Props) {
   const router = useRouter();
   return (
     <DateDropdown
@@ -16,7 +16,7 @@ export default function DateFilter({ period, from, to }: Props) {
       from={from}
       to={to}
       onChange={(p, f, t) =>
-        router.push(`/admin/dashboard?period=${p}&from=${f}&to=${t}`)
+        router.push(`/seller/orders?period=${p}&from=${f}&to=${t}`)
       }
     />
   );

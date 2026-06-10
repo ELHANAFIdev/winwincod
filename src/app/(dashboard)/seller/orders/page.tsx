@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
-import DateFilter from "@/app/(dashboard)/admin/dashboard/DateFilter";
+import SellerOrdersFilter from "./SellerOrdersFilter";
+import { PERIOD_LABELS } from "@/components/ui/DateDropdown";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,6 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   CANCELLED:  { label: "ملغي",         cls: "bg-gray-100 text-gray-500" },
 };
 
-const PERIOD_LABELS: Record<string, string> = {
-  today:  "اليوم",
-  week:   "هذا الأسبوع",
-  month:  "هذا الشهر",
-  year:   "هذه السنة",
-  custom: "الفترة المخصصة",
-};
 
 type SearchParams = Promise<{ period?: string; from?: string; to?: string }>;
 
@@ -36,38 +30,15 @@ export default async function SellerOrdersPage({ searchParams }: { searchParams:
   const period = params.period ?? "month";
   const periodLabel = PERIOD_LABELS[period] ?? "هذا الشهر";
 
-  // Compute date range server-side
+  // Use from/to provided by DateDropdown; fall back to current month
   const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
+  const defaultFrom = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const defaultTo = now.toISOString().slice(0, 10);
+  const fromStr = params.from ?? defaultFrom;
+  const toStr = params.to ?? defaultTo;
 
-  let periodFrom: Date;
-  let periodTo: Date;
-  let fromStr: string;
-  let toStr: string;
-
-  if (period === "custom" && params.from && params.to) {
-    fromStr = params.from;
-    toStr   = params.to;
-  } else if (period === "today") {
-    fromStr = toStr = todayStr;
-  } else if (period === "week") {
-    const day  = now.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    const mon  = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
-    fromStr = mon.toISOString().slice(0, 10);
-    toStr   = todayStr;
-  } else if (period === "year") {
-    fromStr = `${now.getFullYear()}-01-01`;
-    toStr   = todayStr;
-  } else {
-    // month
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    fromStr = `${now.getFullYear()}-${mm}-01`;
-    toStr   = todayStr;
-  }
-
-  periodFrom = new Date(`${fromStr}T00:00:00.000Z`);
-  periodTo   = new Date(`${toStr}T23:59:59.999Z`);
+  const periodFrom = new Date(`${fromStr}T00:00:00.000Z`);
+  const periodTo = new Date(`${toStr}T23:59:59.999Z`);
 
   const dateFilter = { createdAt: { gte: periodFrom, lte: periodTo } };
 
@@ -109,7 +80,7 @@ export default async function SellerOrdersPage({ searchParams }: { searchParams:
 
       {/* Date filter */}
       <Suspense fallback={<div className="h-14 bg-white rounded-2xl border border-[#E2E8F0] animate-pulse" />}>
-        <DateFilter period={period} from={fromStr} to={toStr} />
+        <SellerOrdersFilter period={period} from={fromStr} to={toStr} />
       </Suspense>
 
       {/* Stats strip */}
