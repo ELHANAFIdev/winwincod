@@ -38,12 +38,12 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) {
           console.log("[auth] authorize: user not found —", credentials.email);
-          throw new Error("المستخدم غير موجود أو الحساب معطل");
+          throw new Error("البريد أو كلمة المرور خاطئة");
         }
 
         if (!user.isActive) {
           console.log("[auth] authorize: account inactive (pending approval) —", credentials.email);
-          throw new Error("الحساب في انتظار موافقة الإدارة");
+          throw new Error("حسابك قيد المراجعة");
         }
 
         if (!user.password) {

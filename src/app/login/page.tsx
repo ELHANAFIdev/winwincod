@@ -25,18 +25,14 @@ export default function LoginPage() {
     const res = await signIn("credentials", { email, password, redirect: false });
 
     if (res?.error) {
-      try {
-        const check = await fetch(`/api/auth/login-status?email=${encodeURIComponent(email)}`);
-        const { status } = await check.json();
-        if (status === "pending") {
-          setError("حسابك في انتظار موافقة الإدارة. سيتم إشعارك عند التفعيل.");
-        } else if (status === "google_account") {
-          setError("هذا الحساب مرتبط بـ Google، استخدم زر تسجيل الدخول بـ Google.");
-        } else {
-          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-        }
-      } catch {
+      const msg = res.error;
+      if (msg === "حسابك قيد المراجعة") {
+        setError("");
+        setPendingApproval(true);
+      } else if (msg === "CredentialsSignin") {
         setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      } else {
+        setError(msg);
       }
       setLoading(false);
     } else {
