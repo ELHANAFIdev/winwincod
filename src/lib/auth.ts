@@ -4,9 +4,30 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
+import type { Adapter } from "next-auth/adapters";
+
+// PrismaAdapter runs createUser BEFORE the signIn callback fires.
+// The schema default isActive:true would let new Google users bypass approval,
+// so we override createUser to always start OAuth-created users as inactive.
+const baseAdapter = PrismaAdapter(prisma);
+const customAdapter: Adapter = {
+  ...baseAdapter,
+  createUser: async (data) => {
+    return prisma.user.create({
+      data: {
+        name: data.name ?? "مستخدم Google",
+        email: data.email,
+        image: data.image ?? null,
+        emailVerified: data.emailVerified ?? null,
+        role: "SELLER",
+        isActive: false,
+      },
+    }) as any;
+  },
+};
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: customAdapter,
   session: {
     strategy: "jwt",
   },
@@ -22,7 +43,7 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -33,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         console.log("[auth] authorize: attempt for", credentials.email);
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         if (!user) {
@@ -42,7 +63,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!user.isActive) {
-          console.log("[auth] authorize: account inactive (pending approval) —", credentials.email);
+          console.log("[auth] authorize: account inactive —", credentials.email);
           throw new Error("حسابك قيد المراجعة");
         }
 
@@ -54,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) {
           console.log("[auth] authorize: wrong password —", credentials.email);
-          throw new Error("كلمة المرور غير صحيحة");
+          throw new Error("البريد أو كلمة المرور خاطئة");
         }
 
         console.log("[auth] authorize: success —", credentials.email, user.role);
@@ -64,36 +85,25 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           role: user.role,
         };
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (account?.provider === "google") {
         if (!user.email) return false;
 
-        const existingUser = await prisma.user.findUnique({
+        // By this point the adapter has already created/found the user in the DB.
+        // Check isActive: new users were created with false (via customAdapter.createUser);
+        // existing pending users are still false.
+        const dbUser = await prisma.user.findUnique({
           where: { email: user.email },
+          select: { isActive: true },
         });
 
-        if (!existingUser) {
-          // First Google sign-in: create user with pending-approval defaults
-          // before PrismaAdapter can create them with isActive: true
-          await prisma.user.create({
-            data: {
-              name: user.name ?? (profile as any)?.name ?? "مستخدم Google",
-              email: user.email,
-              image: user.image ?? (profile as any)?.picture ?? null,
-              emailVerified: new Date(),
-              role: "SELLER",
-              isActive: false,
-            },
-          });
-          // Redirect without creating a session — admin must approve first
+        if (dbUser && !dbUser.isActive) {
           return "/login?error=PendingApproval";
         }
-
-        if (!existingUser.isActive) return "/login?error=PendingApproval";
       }
       return true;
     },
@@ -102,7 +112,6 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role;
         token.id = user.id;
       }
-      // Google users don't have role on the user object — fetch from DB
       if (!token.role && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
@@ -122,5 +131,5 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-  }
+  },
 };
