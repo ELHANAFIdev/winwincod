@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "prisma generate && next build",
-    "lint": "eslint",
-    "postinstall": "prisma generate"
-  },
+  "dev": "next dev",
+  "build": "prisma generate && next build --no-turbo",
+  "start": "next start",
+  "lint": "eslint",
+  "postinstall": "prisma generate"
+},
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
