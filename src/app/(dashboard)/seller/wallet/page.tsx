@@ -12,6 +12,9 @@ export default function SellerWalletPage() {
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [history, setHistory] = useState([]);
   const [depositAmount, setDepositAmount] = useState("");
+  const [receiptImage, setReceiptImage] = useState("");
+  const [receiptPreview, setReceiptPreview] = useState("");
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [loadingDeposit, setLoadingDeposit] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [bankName, setBankName] = useState("");
@@ -35,13 +38,34 @@ export default function SellerWalletPage() {
 
   useEffect(() => { fetchData(); }, []);
 
+  const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingReceipt(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await axios.post("/api/upload", fd);
+      setReceiptImage(res.data.url);
+      setReceiptPreview(URL.createObjectURL(file));
+      toast.success("تم رفع الوصل بنجاح");
+    } catch {
+      toast.error("فشل رفع الصورة، حاول مجدداً");
+    } finally {
+      setUploadingReceipt(false);
+    }
+  };
+
   const handleDeposit = async (e: any) => {
     e.preventDefault();
+    if (!receiptImage) { toast.error("يرجى رفع صورة وصل التحويل أولاً"); return; }
     setLoadingDeposit(true);
     try {
-      await axios.post("/api/seller/wallet/deposit", { amount: Number(depositAmount) });
+      await axios.post("/api/seller/wallet/deposit", { amount: Number(depositAmount), receiptImage });
       toast.success("تم إرسال طلب الشحن! بانتظار مراجعة الإدارة.");
       setDepositAmount("");
+      setReceiptImage("");
+      setReceiptPreview("");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "حدث خطأ");
     } finally { setLoadingDeposit(false); }
@@ -119,17 +143,37 @@ export default function SellerWalletPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E2E8F0] h-fit">
           <h3 className="font-bold text-[#1E293B] text-lg mb-5 flex items-center gap-2">💳 شحن المحفظة</h3>
           <form onSubmit={handleDeposit} className="space-y-4">
+            <div className="bg-[#EEF2FF] p-4 rounded-xl border border-blue-100">
+              <p className="text-sm text-[#4361EE] leading-relaxed font-medium">
+                تواصل مع الإدارة للحصول على معلومات الحساب البنكي، ثم حوّل المبلغ وارفع وصل التحويل هنا.
+              </p>
+            </div>
             <div>
               <label className={labelCls}>المبلغ المحوَّل</label>
               <input required type="number" step="0.01" className={inputCls + " font-bold"} value={depositAmount} onChange={e => setDepositAmount(e.target.value)} placeholder="0.00" />
             </div>
-            <div className="bg-[#EEF2FF] p-4 rounded-xl border border-blue-100">
-              <p className="text-sm text-[#4361EE] leading-relaxed font-medium">
-                حوّل المبلغ لحسابنا البنكي (BMCE: 000...) ثم قم بالتأكيد. ستُضاف بعد المراجعة.
-              </p>
+            <div>
+              <label className={labelCls}>صورة وصل التحويل <span className="text-red-500">*</span></label>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#4361EE]/40 rounded-xl cursor-pointer bg-[#F8FAFC] hover:bg-[#EEF2FF] transition">
+                {uploadingReceipt ? (
+                  <span className="text-sm text-[#4361EE] font-bold">جاري الرفع...</span>
+                ) : receiptPreview ? (
+                  <img src={receiptPreview} alt="وصل" className="h-full object-contain rounded-xl p-1" />
+                ) : (
+                  <div className="text-center">
+                    <p className="text-2xl mb-1">📎</p>
+                    <p className="text-sm text-slate-400 font-medium">اضغط لرفع صورة الوصل</p>
+                    <p className="text-xs text-slate-300 mt-0.5">JPG, PNG, PDF</p>
+                  </div>
+                )}
+                <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleReceiptUpload} disabled={uploadingReceipt} />
+              </label>
+              {receiptImage && (
+                <p className="text-xs text-green-600 font-bold mt-1.5">✅ تم رفع الوصل بنجاح</p>
+              )}
             </div>
-            <button disabled={loadingDeposit} className="w-full bg-[#1E293B] hover:bg-slate-700 text-white py-3.5 rounded-xl font-bold transition disabled:opacity-50">
-              {loadingDeposit ? "لحظة..." : "أرسلت المبلغ — تأكيد الطلب"}
+            <button disabled={loadingDeposit || uploadingReceipt || !receiptImage} className="w-full bg-[#1E293B] hover:bg-slate-700 text-white py-3.5 rounded-xl font-bold transition disabled:opacity-50">
+              {loadingDeposit ? "جاري الإرسال..." : "تأكيد طلب الشحن"}
             </button>
           </form>
         </div>

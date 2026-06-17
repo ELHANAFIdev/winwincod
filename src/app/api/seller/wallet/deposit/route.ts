@@ -4,7 +4,8 @@ import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
 
 const depositSchema = z.object({
-  amount: z.coerce.number().positive(), // أضفنا coerce لضمان تحويل النص لرقم
+  amount: z.coerce.number().positive(),
+  receiptImage: z.string().url("رابط الوصل غير صالح"),
 });
 
 export async function POST(req: Request) {
@@ -15,20 +16,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validation = depositSchema.safeParse(body);
 
-    if (!validation.success) return errorResponse("مبلغ غير صحيح", 400);
+    if (!validation.success) return errorResponse(validation.error.errors[0].message, 400);
 
-    // ملاحظة: تأكد أن الاسم في schema.prisma هو بالضبط depositrequest
-    const depositRequest = await prisma.depositrequest.create({
+    await prisma.depositrequest.create({
       data: {
         sellerId: user.id,
         amount: validation.data.amount,
+        receiptImage: validation.data.receiptImage,
         status: "PENDING",
       }
     });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("DEBUG PRISMA:", error);
+    console.error("Deposit error:", error);
     return errorResponse(error.message, 500);
   }
 }
