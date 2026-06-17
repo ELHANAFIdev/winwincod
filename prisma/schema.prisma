@@ -95,6 +95,7 @@ model order {
   productName    String
   quantity       Int
   codAmount      Decimal
+  codReceived    Decimal?
   shippingFee    Decimal      @default(0.0)
   systemFee      Decimal      @default(0.0)
   netProfit      Decimal      @default(0.0)
@@ -254,6 +255,8 @@ enum transaction_type {
   ORDER_PAYMENT
   REFUND_RETURN
   WITHDRAWAL
+  SHIPPING_PAYMENT
+  DELIVERY_PROFIT
 }
 
 enum deposit_status {
