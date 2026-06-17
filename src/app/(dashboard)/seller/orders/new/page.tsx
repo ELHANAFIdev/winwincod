@@ -34,8 +34,8 @@ function CitySearch({ value, onChange, error }: { value: string; onChange: (c: s
           value={query}
           placeholder="ابحث عن مدينة..."
           className={`w-full border ${error ? "border-red-400" : "border-gray-200 focus:border-[#4361EE]"} pr-9 pl-3 py-3 rounded-xl outline-none transition bg-white text-[#1E293B]`}
-          onChange={e => { setQuery(e.target.value); onChange(""); setOpen(true); }}
-          onFocus={() => query.length >= 1 && setOpen(true)}
+          onChange={e => { const v = e.target.value; setQuery(v); onChange(""); setOpen(v.length >= 1); }}
+          onFocus={() => { if (query.length >= 1) setOpen(true); }}
           autoComplete="off"
         />
         {query && (
