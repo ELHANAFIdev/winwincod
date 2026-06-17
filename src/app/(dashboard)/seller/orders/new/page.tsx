@@ -18,6 +18,16 @@ function CitySearch({ value, onChange, error }: { value: string; onChange: (c: s
     : [];
 
   useEffect(() => {
+    console.log("[CitySearch] ALL_CITIES count:", ALL_CITIES.length, "sample:", ALL_CITIES.slice(0, 3));
+  }, []);
+
+  useEffect(() => {
+    if (query.length >= 1) {
+      console.log("[CitySearch] query:", query, "| suggestions:", suggestions.length, suggestions);
+    }
+  }, [query, suggestions.length]);
+
+  useEffect(() => {
     const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -44,7 +54,7 @@ function CitySearch({ value, onChange, error }: { value: string; onChange: (c: s
         )}
       </div>
       {open && suggestions.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-lg max-h-52 overflow-y-auto">
+        <ul className="absolute z-[9999] w-full bottom-full mb-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl max-h-52 overflow-y-auto">
           {suggestions.map(city => (
             <li key={city}
               onMouseDown={() => select(city)}
@@ -55,7 +65,7 @@ function CitySearch({ value, onChange, error }: { value: string; onChange: (c: s
         </ul>
       )}
       {open && query.length >= 2 && suggestions.length === 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-lg px-4 py-3 text-sm text-slate-400">
+        <div className="absolute z-[9999] w-full bottom-full mb-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl px-4 py-3 text-sm text-slate-400">
           لا توجد مدن مطابقة
         </div>
       )}
