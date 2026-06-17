@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: "تم إنشاء الحساب، بانتظار موافقة الإدارة." });
 
   } catch (error) {
+    console.error("[register] error:", error);
     return NextResponse.json({ error: "حدث خطأ في السيرفر" }, { status: 500 });
   }
 }
