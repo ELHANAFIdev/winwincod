@@ -46,6 +46,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("DATABASE_URL status:", process.env.DATABASE_URL ? "SET" : "EMPTY");
+        console.log("DATABASE_URL prefix:", process.env.DATABASE_URL?.substring(0, 20));
+
         if (!credentials?.email || !credentials?.password) {
           console.log("[auth] authorize: missing credentials");
           throw new Error("البيانات غير مكتملة");
