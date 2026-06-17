@@ -1,10 +1,68 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { moroccanCities } from "@/lib/moroccan-cities";
+
+const ALL_CITIES = moroccanCities.flatMap(r => r.cities).sort((a, b) => a.localeCompare(b));
+
+function CitySearch({ value, onChange, error }: { value: string; onChange: (c: string) => void; error?: string }) {
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const suggestions = query.length >= 1
+    ? ALL_CITIES.filter(c => c.toLowerCase().includes(query.toLowerCase())).slice(0, 10)
+    : [];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const select = (city: string) => { setQuery(city); onChange(city); setOpen(false); };
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="relative">
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">🔍</span>
+        <input
+          type="text"
+          value={query}
+          placeholder="ابحث عن مدينة..."
+          className={`w-full border ${error ? "border-red-400" : "border-gray-200 focus:border-[#4361EE]"} pr-9 pl-3 py-3 rounded-xl outline-none transition bg-white text-[#1E293B]`}
+          onChange={e => { setQuery(e.target.value); onChange(""); setOpen(true); }}
+          onFocus={() => query.length >= 1 && setOpen(true)}
+          autoComplete="off"
+        />
+        {query && (
+          <button type="button" onClick={() => { setQuery(""); onChange(""); setOpen(false); }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-lg leading-none">×</button>
+        )}
+      </div>
+      {open && suggestions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-lg max-h-52 overflow-y-auto">
+          {suggestions.map(city => (
+            <li key={city}
+              onMouseDown={() => select(city)}
+              className="px-4 py-2.5 text-sm text-[#1E293B] hover:bg-[#EEF2FF] hover:text-[#4361EE] cursor-pointer font-medium transition">
+              {city}
+            </li>
+          ))}
+        </ul>
+      )}
+      {open && query.length >= 2 && suggestions.length === 0 && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-lg px-4 py-3 text-sm text-slate-400">
+          لا توجد مدن مطابقة
+        </div>
+      )}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  );
+}
 
 const inputCls = "w-full border border-gray-200 focus:border-[#4361EE] p-3 rounded-xl outline-none transition bg-white text-[#1E293B]";
 const labelCls = "block text-sm font-bold text-[#1E293B] mb-2";
@@ -14,8 +72,7 @@ function OrderForm() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const availableCities = moroccanCities.find(r => r.region === selectedRegion)?.cities || [];
+  const [cityValue, setCityValue] = useState("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,21 +185,15 @@ function OrderForm() {
           {errors.address && <p className="text-red-500 text-xs mt-1">{String(errors.address.message)}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>الجهة</label>
-            <select className={inputCls + " bg-white"} value={selectedRegion} onChange={e => { setSelectedRegion(e.target.value); setValue("city", ""); }}>
-              <option value="">-- اختر الجهة --</option>
-              {moroccanCities.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
-            </select>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>المدينة</label>
-            <select {...register("city", { required: "المدينة مطلوبة" })} className={inputCls + " bg-white disabled:bg-[#F8FAFC] disabled:text-slate-400"} disabled={!selectedRegion}>
-              <option value="">-- اختر المدينة --</option>
-              {availableCities.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            {errors.city && <p className="text-red-500 text-xs mt-1">{String(errors.city.message)}</p>}
+            <input type="hidden" {...register("city", { required: "المدينة مطلوبة" })} value={cityValue} />
+            <CitySearch
+              value={cityValue}
+              onChange={city => { setCityValue(city); setValue("city", city, { shouldValidate: true }); }}
+              error={errors.city ? String(errors.city.message) : undefined}
+            />
           </div>
           <div>
             <label className={labelCls}>الكمية</label>
