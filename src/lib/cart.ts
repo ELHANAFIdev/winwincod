@@ -6,9 +6,10 @@ export type CartItem = {
   sellerPrice: number;
   marketPrice: number;
   quantity: number;
+  stock: number;
 };
 
-const CART_KEY = "winwin_cart_v2";
+const CART_KEY = "winwin_cart_v3";
 
 export const getCart = (): CartItem[] => {
   if (typeof window === "undefined") return [];

@@ -1,27 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { getCart, saveCart, CartItem } from "@/lib/cart";
+import { useCart } from "@/context/CartContext";
 
 function parseFirstImage(images: string): string {
   try {
     const arr = JSON.parse(images);
     return Array.isArray(arr) && arr.length > 0 ? arr[0] : "";
-  } catch {
-    return images || "";
-  }
+  } catch { return images || ""; }
 }
 
 export default function ProductSelectionPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const { items: cart, addItem, openDrawer, totalCount } = useCart();
 
   useEffect(() => {
-    setCart(getCart());
     axios.get("/api/seller/products")
       .then(res => setProducts(res.data.products || []))
       .catch(() => toast.error("فشل تحميل المنتجات"))
@@ -30,46 +26,40 @@ export default function ProductSelectionPage() {
 
   const getQty = (id: string) => quantities[id] || 1;
 
-  const addToCart = (product: any) => {
+  const handleAdd = (product: any) => {
     const qty = getQty(product.id);
-    const item: CartItem = {
-      cartId: `${product.id}-${Date.now()}`,
+    addItem({
       productId: product.id,
       productName: product.name,
       productImage: parseFirstImage(product.images),
       sellerPrice: Number(product.sellerPrice),
       marketPrice: Number(product.marketPrice),
+      stock: product.stock,
       quantity: qty,
-    };
-    const updated = [...cart, item];
-    saveCart(updated);
-    setCart(updated);
+    });
     setQuantities(q => ({ ...q, [product.id]: 1 }));
     toast.success("تمت الإضافة للسلة ✅");
   };
 
-  const cartCount = cart.length;
-
   return (
-    <div className="space-y-6 pb-28">
-      {/* Header */}
+    <div className="space-y-6 pb-8">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-black text-[#1E293B]">اختر المنتجات</h2>
-          <p className="text-slate-400 text-sm mt-0.5">أضف المنتجات للسلة ثم تابع لإدخال بيانات الزبائن</p>
+          <h2 className="text-2xl font-black text-[#1E293B]">إضافة طلب</h2>
+          <p className="text-slate-400 text-sm mt-0.5">أضف المنتجات للسلة ثم أكمل بيانات الزبائن</p>
         </div>
-        {cartCount > 0 && (
-          <Link href="/seller/orders/cart"
+        {totalCount > 0 && (
+          <button onClick={openDrawer}
             className="flex items-center gap-2 bg-[#4361EE] text-white px-5 py-2.5 rounded-xl font-bold shadow hover:bg-[#3254D4] transition">
-            🛒 السلة ({cartCount})
-          </Link>
+            🛒 السلة ({totalCount})
+          </button>
         )}
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64 gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent" />
-          <span className="text-[#4361EE] font-bold">جاري تحميل المنتجات...</span>
+          <span className="text-[#4361EE] font-bold">جاري التحميل...</span>
         </div>
       ) : products.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
@@ -87,9 +77,11 @@ export default function ProductSelectionPage() {
 
             return (
               <div key={product.id}
-                className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col transition
-                  ${outOfStock ? "opacity-60 border-[#E2E8F0]" : "border-[#E2E8F0] hover:border-[#4361EE]/40 hover:shadow-md"}`}>
-
+                className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col transition ${
+                  outOfStock
+                    ? "opacity-60 border-[#E2E8F0]"
+                    : "border-[#E2E8F0] hover:border-[#4361EE]/40 hover:shadow-md"
+                }`}>
                 {/* Image */}
                 <div className="relative bg-[#F8FAFC] h-44 flex items-center justify-center overflow-hidden">
                   {image ? (
@@ -126,13 +118,14 @@ export default function ProductSelectionPage() {
                         <span className="text-xs font-normal text-slate-400 mr-1">د.م</span>
                       </p>
                     </div>
-                    <span className={`px-3 py-1.5 rounded-xl text-xs font-black
-                      ${profit > 0 ? "bg-green-50 text-green-700" : "bg-slate-50 text-slate-400"}`}>
+                    <span className={`px-3 py-1.5 rounded-xl text-xs font-black ${
+                      profit > 0 ? "bg-green-50 text-green-700" : "bg-slate-50 text-slate-400"
+                    }`}>
                       ربح {profit.toFixed(0)} د.م
                     </span>
                   </div>
 
-                  {/* Qty + Add button */}
+                  {/* Qty + Add */}
                   <div className="flex items-center gap-2 mt-auto">
                     <div className="flex items-center border border-[#E2E8F0] rounded-xl overflow-hidden">
                       <button type="button" disabled={outOfStock || qty <= 1}
@@ -144,7 +137,7 @@ export default function ProductSelectionPage() {
                         className="px-3 py-2 text-[#4361EE] font-black hover:bg-[#EEF2FF] transition text-sm disabled:opacity-30">+</button>
                     </div>
                     <button type="button" disabled={outOfStock}
-                      onClick={() => addToCart(product)}
+                      onClick={() => handleAdd(product)}
                       className="flex-1 bg-[#4361EE] hover:bg-[#3254D4] disabled:bg-[#E2E8F0] disabled:text-slate-400 text-white py-2 rounded-xl font-bold text-sm transition">
                       إضافة للسلة
                     </button>
@@ -153,19 +146,6 @@ export default function ProductSelectionPage() {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Floating continue button */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-6 inset-x-0 flex justify-center z-50 pointer-events-none">
-          <Link href="/seller/orders/cart"
-            className="pointer-events-auto flex items-center gap-3 bg-[#4361EE] text-white px-8 py-4 rounded-2xl font-black shadow-2xl shadow-blue-900/30 hover:bg-[#3254D4] transition text-base">
-            <span>🛒</span>
-            <span>متابعة</span>
-            <span className="bg-white/20 px-3 py-0.5 rounded-xl text-sm">{cartCount} طلب</span>
-            <span>←</span>
-          </Link>
         </div>
       )}
     </div>

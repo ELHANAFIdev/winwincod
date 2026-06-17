@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: string; name: string; sku: string;
@@ -9,9 +11,17 @@ interface Product {
   stock: number; images: string; description: string;
 }
 
+function parseFirstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr.length > 0 ? arr[0] : images;
+  } catch { return images || ""; }
+}
+
 export default function MarketplacePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
 
   useEffect(() => {
     axios.get("/api/seller/products")
@@ -20,9 +30,22 @@ export default function MarketplacePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product.id,
+      productName: product.name,
+      productImage: parseFirstImage(product.images),
+      sellerPrice: Number(product.sellerPrice),
+      marketPrice: Number(product.marketPrice),
+      stock: product.stock,
+      quantity: 1,
+    });
+    toast.success(`تمت إضافة "${product.name}" للسلة`);
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent" />
       <span className="mr-3 text-[#4361EE] font-bold">جاري تحميل السوق...</span>
     </div>
   );
@@ -46,61 +69,87 @@ export default function MarketplacePage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map(product => (
-            <div key={product.id} className="group bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
-              {/* Image */}
-              <div className="relative h-52 bg-[#F8FAFC] overflow-hidden">
-                {product.images ? (
-                  <img src={product.images} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-5xl text-slate-200">📦</div>
-                )}
-                <div className={`absolute top-2.5 right-2.5 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm ${
-                  product.stock > 0 ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                }`}>
-                  {product.stock > 0 ? `متوفر: ${product.stock}` : "نفذت الكمية"}
-                </div>
-              </div>
+          {products.map(product => {
+            const image = parseFirstImage(product.images);
+            const profit = Number(product.marketPrice) - Number(product.sellerPrice);
+            const outOfStock = product.stock === 0;
 
-              {/* Details */}
-              <div className="p-4 flex flex-col flex-1">
-                <h3 className="font-bold text-[#1E293B] leading-tight truncate">{product.name}</h3>
-                <span className="text-[10px] font-mono text-slate-400 uppercase mt-0.5">SKU: {product.sku}</span>
-
-                <p className="text-slate-400 text-xs line-clamp-2 my-3 h-8">
-                  {product.description || "لا يوجد وصف لهذا المنتج."}
-                </p>
-
-                {/* Prices */}
-                <div className="bg-[#F8FAFC] rounded-xl p-3 mb-4 flex justify-between items-center border border-[#E2E8F0]">
-                  <div className="text-center">
-                    <p className="text-[10px] text-slate-400 font-bold">تكلفتك</p>
-                    <p className="text-[#4361EE] font-black">{Number(product.sellerPrice).toFixed(0)} <small className="text-[10px] font-normal">د.م</small></p>
-                  </div>
-                  <div className="w-px h-8 bg-[#E2E8F0]"></div>
-                  <div className="text-center">
-                    <p className="text-[10px] text-slate-400 font-bold">سعر السوق</p>
-                    <p className="text-slate-400 font-bold line-through">{Number(product.marketPrice).toFixed(0)} <small className="text-[10px] font-normal">د.م</small></p>
-                  </div>
-                </div>
-
-                <div className="mt-auto space-y-2">
-                  <Link href={`/seller/products/${product.id}`} className="block w-full text-center py-2 rounded-xl border border-[#E2E8F0] text-slate-600 font-bold text-sm hover:bg-[#F8FAFC] transition">
-                    عرض التفاصيل
-                  </Link>
-                  {product.stock > 0 ? (
-                    <Link href={`/seller/orders/new?productId=${product.id}`} className="block w-full text-center py-2.5 rounded-xl bg-[#4361EE] hover:bg-[#3254D4] text-white font-bold text-sm transition shadow-sm">
-                      بيع هذا المنتج 🚀
-                    </Link>
+            return (
+              <div key={product.id}
+                className="group bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                {/* Image */}
+                <div className="relative h-52 bg-[#F8FAFC] overflow-hidden">
+                  {image ? (
+                    <img src={image} alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   ) : (
-                    <button disabled className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-400 font-bold text-sm cursor-not-allowed">
-                      غير متوفر
-                    </button>
+                    <div className="w-full h-full flex items-center justify-center text-5xl text-slate-200">📦</div>
                   )}
+                  <div className={`absolute top-2.5 right-2.5 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm ${
+                    outOfStock ? "bg-red-500 text-white" : "bg-green-500 text-white"
+                  }`}>
+                    {outOfStock ? "نفذت الكمية" : `متوفر: ${product.stock}`}
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="font-bold text-[#1E293B] leading-tight line-clamp-2">{product.name}</h3>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase mt-0.5">SKU: {product.sku}</span>
+
+                  <p className="text-slate-400 text-xs line-clamp-2 my-3 h-8">
+                    {product.description || "لا يوجد وصف لهذا المنتج."}
+                  </p>
+
+                  {/* Prices */}
+                  <div className="bg-[#F8FAFC] rounded-xl p-3 mb-3 border border-[#E2E8F0]">
+                    <div className="flex justify-between items-center">
+                      <div className="text-center">
+                        <p className="text-[10px] text-slate-400 font-bold">تكلفتك</p>
+                        <p className="text-[#4361EE] font-black">
+                          {Number(product.sellerPrice).toFixed(0)} <small className="text-[10px] font-normal">د.م</small>
+                        </p>
+                      </div>
+                      <div className="w-px h-8 bg-[#E2E8F0]" />
+                      <div className="text-center">
+                        <p className="text-[10px] text-slate-400 font-bold">سعر السوق</p>
+                        <p className="text-[#1E293B] font-black">
+                          {Number(product.marketPrice).toFixed(0)} <small className="text-[10px] font-normal">د.م</small>
+                        </p>
+                      </div>
+                      <div className="w-px h-8 bg-[#E2E8F0]" />
+                      <div className="text-center">
+                        <p className="text-[10px] text-slate-400 font-bold">ربحك</p>
+                        <p className={`font-black text-sm ${profit > 0 ? "text-green-600" : "text-red-500"}`}>
+                          {profit.toFixed(0)} <small className="text-[10px] font-normal">د.م</small>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto space-y-2">
+                    <Link href={`/seller/products/${product.id}`}
+                      className="block w-full text-center py-2 rounded-xl border border-[#E2E8F0] text-slate-600 font-bold text-sm hover:bg-[#F8FAFC] transition">
+                      عرض التفاصيل
+                    </Link>
+                    {outOfStock ? (
+                      <button disabled
+                        className="w-full py-2.5 rounded-xl bg-gray-100 text-gray-400 font-bold text-sm cursor-not-allowed">
+                        غير متوفر
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="w-full py-2.5 rounded-xl bg-[#4361EE] hover:bg-[#3254D4] text-white font-bold text-sm transition shadow-sm">
+                        بيع هذا المنتج 🛒
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

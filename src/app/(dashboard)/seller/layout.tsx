@@ -3,18 +3,19 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
+import { CartProvider, useCart } from "@/context/CartContext";
+import { CartDrawer } from "@/components/seller/CartDrawer";
 import axios from "axios";
 
-export default function SellerLayout({ children }: { children: React.ReactNode }) {
+function SellerLayoutInner({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
   const [balance, setBalance] = useState("0.00");
   const pathname = usePathname();
+  const { totalCount, openDrawer } = useCart();
 
   useEffect(() => {
     axios.get("/api/seller/wallet")
-      .then(res => {
-        if (res.data.balance) setBalance(Number(res.data.balance).toFixed(2));
-      })
+      .then(res => { if (res.data.balance !== undefined) setBalance(Number(res.data.balance).toFixed(2)); })
       .catch(() => {});
   }, [pathname]);
 
@@ -22,7 +23,6 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
       {/* Sidebar */}
       <aside className={`${isOpen ? "w-64" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
-        {/* Logo */}
         <div className="p-5 flex items-center justify-between border-b border-white/10">
           {isOpen && (
             <div>
@@ -57,7 +57,6 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           </NavGroup>
         </nav>
 
-        {/* Balance widget inside sidebar */}
         {isOpen && (
           <div className="mx-3 mb-3 bg-white/10 rounded-xl p-3 border border-white/10">
             <p className="text-[10px] text-white/50 font-bold mb-1">رصيد المحفظة</p>
@@ -89,14 +88,41 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 {balance} د.م
               </span>
             </div>
+
+            {/* Cart icon */}
+            <button
+              onClick={openDrawer}
+              className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition group"
+              aria-label="السلة"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
+              </svg>
+              {totalCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow">
+                  {totalCount > 9 ? "9+" : totalCount}
+                </span>
+              )}
+            </button>
+
             <div className="w-9 h-9 bg-[#4361EE] rounded-full flex items-center justify-center text-white font-black text-sm">
               S
             </div>
           </div>
         </header>
 
-        <div className="p-8">{children}</div>
+        <div className="p-8 flex-1">{children}</div>
       </main>
+
+      <CartDrawer />
     </div>
+  );
+}
+
+export default function SellerLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <CartProvider>
+      <SellerLayoutInner>{children}</SellerLayoutInner>
+    </CartProvider>
   );
 }
