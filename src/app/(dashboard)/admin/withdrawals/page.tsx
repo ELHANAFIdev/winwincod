@@ -3,6 +3,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+function getRef(req: any) {
+  const d = new Date(req.createdAt);
+  const ym = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const short = req.id.slice(-6).toUpperCase();
+  return `WD-${ym}-${short}`;
+}
+
 export default function AdminWithdrawalsPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +74,9 @@ export default function AdminWithdrawalsPage() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-5">
                     <div>
+                      <span className="inline-block font-mono font-black text-xs tracking-widest bg-[#1E293B] text-white px-3 py-1 rounded-lg mb-2">
+                        {getRef(req)}
+                      </span>
                       <p className="text-3xl font-black text-green-600">{Number(req.amount).toFixed(2)} <span className="text-xl">د.م</span></p>
                       <p className="text-sm font-bold text-[#1E293B] mt-1">👤 {req.seller.name}</p>
                       <p className="text-xs text-slate-400">{req.seller.email}</p>
