@@ -1,283 +1,173 @@
 "use client";
-import { useState, useEffect, useRef, Suspense } from "react";
-import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { moroccanCities } from "@/lib/moroccan-cities";
+import { getCart, saveCart, CartItem } from "@/lib/cart";
 
-const ALL_CITIES = moroccanCities.flatMap(r => r.cities).sort((a, b) => a.localeCompare(b));
-
-function CitySearch({ value, onChange, error }: { value: string; onChange: (c: string) => void; error?: string }) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const searchRef = useRef<HTMLInputElement>(null);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const filtered = query.length >= 1
-    ? ALL_CITIES.filter(c => c.toLowerCase().includes(query.toLowerCase()))
-    : ALL_CITIES;
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  useEffect(() => {
-    if (open) setTimeout(() => searchRef.current?.focus(), 50);
-  }, [open]);
-
-  const select = (city: string) => { onChange(city); setOpen(false); setQuery(""); };
-
-  return (
-    <div ref={ref}>
-      {/* Trigger button */}
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        className={`w-full flex items-center justify-between border ${
-          error ? "border-red-400" : open ? "border-[#4361EE]" : "border-gray-200 hover:border-[#4361EE]"
-        } px-4 py-3 rounded-xl bg-white text-[#1E293B] transition`}
-      >
-        <span className={value ? "font-bold text-[#1E293B]" : "text-slate-400"}>
-          {value || "اختر المدينة..."}
-        </span>
-        <span className={`text-slate-400 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▼</span>
-      </button>
-
-      {/* Fixed panel */}
-      {open && (
-        <div className="mt-1 border border-[#4361EE]/30 rounded-xl bg-white shadow-lg overflow-hidden">
-          {/* Search input — fixed at top of panel */}
-          <div className="p-2 border-b border-[#E2E8F0] bg-[#F8FAFC]">
-            <div className="relative">
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
-              <input
-                ref={searchRef}
-                type="text"
-                value={query}
-                placeholder="ابحث عن مدينة..."
-                onChange={e => setQuery(e.target.value)}
-                className="w-full border border-[#E2E8F0] focus:border-[#4361EE] pr-9 pl-3 py-2 rounded-lg text-sm outline-none bg-white text-[#1E293B] transition"
-                autoComplete="off"
-              />
-              {query && (
-                <button type="button" onMouseDown={() => setQuery("")}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-base leading-none">×</button>
-              )}
-            </div>
-          </div>
-
-          {/* Scrollable city list */}
-          <ul className="overflow-y-auto max-h-[250px]">
-            {filtered.length === 0 ? (
-              <li className="px-4 py-4 text-sm text-slate-400 text-center">لا توجد مدن مطابقة</li>
-            ) : (
-              filtered.map(city => (
-                <li key={city}
-                  onMouseDown={() => select(city)}
-                  className={`px-4 py-2.5 text-sm cursor-pointer font-medium transition border-b border-[#F1F5F9] last:border-0 ${
-                    value === city
-                      ? "bg-[#4361EE] text-white"
-                      : "text-[#1E293B] hover:bg-[#EEF2FF] hover:text-[#4361EE]"
-                  }`}
-                >
-                  {city}
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      )}
-
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
+function parseFirstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images);
+    return Array.isArray(arr) && arr.length > 0 ? arr[0] : "";
+  } catch {
+    return images || "";
+  }
 }
 
-const inputCls = "w-full border border-gray-200 focus:border-[#4361EE] p-3 rounded-xl outline-none transition bg-white text-[#1E293B]";
-const labelCls = "block text-sm font-bold text-[#1E293B] mb-2";
-
-function OrderForm() {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [cityValue, setCityValue] = useState("");
-
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const preSelectedId = searchParams.get("productId");
-  const codAmount = watch("codAmount");
+export default function ProductSelectionPage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const tid = toast.loading("جاري جلب المنتجات...");
-    axios.get("/api/seller/products").then(res => {
-      setProducts(res.data.products);
-      toast.dismiss(tid);
-    }).catch(() => toast.error("فشل تحميل المنتجات", { id: tid }));
+    setCart(getCart());
+    axios.get("/api/seller/products")
+      .then(res => setProducts(res.data.products || []))
+      .catch(() => toast.error("فشل تحميل المنتجات"))
+      .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (preSelectedId && products.length > 0) {
-      const product: any = products.find((p: any) => p.id === preSelectedId);
-      if (product) {
-        setValue("productId", product.id);
-        setValue("productName", product.name);
-        setValue("codAmount", product.marketPrice);
-        setSelectedProduct(product);
-      }
-    }
-  }, [preSelectedId, products, setValue]);
+  const getQty = (id: string) => quantities[id] || 1;
 
-  const handleProductChange = (e: any) => {
-    const product: any = products.find((p: any) => p.id === e.target.value);
-    setSelectedProduct(product || null);
-    if (product) { setValue("productName", product.name); setValue("codAmount", product.marketPrice); }
+  const addToCart = (product: any) => {
+    const qty = getQty(product.id);
+    const item: CartItem = {
+      cartId: `${product.id}-${Date.now()}`,
+      productId: product.id,
+      productName: product.name,
+      productImage: parseFirstImage(product.images),
+      sellerPrice: Number(product.sellerPrice),
+      marketPrice: Number(product.marketPrice),
+      quantity: qty,
+    };
+    const updated = [...cart, item];
+    saveCart(updated);
+    setCart(updated);
+    setQuantities(q => ({ ...q, [product.id]: 1 }));
+    toast.success("تمت الإضافة للسلة ✅");
   };
 
-  const validatePhone = (v: string) => /^(?:(?:\+|00)212|0)[5-7]\d{8}$/.test(v) || "رقم الهاتف غير صحيح (06xxxxxxxx)";
-
-  const profit = selectedProduct && codAmount
-    ? Number(codAmount) - Number(selectedProduct.sellerPrice)
-    : 0;
-
-  const onSubmit = async (data: any) => {
-    setLoading(true);
-    const tid = toast.loading("جاري تسجيل الطلب...");
-    try {
-      await axios.post("/api/seller/orders/create", data);
-      toast.success("تمت إضافة الطلب للمسودات! 🚀", { id: tid });
-      setTimeout(() => router.push("/seller/orders/drafts"), 1000);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "حدث خطأ", { id: tid });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const cartCount = cart.length;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {/* Product selector + profit card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5">
-        <div className="flex flex-col md:flex-row gap-5 items-start">
-          <div className="flex-1">
-            <label className={labelCls}>المنتج المراد بيعه</label>
-            <select
-              {...register("productId", { required: "يجب اختيار منتج" })}
-              className={inputCls + " bg-white"}
-              value={selectedProduct?.id || ""}
-              onChange={handleProductChange}
-            >
-              <option value="">-- اختر من القائمة --</option>
-              {products.map((p: any) => (
-                <option key={p.id} value={p.id}>{p.name} (مخزون: {p.stock})</option>
-              ))}
-            </select>
-            {errors.productId && <p className="text-red-500 text-xs mt-1">{String(errors.productId.message)}</p>}
-          </div>
-
-          {selectedProduct && (
-            <div className={`p-4 rounded-2xl border min-w-[140px] text-center flex-shrink-0 ${
-              profit > 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-            }`}>
-              <p className="text-xs font-bold text-slate-500 mb-1">ربحك المتوقع</p>
-              <p className={`text-2xl font-black ${profit > 0 ? "text-green-600" : "text-red-600"}`}>
-                {profit.toFixed(0)} <small className="text-sm">د.م</small>
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Customer info */}
-      <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 space-y-4">
-        <h3 className="font-bold text-[#1E293B] text-sm border-b border-[#E2E8F0] pb-3">بيانات الزبون</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>اسم الزبون</label>
-            <input {...register("customerName", { required: "الاسم مطلوب" })} className={inputCls} placeholder="الاسم الكامل" />
-            {errors.customerName && <p className="text-red-500 text-xs mt-1">{String(errors.customerName.message)}</p>}
-          </div>
-          <div>
-            <label className={labelCls}>رقم الهاتف</label>
-            <input
-              {...register("customerPhone", { required: "الهاتف مطلوب", validate: validatePhone })}
-              className={inputCls + (errors.customerPhone ? " border-red-400" : "")}
-              placeholder="06xxxxxxxx" type="tel"
-            />
-            {errors.customerPhone && <p className="text-red-500 text-xs mt-1">{String(errors.customerPhone.message)}</p>}
-          </div>
-        </div>
-
+    <div className="space-y-6 pb-28">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <label className={labelCls}>العنوان</label>
-          <input {...register("address", { required: "العنوان مطلوب" })} className={inputCls} placeholder="رقم الدار، الزنقة، الحي..." />
-          {errors.address && <p className="text-red-500 text-xs mt-1">{String(errors.address.message)}</p>}
+          <h2 className="text-2xl font-black text-[#1E293B]">اختر المنتجات</h2>
+          <p className="text-slate-400 text-sm mt-0.5">أضف المنتجات للسلة ثم تابع لإدخال بيانات الزبائن</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>المدينة</label>
-            <input type="hidden" {...register("city", { required: "المدينة مطلوبة" })} value={cityValue} />
-            <CitySearch
-              value={cityValue}
-              onChange={city => { setCityValue(city); setValue("city", city, { shouldValidate: true }); }}
-              error={errors.city ? String(errors.city.message) : undefined}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>الكمية</label>
-            <input type="number" {...register("quantity", { required: true, min: 1 })} className={inputCls + " text-center font-bold"} defaultValue={1} min={1} />
-          </div>
-        </div>
-      </div>
-
-      {/* COD amount */}
-      <div className="bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] p-5 space-y-3">
-        <label className="block text-sm font-bold text-green-700">مبلغ التحصيل من الزبون (COD)</label>
-        <div className="relative">
-          <input
-            type="number" step="0.01"
-            {...register("codAmount", { required: "المبلغ مطلوب", min: 0 })}
-            className="w-full border-2 border-green-200 focus:border-green-500 p-3.5 rounded-xl outline-none font-bold text-lg text-green-800 bg-white"
-            placeholder="0.00"
-          />
-          <span className="absolute left-4 top-4 text-green-600 font-bold text-sm">د.م</span>
-        </div>
-        {selectedProduct && (
-          <div className="flex justify-between text-xs text-slate-500">
-            <span>تكلفتك: <strong className="text-[#4361EE]">{Number(selectedProduct.sellerPrice).toFixed(2)} د.م</strong></span>
-            <span>سعر السوق المقترح: <strong className="text-green-600">{Number(selectedProduct.marketPrice).toFixed(2)} د.م</strong></span>
-          </div>
+        {cartCount > 0 && (
+          <Link href="/seller/orders/cart"
+            className="flex items-center gap-2 bg-[#4361EE] text-white px-5 py-2.5 rounded-xl font-bold shadow hover:bg-[#3254D4] transition">
+            🛒 السلة ({cartCount})
+          </Link>
         )}
       </div>
 
-      <button
-        disabled={loading}
-        className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-4 rounded-xl font-bold transition shadow-sm text-base disabled:opacity-60 flex justify-center items-center gap-2"
-      >
-        {loading ? (
-          <><span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>جاري المعالجة...</>
-        ) : "تأكيد الطلب 🚀"}
-      </button>
-    </form>
-  );
-}
+      {loading ? (
+        <div className="flex items-center justify-center h-64 gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#4361EE] border-t-transparent" />
+          <span className="text-[#4361EE] font-bold">جاري تحميل المنتجات...</span>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
+          <p className="text-4xl mb-3">📦</p>
+          <p className="text-slate-400 font-bold">لا توجد منتجات متاحة</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map(product => {
+            const image = parseFirstImage(product.images);
+            const qty = getQty(product.id);
+            const profit = Number(product.marketPrice) - Number(product.sellerPrice);
+            const inCartCount = cart.filter(i => i.productId === product.id).length;
+            const outOfStock = product.stock === 0;
 
-export default function NewOrderPage() {
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl font-black text-[#1E293B]">إضافة طلب جديد</h2>
-        <p className="text-slate-400 text-sm mt-0.5">أدخل بيانات الزبون بدقة لضمان توصيل سريع</p>
-      </div>
-      <Suspense fallback={<div className="text-center p-10 text-[#4361EE]">جاري التحميل...</div>}>
-        <OrderForm />
-      </Suspense>
+            return (
+              <div key={product.id}
+                className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col transition
+                  ${outOfStock ? "opacity-60 border-[#E2E8F0]" : "border-[#E2E8F0] hover:border-[#4361EE]/40 hover:shadow-md"}`}>
+
+                {/* Image */}
+                <div className="relative bg-[#F8FAFC] h-44 flex items-center justify-center overflow-hidden">
+                  {image ? (
+                    <img src={image} alt={product.name}
+                      className="h-full w-full object-contain p-3"
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  ) : (
+                    <span className="text-5xl opacity-20">📦</span>
+                  )}
+                  {inCartCount > 0 && (
+                    <span className="absolute top-2 right-2 bg-[#4361EE] text-white text-xs font-black px-2.5 py-1 rounded-lg shadow">
+                      {inCartCount} في السلة
+                    </span>
+                  )}
+                  {outOfStock && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                      <span className="bg-red-500 text-white text-sm font-black px-4 py-2 rounded-xl">نفذ المخزون</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="p-4 flex flex-col gap-3 flex-1">
+                  <div>
+                    <h3 className="font-black text-[#1E293B] text-sm leading-snug line-clamp-2">{product.name}</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">المخزون: {product.stock}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-slate-400">سعر البيع المقترح</p>
+                      <p className="text-lg font-black text-[#1E293B]">
+                        {Number(product.marketPrice).toFixed(0)}
+                        <span className="text-xs font-normal text-slate-400 mr-1">د.م</span>
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1.5 rounded-xl text-xs font-black
+                      ${profit > 0 ? "bg-green-50 text-green-700" : "bg-slate-50 text-slate-400"}`}>
+                      ربح {profit.toFixed(0)} د.م
+                    </span>
+                  </div>
+
+                  {/* Qty + Add button */}
+                  <div className="flex items-center gap-2 mt-auto">
+                    <div className="flex items-center border border-[#E2E8F0] rounded-xl overflow-hidden">
+                      <button type="button" disabled={outOfStock || qty <= 1}
+                        onClick={() => setQuantities(q => ({ ...q, [product.id]: Math.max(1, (q[product.id] || 1) - 1) }))}
+                        className="px-3 py-2 text-[#4361EE] font-black hover:bg-[#EEF2FF] transition text-sm disabled:opacity-30">−</button>
+                      <span className="px-2 font-black text-[#1E293B] text-sm min-w-[1.5rem] text-center">{qty}</span>
+                      <button type="button" disabled={outOfStock || qty >= product.stock}
+                        onClick={() => setQuantities(q => ({ ...q, [product.id]: Math.min(product.stock, (q[product.id] || 1) + 1) }))}
+                        className="px-3 py-2 text-[#4361EE] font-black hover:bg-[#EEF2FF] transition text-sm disabled:opacity-30">+</button>
+                    </div>
+                    <button type="button" disabled={outOfStock}
+                      onClick={() => addToCart(product)}
+                      className="flex-1 bg-[#4361EE] hover:bg-[#3254D4] disabled:bg-[#E2E8F0] disabled:text-slate-400 text-white py-2 rounded-xl font-bold text-sm transition">
+                      إضافة للسلة
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Floating continue button */}
+      {cartCount > 0 && (
+        <div className="fixed bottom-6 inset-x-0 flex justify-center z-50 pointer-events-none">
+          <Link href="/seller/orders/cart"
+            className="pointer-events-auto flex items-center gap-3 bg-[#4361EE] text-white px-8 py-4 rounded-2xl font-black shadow-2xl shadow-blue-900/30 hover:bg-[#3254D4] transition text-base">
+            <span>🛒</span>
+            <span>متابعة</span>
+            <span className="bg-white/20 px-3 py-0.5 rounded-xl text-sm">{cartCount} طلب</span>
+            <span>←</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
