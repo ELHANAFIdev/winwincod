@@ -9,66 +9,90 @@ import { moroccanCities } from "@/lib/moroccan-cities";
 const ALL_CITIES = moroccanCities.flatMap(r => r.cities).sort((a, b) => a.localeCompare(b));
 
 function CitySearch({ value, onChange, error }: { value: string; onChange: (c: string) => void; error?: string }) {
-  const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
-  const suggestions = query.length >= 1
-    ? ALL_CITIES.filter(c => c.toLowerCase().includes(query.toLowerCase())).slice(0, 10)
-    : [];
+  const filtered = query.length >= 1
+    ? ALL_CITIES.filter(c => c.toLowerCase().includes(query.toLowerCase()))
+    : ALL_CITIES;
 
   useEffect(() => {
-    console.log("[CitySearch] ALL_CITIES count:", ALL_CITIES.length, "sample:", ALL_CITIES.slice(0, 3));
-  }, []);
-
-  useEffect(() => {
-    if (query.length >= 1) {
-      console.log("[CitySearch] query:", query, "| suggestions:", suggestions.length, suggestions);
-    }
-  }, [query, suggestions.length]);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const select = (city: string) => { setQuery(city); onChange(city); setOpen(false); };
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 50);
+  }, [open]);
+
+  const select = (city: string) => { onChange(city); setOpen(false); setQuery(""); };
 
   return (
-    <div ref={ref} className="relative">
-      <div className="relative">
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">🔍</span>
-        <input
-          type="text"
-          value={query}
-          placeholder="ابحث عن مدينة..."
-          className={`w-full border ${error ? "border-red-400" : "border-gray-200 focus:border-[#4361EE]"} pr-9 pl-3 py-3 rounded-xl outline-none transition bg-white text-[#1E293B]`}
-          onChange={e => { const v = e.target.value; setQuery(v); onChange(""); setOpen(v.length >= 1); }}
-          onFocus={() => { if (query.length >= 1) setOpen(true); }}
-          autoComplete="off"
-        />
-        {query && (
-          <button type="button" onClick={() => { setQuery(""); onChange(""); setOpen(false); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-lg leading-none">×</button>
-        )}
-      </div>
-      {open && suggestions.length > 0 && (
-        <ul className="absolute z-[9999] w-full bottom-full mb-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl max-h-52 overflow-y-auto">
-          {suggestions.map(city => (
-            <li key={city}
-              onMouseDown={() => select(city)}
-              className="px-4 py-2.5 text-sm text-[#1E293B] hover:bg-[#EEF2FF] hover:text-[#4361EE] cursor-pointer font-medium transition">
-              {city}
-            </li>
-          ))}
-        </ul>
-      )}
-      {open && query.length >= 2 && suggestions.length === 0 && (
-        <div className="absolute z-[9999] w-full bottom-full mb-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl px-4 py-3 text-sm text-slate-400">
-          لا توجد مدن مطابقة
+    <div ref={ref}>
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between border ${
+          error ? "border-red-400" : open ? "border-[#4361EE]" : "border-gray-200 hover:border-[#4361EE]"
+        } px-4 py-3 rounded-xl bg-white text-[#1E293B] transition`}
+      >
+        <span className={value ? "font-bold text-[#1E293B]" : "text-slate-400"}>
+          {value || "اختر المدينة..."}
+        </span>
+        <span className={`text-slate-400 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▼</span>
+      </button>
+
+      {/* Fixed panel */}
+      {open && (
+        <div className="mt-1 border border-[#4361EE]/30 rounded-xl bg-white shadow-lg overflow-hidden">
+          {/* Search input — fixed at top of panel */}
+          <div className="p-2 border-b border-[#E2E8F0] bg-[#F8FAFC]">
+            <div className="relative">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
+              <input
+                ref={searchRef}
+                type="text"
+                value={query}
+                placeholder="ابحث عن مدينة..."
+                onChange={e => setQuery(e.target.value)}
+                className="w-full border border-[#E2E8F0] focus:border-[#4361EE] pr-9 pl-3 py-2 rounded-lg text-sm outline-none bg-white text-[#1E293B] transition"
+                autoComplete="off"
+              />
+              {query && (
+                <button type="button" onMouseDown={() => setQuery("")}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-base leading-none">×</button>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable city list */}
+          <ul className="overflow-y-auto max-h-[250px]">
+            {filtered.length === 0 ? (
+              <li className="px-4 py-4 text-sm text-slate-400 text-center">لا توجد مدن مطابقة</li>
+            ) : (
+              filtered.map(city => (
+                <li key={city}
+                  onMouseDown={() => select(city)}
+                  className={`px-4 py-2.5 text-sm cursor-pointer font-medium transition border-b border-[#F1F5F9] last:border-0 ${
+                    value === city
+                      ? "bg-[#4361EE] text-white"
+                      : "text-[#1E293B] hover:bg-[#EEF2FF] hover:text-[#4361EE]"
+                  }`}
+                >
+                  {city}
+                </li>
+              ))
+            )}
+          </ul>
         </div>
       )}
+
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
