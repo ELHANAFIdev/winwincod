@@ -2,8 +2,8 @@ import prisma from "@/lib/prisma";
 import { chargeWallet } from "./walletService";
 
 export async function createBatch(sellerId: string, orderIds: string[]) {
-  if (orderIds.length < 5) {
-    throw new Error("الحد الأدنى لإنشاء دفعة هو 5 طلبات");
+  if (orderIds.length < 1) {
+    throw new Error("يجب اختيار طلب واحد على الأقل");
   }
 
   const countValid = await prisma.order.count({

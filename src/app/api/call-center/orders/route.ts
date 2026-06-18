@@ -2,34 +2,34 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
     const user = await getSessionUser();
-    
-    // تأكد من أن المستخدم هو CALL_CENTER أو ADMIN
     if (!user || (user.role !== "CALL_CENTER" && user.role !== "ADMIN")) {
       return errorResponse("غير مصرح لك بالوصول لهذه البيانات", 401);
     }
 
-    // جلب الطلبات التي تنتظر التأكيد فقط
+    const { searchParams } = new URL(req.url);
+    const sellerId = searchParams.get("sellerId");
+
+    const where = sellerId
+      ? { status: "PENDING_CONFIRMATION" as const, sellerId }
+      : { status: "PENDING_CONFIRMATION" as const };
+
     const orders = await prisma.order.findMany({
-      where: {
-        status: "PENDING_CONFIRMATION" // 👈 تأكد من تطابق الحالة تماماً
-      },
+      where,
       include: {
-        seller: {
-          select: { name: true, phone: true }
-        }
+        seller: { select: { id: true, name: true, phone: true } },
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json({ success: true, orders });
+    const seller = sellerId && orders.length > 0 ? orders[0].seller : null;
 
+    return NextResponse.json({ success: true, orders, seller });
   } catch (error: any) {
-    console.error("CallCenter API Error:", error);
     return errorResponse("فشل جلب الطلبات: " + error.message, 500);
   }
 }

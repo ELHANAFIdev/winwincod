@@ -9,8 +9,8 @@ export async function POST(req: Request) {
 
     const { orderIds } = await req.json();
 
-    if (!Array.isArray(orderIds) || orderIds.length < 5) {
-      return errorResponse("يجب اختيار 5 طلبات على الأقل", 400);
+    if (!Array.isArray(orderIds) || orderIds.length < 1) {
+      return errorResponse("يجب اختيار طلب واحد على الأقل", 400);
     }
 
     // استدعاء الخدمة (Business Logic)
