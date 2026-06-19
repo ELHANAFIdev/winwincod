@@ -17,6 +17,17 @@ type Order = {
 };
 
 type SellerInfo = { id: string; name: string; phone?: string };
+type NoteEntry = { text: string; timestamp: string };
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "للتو";
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  return `منذ ${Math.floor(hours / 24)} يوم`;
+}
 
 export default function SellerOrdersPage() {
   const { sellerId } = useParams<{ sellerId: string }>();
@@ -26,17 +37,33 @@ export default function SellerOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [notes, setNotes] = useState<Record<string, NoteEntry>>({});
 
   useEffect(() => {
     axios
       .get(`/api/call-center/orders?sellerId=${sellerId}`)
       .then((res) => {
-        setOrders(res.data.orders ?? []);
+        const fetchedOrders: Order[] = res.data.orders ?? [];
+        setOrders(fetchedOrders);
         setSeller(res.data.seller ?? null);
+        const stored: Record<string, NoteEntry> = {};
+        fetchedOrders.forEach((o) => {
+          const saved = localStorage.getItem(`cc_note_${o.id}`);
+          if (saved) {
+            try { stored[o.id] = JSON.parse(saved); } catch {}
+          }
+        });
+        setNotes(stored);
       })
       .catch(() => toast.error("فشل تحميل الطلبات"))
       .finally(() => setLoading(false));
   }, [sellerId]);
+
+  const saveNote = (orderId: string, text: string) => {
+    const note: NoteEntry = { text, timestamp: new Date().toISOString() };
+    localStorage.setItem(`cc_note_${orderId}`, JSON.stringify(note));
+    setNotes((prev) => ({ ...prev, [orderId]: note }));
+  };
 
   const updateOrder = async (orderId: string, status: "CONFIRMED" | "CANCELLED") => {
     setProcessingIds((prev) => new Set(prev).add(orderId));
@@ -179,6 +206,8 @@ export default function SellerOrdersPage() {
                 processing={processingIds.has(order.id) || bulkProcessing}
                 onConfirm={() => updateOrder(order.id, "CONFIRMED")}
                 onCancel={() => updateOrder(order.id, "CANCELLED")}
+                note={notes[order.id] ?? null}
+                onSaveNote={(text) => saveNote(order.id, text)}
               />
             ))}
           </div>
@@ -189,13 +218,18 @@ export default function SellerOrdersPage() {
 }
 
 function OrderCard({
-  order, processing, onConfirm, onCancel,
+  order, processing, onConfirm, onCancel, note, onSaveNote,
 }: {
   order: Order;
   processing: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  note: NoteEntry | null;
+  onSaveNote: (text: string) => void;
 }) {
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [noteText, setNoteText] = useState(note?.text ?? "");
+
   return (
     <div
       className={`bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden transition-all ${
@@ -214,45 +248,94 @@ function OrderCard({
       </div>
 
       {/* Card body */}
-      <div className="p-5 flex flex-col md:flex-row items-start md:items-center gap-5">
-        <div className="flex-1 space-y-3 min-w-0">
-          {/* Phone — big and clickable */}
-          <a
-            href={`tel:${order.customerPhone}`}
-            className="block text-3xl font-mono font-black text-[#4361EE] hover:text-[#3254D4] transition tracking-wider leading-none"
-          >
-            {order.customerPhone}
-          </a>
+      <div className="p-5 space-y-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
+          {/* Left: info */}
+          <div className="flex-1 space-y-2 min-w-0">
+            <p className="text-lg font-mono font-black text-[#0F172A] tracking-wider leading-none">
+              {order.customerPhone}
+            </p>
+            <div className="flex items-center gap-2 flex-wrap text-sm">
+              <span className="font-bold text-[#0F172A]">{order.productName}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-slate-500">×{order.quantity}</span>
+              <span className="text-slate-300">·</span>
+              <span className="font-black text-green-600">
+                {Number(order.codAmount).toFixed(2)} د.م
+              </span>
+            </div>
+            {note && (
+              <p className="text-xs text-amber-600 font-bold">
+                📞 آخر محاولة اتصال: {timeAgo(note.timestamp)}
+              </p>
+            )}
+          </div>
 
-          {/* Product info */}
-          <div className="flex items-center gap-2 flex-wrap text-sm">
-            <span className="font-bold text-[#0F172A]">{order.productName}</span>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-500">×{order.quantity}</span>
-            <span className="text-slate-300">·</span>
-            <span className="font-black text-green-600">
-              {Number(order.codAmount).toFixed(2)} د.م
-            </span>
+          {/* Right: actions */}
+          <div className="flex flex-col gap-2 w-full md:w-auto flex-shrink-0">
+            {/* Big call button */}
+            <a
+              href={`tel:${order.customerPhone}`}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-sm transition shadow-sm"
+            >
+              📞 اتصل الآن
+            </a>
+            {/* Secondary actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowNoteInput(!showNoteInput)}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-50 text-amber-600 rounded-xl font-bold border border-amber-100 text-sm hover:bg-amber-100 transition"
+              >
+                📝 ملاحظة
+              </button>
+              <button
+                onClick={onCancel}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm"
+              >
+                <XCircleIcon />
+                إلغاء
+              </button>
+              <button
+                onClick={onConfirm}
+                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition shadow-sm text-sm"
+              >
+                <CheckCircleIcon />
+                تأكيد
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-3 w-full md:w-auto flex-shrink-0">
-          <button
-            onClick={onCancel}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm"
-          >
-            <XCircleIcon />
-            إلغاء
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-7 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition shadow-sm text-sm"
-          >
-            <CheckCircleIcon />
-            تأكيد
-          </button>
-        </div>
+        {/* Note input */}
+        {showNoteInput && (
+          <div className="flex gap-2 pt-3 border-t border-[#E2E8F0]">
+            <input
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && noteText.trim()) {
+                  onSaveNote(noteText.trim());
+                  setShowNoteInput(false);
+                }
+              }}
+              className="flex-1 border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#4361EE] bg-[#F8FAFC]"
+              placeholder="اكتب ملاحظة عن محاولة الاتصال..."
+              dir="rtl"
+              autoFocus
+            />
+            <button
+              onClick={() => {
+                if (noteText.trim()) {
+                  onSaveNote(noteText.trim());
+                  setShowNoteInput(false);
+                }
+              }}
+              className="px-4 py-2 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl text-sm font-bold transition"
+            >
+              حفظ
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

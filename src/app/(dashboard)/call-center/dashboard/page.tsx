@@ -1,15 +1,33 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import Link from "next/link";
 
-type SellerCard = { id: string; name: string; pendingCount: number; totalCOD: number };
-type Stats = { totalToday: number; confirmedToday: number; cancelledToday: number; pending: number };
+type SellerCard = {
+  id: string; name: string; pendingCount: number; totalCOD: number;
+  latestOrderAt: string; oldestOrderAt: string;
+};
+type Stats = {
+  totalToday: number; confirmedToday: number; cancelledToday: number;
+  pending: number; codToday: number; confirmationRate: number;
+};
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "للتو";
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  return `منذ ${Math.floor(hours / 24)} يوم`;
+}
 
 export default function CallCenterDashboard() {
   const [sellers, setSellers] = useState<SellerCard[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"count" | "oldest">("count");
 
   useEffect(() => {
     axios
@@ -21,6 +39,15 @@ export default function CallCenterDashboard() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const displayedSellers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = q ? sellers.filter((s) => s.name.toLowerCase().includes(q)) : sellers;
+    if (sort === "oldest") {
+      return [...filtered].sort((a, b) => new Date(a.oldestOrderAt).getTime() - new Date(b.oldestOrderAt).getTime());
+    }
+    return [...filtered].sort((a, b) => b.pendingCount - a.pendingCount);
+  }, [sellers, search, sort]);
 
   if (loading) {
     return (
@@ -41,9 +68,9 @@ export default function CallCenterDashboard() {
         </p>
       </div>
 
-      {/* Stats bar */}
+      {/* Stats bar — 6 cards */}
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           <StatCard
             label="طلبات اليوم"
             value={stats.totalToday}
@@ -76,6 +103,22 @@ export default function CallCenterDashboard() {
             iconColor="text-[#FB923C]"
             valueColor="text-[#FB923C]"
           />
+          <StatCard
+            label="إجمالي COD اليوم"
+            value={`${stats.codToday.toFixed(0)} د.م`}
+            icon={<MoneyIcon />}
+            bgColor="bg-emerald-50"
+            iconColor="text-emerald-600"
+            valueColor="text-emerald-600"
+          />
+          <StatCard
+            label="نسبة التأكيد %"
+            value={`${stats.confirmationRate}%`}
+            icon={<PercentIcon />}
+            bgColor="bg-violet-50"
+            iconColor="text-violet-600"
+            valueColor="text-violet-600"
+          />
         </div>
       )}
 
@@ -87,14 +130,35 @@ export default function CallCenterDashboard() {
           <p className="text-slate-400 text-sm mt-2">عمل رائع! كل الطلبات تمت معالجتها.</p>
         </div>
       ) : (
-        <div>
-          <div className="flex items-center justify-between mb-4">
+        <div className="space-y-4">
+          {/* Search & Sort bar */}
+          <div className="flex gap-3 flex-wrap">
+            <input
+              type="text"
+              placeholder="بحث عن بائع..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-[180px] border border-[#E2E8F0] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#4361EE] bg-white"
+              dir="rtl"
+            />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "count" | "oldest")}
+              className="border border-[#E2E8F0] rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-[#4361EE]"
+            >
+              <option value="count">الأكثر طلبات</option>
+              <option value="oldest">الأقدم طلباً</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between">
             <h2 className="font-black text-[#0F172A] text-sm">
-              {sellers.length} بائع · {stats?.pending ?? 0} طلب إجمالي
+              {displayedSellers.length} بائع · {stats?.pending ?? 0} طلب إجمالي
             </h2>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {sellers.map((seller) => (
+            {displayedSellers.map((seller) => (
               <SellerCardComponent key={seller.id} seller={seller} />
             ))}
           </div>
@@ -107,49 +171,54 @@ export default function CallCenterDashboard() {
 function StatCard({
   label, value, icon, bgColor, iconColor, valueColor,
 }: {
-  label: string; value: number; icon: React.ReactNode;
+  label: string; value: number | string; icon: React.ReactNode;
   bgColor: string; iconColor: string; valueColor: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 flex items-center gap-4">
-      <div className={`w-12 h-12 ${bgColor} rounded-xl flex items-center justify-center flex-shrink-0 ${iconColor}`}>
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 flex items-center gap-4 min-w-0">
+      <div className={`w-11 h-11 ${bgColor} rounded-xl flex items-center justify-center flex-shrink-0 ${iconColor}`}>
         {icon}
       </div>
-      <div>
-        <p className={`text-2xl font-black ${valueColor}`}>{value}</p>
-        <p className="text-slate-400 text-xs font-bold mt-0.5">{label}</p>
+      <div className="min-w-0 flex-1">
+        <p className={`text-xl font-black ${valueColor} leading-none truncate`}>{value}</p>
+        <p className="text-slate-400 text-[11px] font-bold mt-1 leading-tight">{label}</p>
       </div>
     </div>
   );
 }
 
 function SellerCardComponent({ seller }: { seller: SellerCard }) {
-  const initials = seller.name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
-
+  const initials = seller.name.split(" ").slice(0, 2).map((w) => w[0]).join("");
   const avatarColors = [
     "bg-[#4361EE]", "bg-violet-500", "bg-cyan-500",
     "bg-emerald-500", "bg-rose-500", "bg-amber-500",
   ];
   const colorIdx = seller.name.charCodeAt(0) % avatarColors.length;
+  const isUrgent = seller.oldestOrderAt
+    ? Date.now() - new Date(seller.oldestOrderAt).getTime() > 2 * 60 * 60 * 1000
+    : false;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 flex flex-col gap-4 hover:shadow-md hover:border-[#4361EE]/20 transition group">
+    <div className={`bg-white rounded-2xl shadow-sm border p-5 flex flex-col gap-4 hover:shadow-md transition group ${
+      isUrgent ? "border-red-300 hover:border-red-300" : "border-[#E2E8F0] hover:border-[#4361EE]/20"
+    }`}>
       <div className="flex items-center gap-3">
-        {/* Avatar */}
-        <div
-          className={`w-12 h-12 ${avatarColors[colorIdx]} rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0`}
-        >
+        <div className={`w-12 h-12 ${avatarColors[colorIdx]} rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0`}>
           {initials || seller.name[0]}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-black text-[#0F172A] truncate">{seller.name}</h3>
-          <p className="text-slate-400 text-xs mt-0.5">بائع</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-black text-[#0F172A] truncate">{seller.name}</h3>
+            {isUrgent && (
+              <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-lg bg-red-100 text-red-600 border border-red-200">
+                ⚠️ عاجل
+              </span>
+            )}
+          </div>
+          {seller.latestOrderAt && (
+            <p className="text-slate-400 text-xs mt-0.5">{timeAgo(seller.latestOrderAt)}</p>
+          )}
         </div>
-        {/* Pending badge */}
         <span className="flex-shrink-0 bg-[#FB923C]/10 text-[#FB923C] font-black text-sm px-3 py-1.5 rounded-xl border border-[#FB923C]/20">
           {seller.pendingCount}
         </span>
@@ -205,6 +274,20 @@ function ClockIcon() {
   return (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+function MoneyIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+    </svg>
+  );
+}
+function PercentIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
     </svg>
   );
 }
