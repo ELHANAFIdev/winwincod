@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
+import { sendToOzon } from "@/lib/ozonExpress";
 
 const orderSchema = z.object({
   productId: z.string().min(1),
@@ -29,10 +30,8 @@ export async function POST(req: Request) {
     const needed: Record<string, number> = {};
     for (const o of orders) needed[o.productId] = (needed[o.productId] || 0) + o.quantity;
 
-    const products = await prisma.product.findMany({
-      where: { id: { in: Object.keys(needed) } },
-    });
-    const productMap = new Map(products.map(p => [p.id, p]));
+    const products = await prisma.product.findMany({ where: { id: { in: Object.keys(needed) } } });
+    const productMap = new Map(products.map((p) => [p.id, p]));
 
     for (const [pid, qty] of Object.entries(needed)) {
       const p = productMap.get(pid);
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     const created = await prisma.$transaction(
-      orders.map(o =>
+      orders.map((o) =>
         prisma.order.create({
           data: {
             sellerId: user.id,
@@ -60,7 +59,24 @@ export async function POST(req: Request) {
       )
     );
 
-    return NextResponse.json({ success: true, orderIds: created.map(o => o.id) });
+    // Send all orders to Ozon in parallel — save tracking numbers
+    await Promise.allSettled(
+      created.map(async (order, i) => {
+        const o = orders[i];
+        const trackingNumber = await sendToOzon({
+          customerName: o.customerName,
+          customerPhone: o.customerPhone,
+          city: o.city,
+          address: o.address,
+          codAmount: o.codAmount,
+        });
+        if (trackingNumber) {
+          await prisma.order.update({ where: { id: order.id }, data: { trackingNumber } });
+        }
+      })
+    );
+
+    return NextResponse.json({ success: true, orderIds: created.map((o) => o.id) });
   } catch (error: any) {
     console.error("[create-bulk]", error);
     return errorResponse(error.message, 500);

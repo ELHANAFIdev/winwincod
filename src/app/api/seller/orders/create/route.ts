@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
+import { sendToOzon } from "@/lib/ozonExpress";
 
-// مخطط التحقق
 const createOrderSchema = z.object({
   customerName: z.string().min(2),
   customerPhone: z.string().min(8),
@@ -23,26 +23,19 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    
-    // 1. التحقق من صحة البيانات أولاً
+
     const validation = createOrderSchema.safeParse(body);
     if (!validation.success) {
       return errorResponse("بيانات غير مكتملة أو غير صحيحة", 400);
     }
 
-    // 2. 👈 استخراج "data" بعد نجاح التحقق مباشرة
     const { data } = validation;
 
-    // 3. 👈 الآن نستخدم data.productId للتحقق من المخزون في قاعدة البيانات
-    const product = await prisma.product.findUnique({
-      where: { id: data.productId }
-    });
-
+    const product = await prisma.product.findUnique({ where: { id: data.productId } });
     if (!product || product.stock < data.quantity) {
       return errorResponse(`عذراً، الكمية المتوفرة في المخزن (${product?.stock || 0}) غير كافية`, 400);
     }
 
-    // 4. إذا كان كل شيء سليماً، نقوم بإنشاء الطلب
     const newOrder = await prisma.order.create({
       data: {
         sellerId: user.id,
@@ -56,11 +49,27 @@ export async function POST(req: Request) {
         codAmount: data.codAmount,
         status: "DRAFT",
         updatedAt: new Date(),
-      }
+      },
     });
-    
-    return NextResponse.json({ success: true, orderId: newOrder.id });
 
+    // Send to Ozon Express — save tracking number if received
+    try {
+      const trackingNumber = await sendToOzon({
+        customerName: data.customerName,
+        customerPhone: data.customerPhone,
+        city: data.city,
+        address: data.address,
+        codAmount: data.codAmount,
+      });
+      if (trackingNumber) {
+        await prisma.order.update({
+          where: { id: newOrder.id },
+          data: { trackingNumber },
+        });
+      }
+    } catch {}
+
+    return NextResponse.json({ success: true, orderId: newOrder.id });
   } catch (error: any) {
     console.error("Server Error:", error);
     return errorResponse("حدث خطأ في الخادم أثناء معالجة الطلب", 500);
