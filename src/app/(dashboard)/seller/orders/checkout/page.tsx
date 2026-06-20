@@ -4,21 +4,18 @@ import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useCart } from "@/context/CartContext";
-import { moroccanCities } from "@/lib/moroccan-cities";
-
-const ALL_CITIES = moroccanCities.flatMap(r => r.cities).sort((a, b) => a.localeCompare(b));
 
 // ── City search ────────────────────────────────────────────────────────────────
-function CitySearch({ value, onChange, error }: {
-  value: string; onChange: (c: string) => void; error?: string;
+function CitySearch({ value, onChange, error, cities }: {
+  value: string; onChange: (c: string) => void; error?: string; cities: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const filtered = query.length >= 1
-    ? ALL_CITIES.filter(c => c.toLowerCase().includes(query.toLowerCase()))
-    : ALL_CITIES;
+    ? cities.filter(c => c.toLowerCase().includes(query.toLowerCase()))
+    : cities;
 
   useEffect(() => {
     const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
@@ -50,7 +47,7 @@ function CitySearch({ value, onChange, error }: {
             {filtered.length === 0
               ? <li className="px-4 py-3 text-sm text-slate-400 text-center">لا نتائج</li>
               : filtered.map(city => (
-                <li key={city} onMouseDown={() => select(city)}
+                <li key={city} onMouseDown={() => select(city as string)}
                   className={`px-3 py-2 text-sm cursor-pointer font-medium border-b border-[#F1F5F9] last:border-0 ${
                     value === city ? "bg-[#4361EE] text-white" : "text-[#1E293B] hover:bg-[#EEF2FF] hover:text-[#4361EE]"
                   }`}>
@@ -135,6 +132,17 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, FormErrors>>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ id: string; productName: string; customerName: string; amount: number }[] | null>(null);
+  const [cities, setCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/cities")
+      .then(r => r.json())
+      .then(d => {
+        const names: string[] = (d.cities ?? []).map((c: any) => c.name).sort((a: string, b: string) => a.localeCompare(b));
+        setCities(names);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setForms(prev => {
@@ -288,7 +296,8 @@ export default function CheckoutPage() {
                   <label className="block text-xs font-bold text-[#1E293B] mb-1">المدينة</label>
                   <CitySearch value={form.city}
                     onChange={city => setField(item.cartId, "city", city)}
-                    error={itemErrors.city} />
+                    error={itemErrors.city}
+                    cities={cities} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#1E293B] mb-1">مبلغ التحصيل COD</label>
