@@ -2,17 +2,35 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: Request) {
   const user = await getSessionUser();
   if (!user || user.role !== "ADMIN") return errorResponse("غير مصرح", 401);
 
+  const { searchParams } = new URL(req.url);
+  const status = searchParams.get("status"); // PENDING | APPROVED | REJECTED | null (all)
+
+  const where = status ? { status: status as any } : {};
+
   const requests = await prisma.depositrequest.findMany({
-    where: { status: "PENDING" },
+    where,
     include: {
-      seller: { select: { name: true, email: true, phone: true } }
+      seller: { select: { name: true, email: true, phone: true } },
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json({ success: true, requests });
+  // Summary counts for tabs
+  const [pending, approved, rejected] = await Promise.all([
+    prisma.depositrequest.count({ where: { status: "PENDING" } }),
+    prisma.depositrequest.count({ where: { status: "APPROVED" } }),
+    prisma.depositrequest.count({ where: { status: "REJECTED" } }),
+  ]);
+
+  return NextResponse.json({
+    success: true,
+    requests,
+    counts: { pending, approved, rejected, total: pending + approved + rejected },
+  });
 }
