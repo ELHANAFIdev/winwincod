@@ -51,6 +51,7 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
             <NavItem href="/seller/orders/new" icon="➕" label="إضافة طلب" active={pathname === "/seller/orders/new"} isOpen={isOpen} />
             <NavItem href="/seller/orders/drafts" icon="📝" label="المسودات" active={pathname === "/seller/orders/drafts"} isOpen={isOpen} />
             <NavItem href="/seller/batches" icon="📦" label="الدفعات" active={pathname === "/seller/batches"} isOpen={isOpen} />
+            <NavItem href="/seller/tracking" icon="🔍" label="تتبع الطلبات" active={pathname === "/seller/tracking"} isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="المالية" isOpen={isOpen}>
