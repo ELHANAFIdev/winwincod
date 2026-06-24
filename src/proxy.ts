@@ -30,7 +30,20 @@ export default withAuth(
     // 3. حماية لوحة البائع (SELLER ONLY)
     if (path.startsWith("/seller")) {
       if (role !== "SELLER") {
-        return NextResponse.redirect(new URL("/login", req.url)); // أو توجيهه للوحة المناسبة له
+        return NextResponse.redirect(new URL("/login", req.url));
+      }
+
+      // Onboarding guard — sellers must complete the wizard before accessing any seller page
+      const isOnboarding = path === "/seller/onboarding";
+      const onboarded = token?.hasCompletedOnboarding as boolean | undefined;
+
+      if (!onboarded && !isOnboarding) {
+        return NextResponse.redirect(new URL("/seller/onboarding", req.url));
+      }
+
+      // Block re-entry into the wizard once onboarding is done
+      if (onboarded && isOnboarding) {
+        return NextResponse.redirect(new URL("/seller/dashboard", req.url));
       }
     }
   },
