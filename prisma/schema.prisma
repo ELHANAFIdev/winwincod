@@ -28,6 +28,7 @@ model user {
   city            String?
   storeName       String?
   storeDescription String?
+  storeLink        String?
   hasCompletedOnboarding Boolean @default(false)
   createdAt DateTime  @default(now())
 

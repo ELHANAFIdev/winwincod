@@ -4,6 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useCart } from "@/context/CartContext";
+import { MOROCCAN_CITIES } from "@/lib/moroccan-cities";
 
 // ── City search ────────────────────────────────────────────────────────────────
 function CitySearch({ value, onChange, error, cities }: {
@@ -132,17 +133,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, FormErrors>>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ id: string; productName: string; customerName: string; amount: number }[] | null>(null);
-  const [cities, setCities] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetch("/api/cities")
-      .then(r => r.json())
-      .then(d => {
-        const names: string[] = (d.cities ?? []).map((c: any) => c.name).sort((a: string, b: string) => a.localeCompare(b));
-        setCities(names);
-      })
-      .catch(() => {});
-  }, []);
+  const cities = MOROCCAN_CITIES;
 
   useEffect(() => {
     setForms(prev => {

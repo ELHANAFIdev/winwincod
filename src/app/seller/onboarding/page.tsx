@@ -26,6 +26,7 @@ interface ProfileForm {
   city: string;
   storeName: string;
   storeDescription: string;
+  storeLink: string;
 }
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
@@ -205,6 +206,21 @@ function Step2({
         />
       </div>
 
+      {/* Store link (optional) */}
+      <div>
+        <label className="text-xs font-bold text-slate-500 block mb-1.5">
+          رابط الموقع أو صفحة التواصل <span className="text-slate-300">(اختياري)</span>
+        </label>
+        <input
+          type="url"
+          value={form.storeLink}
+          onChange={(e) => onChange({ storeLink: e.target.value })}
+          placeholder="https://www.instagram.com/متجرك أو رابط الموقع"
+          className="w-full border border-[#E2E8F0] bg-[#F8FAFC] focus:border-[#4361EE] focus:bg-white p-3.5 rounded-xl outline-none text-sm font-medium transition"
+          dir="ltr"
+        />
+      </div>
+
       <button
         onClick={handleNext}
         className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white font-black text-lg py-4 rounded-2xl transition shadow-lg shadow-blue-200 flex items-center justify-center gap-2 min-h-[60px]"
@@ -381,6 +397,7 @@ export default function OnboardingPage() {
     city: "",
     storeName: "",
     storeDescription: "",
+    storeLink: "",
   });
 
   // Pre-fill name from session
@@ -403,6 +420,7 @@ export default function OnboardingPage() {
         city:             form.city,
         storeName:        form.storeName,
         storeDescription: form.storeDescription,
+        storeLink:        form.storeLink,
       });
 
       // Refresh JWT so middleware sees hasCompletedOnboarding = true

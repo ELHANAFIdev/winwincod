@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
-import { sendToOzon } from "@/lib/ozonExpress";
 
 const createOrderSchema = z.object({
   customerName: z.string().min(2),
@@ -47,27 +46,11 @@ export async function POST(req: Request) {
         productName: data.productName,
         quantity: data.quantity,
         codAmount: data.codAmount,
+        shippingFee: 20,
         status: "DRAFT",
         updatedAt: new Date(),
       },
     });
-
-    // Send to Ozon Express — save tracking number if received
-    try {
-      const trackingNumber = await sendToOzon({
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        city: data.city,
-        address: data.address,
-        codAmount: data.codAmount,
-      });
-      if (trackingNumber) {
-        await prisma.order.update({
-          where: { id: newOrder.id },
-          data: { trackingNumber },
-        });
-      }
-    } catch {}
 
     return NextResponse.json({ success: true, orderId: newOrder.id });
   } catch (error: any) {

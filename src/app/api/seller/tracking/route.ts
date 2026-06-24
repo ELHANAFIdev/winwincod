@@ -4,47 +4,6 @@ import { getSessionUser, errorResponse } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";
 
-// ─── Ozon live tracking ───────────────────────────────────────────────────────
-
-interface OzonData {
-  status: string | null;
-  location: string | null;
-  estimatedDelivery: string | null;
-  lastUpdate: string | null;
-}
-
-async function getOzonTracking(trackingNumber: string): Promise<OzonData | null> {
-  const ozonId  = process.env.OZON_ID;
-  const ozonKey = process.env.OZON_API_KEY;
-  if (!ozonId || !ozonKey) return null;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
-
-  try {
-    // Try ozonexpress.ma parcel status endpoint
-    const url = `https://api.ozonexpress.ma/customers/${ozonId}/${ozonKey}/parcel/${encodeURIComponent(trackingNumber)}`;
-    const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    if (!res.ok) return null;
-    const data = await res.json();
-
-    return {
-      status:            data?.status            ?? data?.parcel_status    ?? null,
-      location:          data?.current_location  ?? data?.location         ?? null,
-      estimatedDelivery: data?.estimated_delivery ?? data?.delivery_date   ?? null,
-      lastUpdate:        data?.last_update        ?? data?.updated_at      ?? null,
-    };
-  } catch {
-    clearTimeout(timer);
-    return null;
-  }
-}
-
 // ─── Parse search query ───────────────────────────────────────────────────────
 
 function parseQuery(q: string): { seqId?: number; phone?: string; id?: string } {
@@ -106,13 +65,8 @@ export async function GET(req: NextRequest) {
     });
 
     if (!order) {
-      return NextResponse.json({ order: null, ozon: null }, { status: 200 });
+      return NextResponse.json({ order: null }, { status: 200 });
     }
-
-    // Fetch live Ozon data if we have a tracking number
-    const ozon = order.trackingNumber
-      ? await getOzonTracking(order.trackingNumber)
-      : null;
 
     const ref = order.seqId
       ? `ORD-${String(order.seqId).padStart(4, "0")}`
@@ -139,7 +93,6 @@ export async function GET(req: NextRequest) {
           createdAt: h.createdAt.toISOString(),
         })),
       },
-      ozon,
     });
   } catch (err) {
     console.error("[tracking]", err);

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
-import { sendToOzon } from "@/lib/ozonExpress";
 
 export async function POST(req: Request) {
   try {
@@ -31,31 +30,15 @@ export async function POST(req: Request) {
       productName: product.name,
       quantity: Number(o.quantity) || 1,
       codAmount: Number(o.price) || Number(product.marketPrice),
+      shippingFee: 20,
       status: "DRAFT",
       updatedAt: new Date(),
     }));
 
-    // createManyAndReturn to get IDs for Ozon tracking
     const created = await prisma.order.createManyAndReturn({
       data: formattedOrders,
-      select: { id: true, customerName: true, customerPhone: true, city: true, address: true, codAmount: true },
+      select: { id: true },
     });
-
-    // Send each order to Ozon in parallel — save tracking numbers where received
-    await Promise.allSettled(
-      created.map(async (order) => {
-        const trackingNumber = await sendToOzon({
-          customerName: order.customerName,
-          customerPhone: order.customerPhone,
-          city: order.city,
-          address: order.address,
-          codAmount: Number(order.codAmount),
-        });
-        if (trackingNumber) {
-          await prisma.order.update({ where: { id: order.id }, data: { trackingNumber } });
-        }
-      })
-    );
 
     return NextResponse.json({
       success: true,

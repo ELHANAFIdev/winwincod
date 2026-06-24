@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
-import { sendToOzon } from "@/lib/ozonExpress";
 
 const orderSchema = z.object({
   productId: z.string().min(1),
@@ -52,28 +51,12 @@ export async function POST(req: Request) {
             city: o.city,
             quantity: o.quantity,
             codAmount: o.codAmount,
+            shippingFee: 20,
             status: "DRAFT",
             updatedAt: new Date(),
           },
         })
       )
-    );
-
-    // Send all orders to Ozon in parallel — save tracking numbers
-    await Promise.allSettled(
-      created.map(async (order, i) => {
-        const o = orders[i];
-        const trackingNumber = await sendToOzon({
-          customerName: o.customerName,
-          customerPhone: o.customerPhone,
-          city: o.city,
-          address: o.address,
-          codAmount: o.codAmount,
-        });
-        if (trackingNumber) {
-          await prisma.order.update({ where: { id: order.id }, data: { trackingNumber } });
-        }
-      })
     );
 
     return NextResponse.json({ success: true, orderIds: created.map((o) => o.id) });

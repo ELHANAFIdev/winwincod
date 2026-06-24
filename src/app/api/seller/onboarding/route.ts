@@ -10,12 +10,13 @@ export async function POST(req: NextRequest) {
     if (!user || user.role !== "SELLER") return errorResponse("غير مصرح", 401);
 
     const body = await req.json();
-    const { name, phone, city, storeName, storeDescription } = body as {
+    const { name, phone, city, storeName, storeDescription, storeLink } = body as {
       name?: string;
       phone?: string;
       city?: string;
       storeName?: string;
       storeDescription?: string;
+      storeLink?: string;
     };
 
     // Basic validation
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
         city:                  city.trim(),
         storeName:             storeName.trim(),
         storeDescription:      storeDescription?.trim() || null,
+        storeLink:             storeLink?.trim() || null,
         hasCompletedOnboarding: true,
       },
     });

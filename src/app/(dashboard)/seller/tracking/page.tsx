@@ -20,11 +20,6 @@ interface OrderData {
   statusHistory: StatusEntry[];
 }
 
-interface OzonData {
-  status: string | null; location: string | null;
-  estimatedDelivery: string | null; lastUpdate: string | null;
-}
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_META: Record<OrderStatus, { label: string; color: string; bg: string; border: string }> = {
@@ -209,7 +204,6 @@ export default function TrackingPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [order, setOrder]   = useState<OrderData | null>(null);
-  const [ozon, setOzon]     = useState<OzonData | null>(null);
   const [error, setError]   = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -224,7 +218,6 @@ export default function TrackingPage() {
     try {
       const res = await axios.get(`/api/seller/tracking?q=${encodeURIComponent(trimmed)}`);
       setOrder(res.data.order);
-      setOzon(res.data.ozon);
       setSearched(true);
     } catch (err: any) {
       setError(err.response?.data?.error || "حدث خطأ في البحث");
@@ -366,48 +359,6 @@ export default function TrackingPage() {
             </div>
           </div>
 
-          {/* Ozon live data */}
-          {ozon && (ozon.status || ozon.location || ozon.estimatedDelivery) ? (
-            <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] rounded-2xl p-5 text-white shadow-lg shadow-blue-200">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xl">🛰️</span>
-                <h3 className="font-black text-base">تتبع مباشر — Ozon Express</h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {ozon.status && (
-                  <div className="bg-white/10 rounded-xl p-3">
-                    <p className="text-blue-200 text-[10px] font-bold mb-1">الحالة</p>
-                    <p className="text-white font-black text-sm">{ozon.status}</p>
-                  </div>
-                )}
-                {ozon.location && (
-                  <div className="bg-white/10 rounded-xl p-3">
-                    <p className="text-blue-200 text-[10px] font-bold mb-1">الموقع الحالي</p>
-                    <p className="text-white font-black text-sm">{ozon.location}</p>
-                  </div>
-                )}
-                {ozon.estimatedDelivery && (
-                  <div className="bg-white/10 rounded-xl p-3">
-                    <p className="text-blue-200 text-[10px] font-bold mb-1">التسليم المتوقع</p>
-                    <p className="text-white font-black text-sm">{fmtDate(ozon.estimatedDelivery)}</p>
-                  </div>
-                )}
-              </div>
-              {ozon.lastUpdate && (
-                <p className="text-blue-300 text-[11px] mt-3">
-                  آخر تحديث: {fmtDate(ozon.lastUpdate)}
-                </p>
-              )}
-            </div>
-          ) : order.trackingNumber ? (
-            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-4 flex items-center gap-3">
-              <span className="text-2xl flex-shrink-0">📡</span>
-              <div>
-                <p className="font-bold text-sm text-[#1E293B]">رقم التتبع: {order.trackingNumber}</p>
-                <p className="text-xs text-slate-400 mt-0.5">التتبع المباشر غير متاح حاليًا</p>
-              </div>
-            </div>
-          ) : null}
         </div>
       )}
 
