@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
+import NotificationBell from "@/components/ui/NotificationBell";
 
 export default function CallCenterLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -74,9 +75,12 @@ export default function CallCenterLayout({ children }: { children: React.ReactNo
         </div>
       </aside>
 
-      <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-[72px]"} min-h-screen`}>
-        {children}
-      </main>
+      <div className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-[72px]"} flex flex-col min-h-screen`}>
+        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-end px-6 sticky top-0 z-30 shadow-sm">
+          <NotificationBell />
+        </header>
+        <main className="flex-1">{children}</main>
+      </div>
     </div>
   );
 }

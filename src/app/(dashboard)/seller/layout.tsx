@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { CartDrawer } from "@/components/seller/CartDrawer";
+import NotificationBell from "@/components/ui/NotificationBell";
 import axios from "axios";
 
 function SellerLayoutInner({ children }: { children: React.ReactNode }) {
@@ -54,6 +55,7 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
           <NavGroup label="المالية" isOpen={isOpen}>
             <NavItem href="/seller/wallet" icon="💰" label="المحفظة" active={pathname === "/seller/wallet"} isOpen={isOpen} highlight />
             <NavItem href="/seller/dashboard" icon="📊" label="الإحصائيات" active={pathname === "/seller/dashboard"} isOpen={isOpen} />
+            <NavItem href="/seller/notifications" icon="🔔" label="الإشعارات" active={pathname === "/seller/notifications"} isOpen={isOpen} />
           </NavGroup>
         </nav>
 
@@ -88,6 +90,9 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
                 {balance} د.م
               </span>
             </div>
+
+            {/* Notification bell */}
+            <NotificationBell />
 
             {/* Cart icon */}
             <button

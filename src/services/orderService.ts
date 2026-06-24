@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { notifyWalletDeducted } from "./notificationService";
 
 // Flat shipping fee charged to the seller per order (matches COMMISSION in deliver route)
 const SHIPPING_FEE_PER_ORDER = 20; // MAD
@@ -8,7 +9,10 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
     throw new Error("يجب اختيار طلب واحد على الأقل");
   }
 
-  return await prisma.$transaction(async (tx) => {
+  let batchTotalAmount = 0;
+  let batchOrderCount = 0;
+
+  const batch = await prisma.$transaction(async (tx) => {
     // 1. Fetch valid DRAFT orders for this seller that are not yet in a batch
     const orders = await tx.order.findMany({
       where: {
@@ -42,7 +46,7 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
     }
 
     // 4. Create the batch (mark as paid since deduction happens now)
-    const batch = await tx.orderbatch.create({
+    const newBatch = await tx.orderbatch.create({
       data: { sellerId, totalAmount, isPaid: true },
     });
 
@@ -51,7 +55,7 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
       await tx.order.update({
         where: { id: o.id },
         data: {
-          batchId: batch.id,
+          batchId: newBatch.id,
           status: "PROCESSING",
           shippingFee: SHIPPING_FEE_PER_ORDER,
           updatedAt: new Date(),
@@ -71,7 +75,7 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
         walletId: updatedWallet.id,
         amount: -totalAmount,
         type: "ORDER_PAYMENT",
-        referenceId: batch.id,
+        referenceId: newBatch.id,
         description: `خصم دفعة ${orders.length} طلب — تكلفة المنتجات + رسوم الشحن`,
       },
     });
@@ -85,8 +89,16 @@ export async function createBatch(sellerId: string, orderIds: string[]) {
       })),
     });
 
-    return batch;
+    batchTotalAmount = totalAmount;
+    batchOrderCount = orders.length;
+
+    return newBatch;
   });
+
+  // Fire-and-forget notification after transaction commits
+  notifyWalletDeducted(sellerId, batch.id, batchTotalAmount, batchOrderCount);
+
+  return batch;
 }
 
 // Kept for backward compatibility — batch is already paid at creation

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
+import { notifyOrderStatusChanged } from "@/services/notificationService";
 
 const schema = z.object({
   orderIds: z.array(z.string()).min(1),
@@ -20,13 +21,12 @@ export async function POST(req: Request) {
 
     const orders = await prisma.order.findMany({
       where: { id: { in: orderIds }, status: "PROCESSING" },
-      select: { id: true, productId: true, quantity: true },
+      select: { id: true, productId: true, quantity: true, sellerId: true },
     });
 
     if (orders.length === 0) return errorResponse("لا توجد طلبات قيد الانتظار لإرسالها", 400);
 
     await prisma.$transaction(async (tx) => {
-      // Decrement stock for each order
       for (const o of orders) {
         if (o.productId) {
           await tx.product.update({
@@ -35,12 +35,16 @@ export async function POST(req: Request) {
           });
         }
       }
-      // Mark as SHIPPED
       await tx.order.updateMany({
         where: { id: { in: orders.map((o) => o.id) } },
         data: { status: "SHIPPED", updatedAt: new Date() },
       });
     });
+
+    // Notify each seller their order is shipped (fire-and-forget)
+    for (const o of orders) {
+      notifyOrderStatusChanged(o.sellerId, o.id, "SHIPPED");
+    }
 
     return NextResponse.json({
       success: true,

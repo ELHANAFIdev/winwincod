@@ -37,6 +37,7 @@ model user {
   orderBatches orderbatch[]
   deposits          depositrequest[]
   withdrawals       withdrawalrequest[]
+  notifications     Notification[]
 }
 
 model wallet {
@@ -210,6 +211,21 @@ model withdrawalrequest {
   seller        user              @relation(fields: [sellerId], references: [id])
 }
 
+model Notification {
+  id        String            @id @default(cuid())
+  userId    String
+  user      user              @relation(fields: [userId], references: [id])
+  type      notification_type
+  title     String
+  message   String
+  isRead    Boolean           @default(false)
+  link      String?
+  createdAt DateTime          @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -275,6 +291,15 @@ enum user_role {
   ADMIN
   SELLER
   CALL_CENTER
+}
+
+enum notification_type {
+  ORDER_STATUS
+  DEPOSIT_APPROVED
+  DEPOSIT_REJECTED
+  PROFIT_CREDITED
+  WALLET_DEDUCTED
+  NEW_ORDER
 }
 
 enum order_status {

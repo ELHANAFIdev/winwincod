@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
+import { notifyOrderStatusChanged, notifyProfitCredited } from "@/services/notificationService";
 
 const COMMISSION = 20; // MAD flat fee WinWinCOD keeps per delivered order
 
@@ -33,7 +34,6 @@ export async function POST(req: Request) {
     const sellerProfit = Math.max(0, codReceived - productCost - COMMISSION);
 
     await prisma.$transaction(async (tx) => {
-      // Update order
       await tx.order.update({
         where: { id: orderId },
         data: {
@@ -45,7 +45,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // Credit seller wallet
       const wallet = await tx.wallet.upsert({
         where: { userId: order.sellerId },
         update: { balance: { increment: sellerProfit } },
@@ -64,6 +63,12 @@ export async function POST(req: Request) {
         });
       }
     });
+
+    // Notifications (fire-and-forget)
+    notifyOrderStatusChanged(order.sellerId, orderId, "DELIVERED");
+    if (sellerProfit > 0) {
+      notifyProfitCredited(order.sellerId, orderId, sellerProfit);
+    }
 
     return NextResponse.json({
       success: true,

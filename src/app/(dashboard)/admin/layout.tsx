@@ -3,6 +3,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
+import NotificationBell from "@/components/ui/NotificationBell";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -37,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <NavItem href="/admin/orders" icon="📋" label="إدارة الطلبات" active={pathname.startsWith("/admin/orders")} isOpen={isOpen} highlight />
             <NavItem href="/admin/logistics" icon="🚚" label="شحن الطلبيات" active={pathname === "/admin/logistics"} isOpen={isOpen} />
             <NavItem href="/admin/logistics/update" icon="🔄" label="تحديث التوصيل" active={pathname === "/admin/logistics/update"} isOpen={isOpen} />
-            <NavItem href="/admin/deposits" icon="💰" label="طلبات الشحن" active={pathname === "/admin/deposits"} isOpen={isOpen} highlight />
+            <NavItem href="/admin/deposits" icon="💰" label="إدارة المحافظ" active={pathname === "/admin/deposits"} isOpen={isOpen} highlight />
             <NavItem href="/admin/withdrawals" icon="💳" label="سحوبات الأرباح" active={pathname === "/admin/withdrawals"} isOpen={isOpen} highlight />
             <NavItem href="/admin/transactions" icon="📋" label="المعاملات المالية" active={pathname === "/admin/transactions"} isOpen={isOpen} />
           </NavGroup>
@@ -64,10 +65,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-20"} p-8`}>
-        {children}
-      </main>
+      {/* Main with top header */}
+      <div className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-20"} flex flex-col`}>
+        <header className="h-14 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
+          <span className="text-sm font-bold text-slate-400">لوحة تحكم المدير</span>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className="w-8 h-8 bg-[#4361EE] rounded-full flex items-center justify-center text-white font-black text-sm">A</div>
+          </div>
+        </header>
+        <main className="p-8 flex-1">{children}</main>
+      </div>
     </div>
   );
 }

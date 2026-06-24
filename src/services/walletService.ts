@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma";
+import {
+  notifyDepositApproved,
+  notifyDepositRejected,
+  notifyProfitCredited,
+} from "./notificationService";
 
 export async function creditWallet(
   userId: string,
@@ -74,20 +79,20 @@ export async function approveDeposit(depositId: string) {
   if (!deposit) throw new Error("طلب الشحن غير موجود");
   if (deposit.status !== "PENDING") throw new Error("تمت معالجة هذا الطلب مسبقاً");
 
-  return prisma.$transaction(async (tx) => {
+  const wallet = await prisma.$transaction(async (tx) => {
     await tx.depositrequest.update({
       where: { id: depositId },
       data: { status: "APPROVED" },
     });
 
-    const wallet = await tx.wallet.update({
+    const w = await tx.wallet.update({
       where: { userId: deposit.sellerId },
       data: { balance: { increment: deposit.amount } },
     });
 
     await tx.transaction.create({
       data: {
-        walletId: wallet.id,
+        walletId: w.id,
         amount: deposit.amount,
         type: "DEPOSIT",
         referenceId: depositId,
@@ -95,8 +100,13 @@ export async function approveDeposit(depositId: string) {
       },
     });
 
-    return wallet;
+    return w;
   });
+
+  // Fire-and-forget notification
+  notifyDepositApproved(deposit.sellerId, Number(deposit.amount));
+
+  return wallet;
 }
 
 export async function rejectDeposit(depositId: string, reason: string) {
@@ -107,10 +117,14 @@ export async function rejectDeposit(depositId: string, reason: string) {
   if (!deposit) throw new Error("طلب الشحن غير موجود");
   if (deposit.status !== "PENDING") throw new Error("تمت معالجة هذا الطلب مسبقاً");
 
-  return prisma.depositrequest.update({
+  const updated = await prisma.depositrequest.update({
     where: { id: depositId },
     data: { status: "REJECTED", notes: reason },
   });
+
+  notifyDepositRejected(deposit.sellerId, Number(deposit.amount), reason);
+
+  return updated;
 }
 
 // ─── Order deduction ─────────────────────────────────────────────────────────
@@ -162,15 +176,15 @@ export async function creditProfit(
 
   if (profit <= 0) return null;
 
-  return prisma.$transaction(async (tx) => {
-    const wallet = await tx.wallet.update({
+  const wallet = await prisma.$transaction(async (tx) => {
+    const w = await tx.wallet.update({
       where: { userId: sellerId },
       data: { balance: { increment: profit } },
     });
 
     await tx.transaction.create({
       data: {
-        walletId: wallet.id,
+        walletId: w.id,
         amount: profit,
         type: "DELIVERY_PROFIT",
         referenceId: orderId,
@@ -178,8 +192,12 @@ export async function creditProfit(
       },
     });
 
-    return wallet;
+    return w;
   });
+
+  notifyProfitCredited(sellerId, orderId, profit);
+
+  return wallet;
 }
 
 // ─── Wallet history (merged deposits + transactions, paginated) ───────────────

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, errorResponse } from "@/lib/api-utils";
 import { z } from "zod";
+import { notifyOrderStatusChanged } from "@/services/notificationService";
 
 const schema = z.object({ orderId: z.string() });
 
@@ -25,13 +26,11 @@ export async function POST(req: Request) {
     if (order.status !== "SHIPPED") return errorResponse("الطلب ليس في حالة شحن", 400);
 
     await prisma.$transaction(async (tx) => {
-      // Mark as RETURNED
       await tx.order.update({
         where: { id: orderId },
         data: { status: "RETURNED", updatedAt: new Date() },
       });
 
-      // Restore stock
       if (order.productId) {
         await tx.product.update({
           where: { id: order.productId },
@@ -39,6 +38,9 @@ export async function POST(req: Request) {
         });
       }
     });
+
+    // Notification (fire-and-forget)
+    notifyOrderStatusChanged(order.sellerId, orderId, "RETURNED");
 
     return NextResponse.json({ success: true, message: "تم تسجيل المرجع وإعادة المخزون" });
   } catch (error: any) {
