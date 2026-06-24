@@ -25,6 +25,10 @@ model user {
   bankName        String?
   bankAccountName String?
   rib             String?
+  city            String?
+  storeName       String?
+  storeDescription String?
+  hasCompletedOnboarding Boolean @default(false)
   createdAt DateTime  @default(now())
 
   // Relations

@@ -110,19 +110,39 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // First sign-in: seed token from the auth user object
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        // Fetch onboarding flag immediately so middleware has it from the first request
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { hasCompletedOnboarding: true },
+        });
+        token.hasCompletedOnboarding = dbUser?.hasCompletedOnboarding ?? false;
       }
+      // session.update() called from the client → re-read from DB
+      if (trigger === "update") {
+        const userId = (token.id || token.sub) as string;
+        if (userId) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { hasCompletedOnboarding: true },
+          });
+          if (dbUser) token.hasCompletedOnboarding = dbUser.hasCompletedOnboarding;
+        }
+      }
+      // Fallback: token lost role (e.g. adapter-based session)
       if (!token.role && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, id: true },
+          select: { role: true, id: true, hasCompletedOnboarding: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
           token.id = dbUser.id;
+          token.hasCompletedOnboarding = dbUser.hasCompletedOnboarding;
         }
       }
       return token;
@@ -131,6 +151,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
+        (session.user as any).hasCompletedOnboarding = token.hasCompletedOnboarding as boolean;
       }
       return session;
     },
