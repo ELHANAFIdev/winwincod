@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import NotificationBell from "@/components/ui/NotificationBell";
+import MobileNav from "@/components/layout/MobileNav";
 
 export default function CallCenterLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -14,9 +15,9 @@ export default function CallCenterLayout({ children }: { children: React.ReactNo
     <div className="flex min-h-screen bg-[#F1F5F9] font-sans" dir="rtl">
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
-      {/* Sidebar */}
+      {/* Sidebar — hidden on mobile */}
       <aside
-        className={`${isOpen ? "w-64" : "w-[72px]"} bg-[#0F172A] transition-all duration-300 fixed h-full z-40 flex flex-col`}
+        className={`${isOpen ? "w-64" : "w-[72px]"} hidden md:flex md:flex-col bg-[#0F172A] transition-all duration-300 fixed h-full z-40`}
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-white/5 flex-shrink-0">
@@ -75,12 +76,15 @@ export default function CallCenterLayout({ children }: { children: React.ReactNo
         </div>
       </aside>
 
-      <div className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-[72px]"} flex flex-col min-h-screen`}>
-        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-end px-6 sticky top-0 z-30 shadow-sm">
+      <div className={`flex-1 transition-all duration-300 ${isOpen ? "md:mr-64" : "md:mr-[72px]"} flex flex-col min-h-screen`}>
+        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-end px-4 md:px-6 sticky top-0 z-30 shadow-sm">
           <NotificationBell />
         </header>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pb-20 md:pb-0">{children}</main>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <MobileNav role="call-center" />
     </div>
   );
 }

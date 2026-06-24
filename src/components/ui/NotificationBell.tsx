@@ -46,22 +46,21 @@ const TYPE_ICON: Record<string, string> = {
 
 export default function NotificationBell() {
   const router = useRouter();
-  const [open, setOpen]           = useState(false);
-  const [unread, setUnread]       = useState(0);
+  const [open, setOpen]             = useState(false);
+  const [unread, setUnread]         = useState(0);
   const [prevUnread, setPrevUnread] = useState(0);
-  const [items, setItems]         = useState<Notification[]>([]);
-  const [loading, setLoading]     = useState(false);
-  const [pulse, setPulse]         = useState(false);
-  const dropdownRef               = useRef<HTMLDivElement>(null);
+  const [items, setItems]           = useState<Notification[]>([]);
+  const [loading, setLoading]       = useState(false);
+  const [pulse, setPulse]           = useState(false);
+  const dropdownRef                 = useRef<HTMLDivElement>(null);
 
-  // ── Fetch unread count (for polling) ─────────────────────────────────────
+  // ── Fetch unread count ────────────────────────────────────────────────────
 
   const fetchCount = useCallback(async () => {
     try {
       const res = await axios.get("/api/notifications?limit=1");
       const count: number = res.data.unreadCount ?? 0;
       setUnread(count);
-      // Pulse animation when new notification arrives
       if (count > prevUnread && prevUnread !== 0) {
         setPulse(true);
         setTimeout(() => setPulse(false), 2000);
@@ -70,7 +69,7 @@ export default function NotificationBell() {
     } catch {}
   }, [prevUnread]);
 
-  // ── Fetch full list (for dropdown) ───────────────────────────────────────
+  // ── Fetch full list ───────────────────────────────────────────────────────
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
@@ -83,7 +82,7 @@ export default function NotificationBell() {
     }
   }, []);
 
-  // ── Initial load + polling every 30s ─────────────────────────────────────
+  // ── Polling every 30s ─────────────────────────────────────────────────────
 
   useEffect(() => {
     fetchCount();
@@ -91,13 +90,11 @@ export default function NotificationBell() {
     return () => clearInterval(interval);
   }, [fetchCount]);
 
-  // ── Open dropdown ─────────────────────────────────────────────────────────
-
   useEffect(() => {
     if (open) fetchNotifications();
   }, [open, fetchNotifications]);
 
-  // ── Close on outside click ────────────────────────────────────────────────
+  // ── Close on outside click (desktop only) ────────────────────────────────
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -108,6 +105,17 @@ export default function NotificationBell() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // ── Lock body scroll when open on mobile ─────────────────────────────────
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   // ── Mark single read + navigate ───────────────────────────────────────────
 
@@ -139,7 +147,7 @@ export default function NotificationBell() {
       {/* Bell button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition group"
+        className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition"
         aria-label="الإشعارات"
       >
         <svg
@@ -162,76 +170,98 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown */}
+      {/* Panel — full screen on mobile, dropdown on desktop */}
       {open && (
-        <div className="absolute left-0 top-12 w-80 bg-white rounded-2xl shadow-2xl border border-[#E2E8F0] z-50 overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#F1F5F9]">
-            <span className="font-black text-[#1E293B] text-sm">الإشعارات</span>
-            {unread > 0 && (
-              <button
-                onClick={markAllRead}
-                className="text-xs text-[#4361EE] font-bold hover:underline"
-              >
-                تحديد الكل كمقروء
-              </button>
-            )}
-          </div>
+        <>
+          {/* Mobile backdrop */}
+          <div
+            className="md:hidden fixed inset-0 bg-black/40 z-40"
+            onClick={() => setOpen(false)}
+          />
 
-          {/* List */}
-          <div className="max-h-[360px] overflow-y-auto">
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="w-6 h-6 border-2 border-[#4361EE] border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : items.length === 0 ? (
-              <div className="text-center py-10">
-                <p className="text-3xl mb-2">🔔</p>
-                <p className="text-slate-400 text-sm font-medium">لا توجد إشعارات</p>
-              </div>
-            ) : (
-              items.map((item) => (
+          <div
+            dir="rtl"
+            className={[
+              // Mobile: full screen
+              "fixed inset-0 z-50 flex flex-col bg-white overflow-hidden",
+              // Desktop: dropdown
+              "md:absolute md:inset-auto md:left-0 md:top-12 md:w-80 md:rounded-2xl md:shadow-2xl md:border md:border-[#E2E8F0]",
+            ].join(" ")}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#F1F5F9] flex-shrink-0">
+              <span className="font-black text-[#1E293B] text-base md:text-sm">الإشعارات</span>
+              <div className="flex items-center gap-3">
+                {unread > 0 && (
+                  <button
+                    onClick={markAllRead}
+                    className="text-xs text-[#4361EE] font-bold hover:underline"
+                  >
+                    تحديد الكل كمقروء
+                  </button>
+                )}
+                {/* Close button — mobile only */}
                 <button
-                  key={item.id}
-                  onClick={() => handleClick(item)}
-                  className={`w-full text-right flex items-start gap-3 px-4 py-3 border-b border-[#F8FAFC] last:border-0 hover:bg-[#F8FAFC] transition ${!item.isRead ? "bg-[#EEF2FF]/40" : ""}`}
+                  onClick={() => setOpen(false)}
+                  className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xl rounded-lg hover:bg-slate-100 transition"
                 >
-                  {/* Unread dot */}
-                  <div className="flex-shrink-0 mt-1.5">
-                    {item.isRead
-                      ? <div className="w-2 h-2 rounded-full bg-transparent" />
-                      : <div className="w-2 h-2 rounded-full bg-[#4361EE]" />
-                    }
-                  </div>
-
-                  {/* Icon */}
-                  <span className="text-xl flex-shrink-0">{TYPE_ICON[item.type] ?? "🔔"}</span>
-
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm leading-snug ${item.isRead ? "text-slate-600 font-medium" : "text-[#1E293B] font-bold"}`}>
-                      {item.title}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-relaxed line-clamp-2">
-                      {item.message}
-                    </p>
-                    <p className="text-[11px] text-slate-300 mt-1">{timeAgo(item.createdAt)}</p>
-                  </div>
+                  ✕
                 </button>
-              ))
-            )}
-          </div>
+              </div>
+            </div>
 
-          {/* Footer */}
-          <div className="border-t border-[#F1F5F9] px-4 py-2.5">
-            <button
-              onClick={() => { setOpen(false); router.push("/seller/notifications"); }}
-              className="w-full text-center text-xs text-[#4361EE] font-bold hover:underline py-0.5"
-            >
-              عرض كل الإشعارات →
-            </button>
+            {/* List */}
+            <div className="flex-1 overflow-y-auto md:max-h-[360px]">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-[#4361EE] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : items.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-4xl mb-2">🔔</p>
+                  <p className="text-slate-400 text-sm font-medium">لا توجد إشعارات</p>
+                </div>
+              ) : (
+                items.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleClick(item)}
+                    className={`w-full text-right flex items-start gap-3 px-4 py-4 md:py-3 border-b border-[#F8FAFC] last:border-0 hover:bg-[#F8FAFC] transition min-h-[64px] md:min-h-0 ${!item.isRead ? "bg-[#EEF2FF]/40" : ""}`}
+                  >
+                    <div className="flex-shrink-0 mt-1.5">
+                      {item.isRead
+                        ? <div className="w-2 h-2 rounded-full bg-transparent" />
+                        : <div className="w-2 h-2 rounded-full bg-[#4361EE]" />
+                      }
+                    </div>
+
+                    <span className="text-xl flex-shrink-0">{TYPE_ICON[item.type] ?? "🔔"}</span>
+
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm leading-snug ${item.isRead ? "text-slate-600 font-medium" : "text-[#1E293B] font-bold"}`}>
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed line-clamp-2">
+                        {item.message}
+                      </p>
+                      <p className="text-[11px] text-slate-300 mt-1">{timeAgo(item.createdAt)}</p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-[#F1F5F9] px-4 py-3 flex-shrink-0">
+              <button
+                onClick={() => { setOpen(false); router.push("/seller/notifications"); }}
+                className="w-full text-center text-sm md:text-xs text-[#4361EE] font-bold hover:underline py-1"
+              >
+                عرض كل الإشعارات →
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

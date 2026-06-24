@@ -6,6 +6,7 @@ import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { CartDrawer } from "@/components/seller/CartDrawer";
 import NotificationBell from "@/components/ui/NotificationBell";
+import MobileNav from "@/components/layout/MobileNav";
 import axios from "axios";
 
 function SellerLayoutInner({ children }: { children: React.ReactNode }) {
@@ -22,8 +23,8 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
-      {/* Sidebar */}
-      <aside className={`${isOpen ? "w-64" : "w-20"} bg-[#3254D4] transition-all duration-300 fixed h-full z-40 flex flex-col shadow-xl shadow-blue-900/20`}>
+      {/* Sidebar — hidden on mobile */}
+      <aside className={`${isOpen ? "w-64" : "w-20"} hidden md:flex md:flex-col bg-[#3254D4] transition-all duration-300 fixed h-full z-40 shadow-xl shadow-blue-900/20`}>
         <div className="p-5 flex items-center justify-between border-b border-white/10">
           {isOpen && (
             <div>
@@ -79,25 +80,24 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className={`flex-1 transition-all duration-300 ${isOpen ? "mr-64" : "mr-20"} flex flex-col`}>
+      <main className={`flex-1 transition-all duration-300 ${isOpen ? "md:mr-64" : "md:mr-20"} flex flex-col`}>
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-8 sticky top-0 z-30 shadow-sm">
-          <div className="text-sm font-bold text-[#1E293B]">لوحة تحكم البائع</div>
-          <div className="flex items-center gap-3">
-            <div className="bg-[#F8FAFC] text-[#1E293B] px-4 py-1.5 rounded-lg font-bold text-sm border border-[#E2E8F0]">
+        <header className="h-16 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-4 md:px-8 sticky top-0 z-30 shadow-sm">
+          <div className="hidden md:block text-sm font-bold text-[#1E293B]">لوحة تحكم البائع</div>
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="hidden md:flex bg-[#F8FAFC] text-[#1E293B] px-4 py-1.5 rounded-lg font-bold text-sm border border-[#E2E8F0] items-center">
               الرصيد:{" "}
-              <span className={Number(balance) >= 0 ? "text-green-600" : "text-red-500"}>
+              <span className={`mr-1 ${Number(balance) >= 0 ? "text-green-600" : "text-red-500"}`}>
                 {balance} د.م
               </span>
             </div>
 
-            {/* Notification bell */}
             <NotificationBell />
 
             {/* Cart icon */}
             <button
               onClick={openDrawer}
-              className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition group"
+              className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition"
               aria-label="السلة"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -116,10 +116,13 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="p-8 flex-1">{children}</div>
+        <div className="p-4 md:p-8 pb-24 md:pb-8 flex-1">{children}</div>
       </main>
 
       <CartDrawer />
+
+      {/* Mobile bottom navigation */}
+      <MobileNav role="seller" />
     </div>
   );
 }

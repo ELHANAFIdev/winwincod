@@ -62,8 +62,8 @@ function RejectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <h3 className="text-lg font-black text-[#1E293B]">رفض طلب الشحن</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
@@ -84,13 +84,13 @@ function RejectModal({
             />
           </div>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-50 transition">
+            <button onClick={onClose} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-50 transition min-h-[48px]">
               إلغاء
             </button>
             <button
               onClick={submit}
               disabled={loading}
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition disabled:opacity-50"
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition disabled:opacity-50 min-h-[48px]"
             >
               {loading ? "جاري..." : "تأكيد الرفض ❌"}
             </button>
@@ -137,8 +137,8 @@ function TopupModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <h3 className="text-lg font-black text-[#1E293B]">شحن مباشر للمحفظة</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
@@ -174,13 +174,13 @@ function TopupModal({
             />
           </div>
           <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-50 transition">
+            <button type="button" onClick={onClose} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-50 transition min-h-[48px]">
               إلغاء
             </button>
             <button
               type="submit"
               disabled={loading || !amount}
-              className="flex-1 bg-[#4361EE] hover:bg-[#3254D4] text-white py-3 rounded-xl font-bold transition disabled:opacity-50"
+              className="flex-1 bg-[#4361EE] hover:bg-[#3254D4] text-white py-3 rounded-xl font-bold transition disabled:opacity-50 min-h-[48px]"
             >
               {loading ? "جاري..." : "شحن الرصيد ✅"}
             </button>
@@ -265,7 +265,7 @@ export default function AdminDepositsPage() {
   const depositsContent = (
     <div className="space-y-5">
       {/* Filter tabs */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
         {(["PENDING", "APPROVED", "REJECTED", "ALL"] as StatusFilter[]).map((f) => {
           const labels: Record<StatusFilter, string> = {
             PENDING:  `في الانتظار (${counts.pending})`,
@@ -277,7 +277,7 @@ export default function AdminDepositsPage() {
             <button
               key={f}
               onClick={() => handleFilterChange(f)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition border ${
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition border whitespace-nowrap flex-shrink-0 min-h-[44px] ${
                 statusFilter === f
                   ? "bg-[#4361EE] text-white border-[#4361EE] shadow-sm"
                   : "bg-white text-slate-500 border-[#E2E8F0] hover:border-[#4361EE] hover:text-[#4361EE]"
@@ -289,7 +289,7 @@ export default function AdminDepositsPage() {
         })}
         <button
           onClick={() => fetchDeposits()}
-          className="mr-auto px-3 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-[#4361EE] transition"
+          className="mr-auto px-3 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-[#4361EE] transition flex-shrink-0"
         >
           🔄 تحديث
         </button>
@@ -308,18 +308,15 @@ export default function AdminDepositsPage() {
       ) : (
         <div className="space-y-3">
           {requests.map((req) => (
-            <div
-              key={req.id}
-              className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden flex"
-            >
+            <div key={req.id} className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden flex">
               {/* Left accent */}
               <div className={`w-1.5 flex-shrink-0 ${req.status === "PENDING" ? "bg-amber-400" : req.status === "APPROVED" ? "bg-green-500" : "bg-red-400"}`} />
 
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-5 flex-1">
-                {/* Left: receipt + info */}
+              <div className="flex flex-col gap-4 p-4 md:p-5 flex-1">
+                {/* Info row */}
                 <div className="flex gap-4 items-center">
                   {/* Receipt thumbnail */}
-                  <div className="w-16 h-16 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div className="w-14 h-14 md:w-16 md:h-16 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] flex items-center justify-center overflow-hidden flex-shrink-0">
                     {req.receiptImage ? (
                       <a href={req.receiptImage} target="_blank" rel="noreferrer" title="عرض الوصل الكامل">
                         <img src={req.receiptImage} alt="وصل" className="object-cover w-full h-full hover:opacity-80 transition" />
@@ -329,13 +326,16 @@ export default function AdminDepositsPage() {
                     )}
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-2xl font-black text-[#1E293B]">{Number(req.amount).toFixed(2)}<span className="text-base font-normal text-slate-400 ml-1">د.م</span></p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <p className="text-xl md:text-2xl font-black text-[#1E293B]">
+                        {Number(req.amount).toFixed(2)}
+                        <span className="text-base font-normal text-slate-400 mr-1">د.م</span>
+                      </p>
                       <StatusBadge status={req.status} />
                     </div>
-                    <p className="text-sm font-bold text-slate-600">👤 {req.seller.name}</p>
-                    <p className="text-xs text-slate-400">{req.seller.phone} · {req.seller.email}</p>
+                    <p className="text-sm font-bold text-slate-600 truncate">👤 {req.seller.name}</p>
+                    <p className="text-xs text-slate-400 truncate">{req.seller.phone} · {req.seller.email}</p>
                     <p className="text-xs text-slate-300 mt-0.5">{new Date(req.createdAt).toLocaleString("ar-MA")}</p>
                     {req.notes && req.status === "REJECTED" && (
                       <p className="text-xs text-red-500 font-medium mt-1">سبب الرفض: {req.notes}</p>
@@ -343,18 +343,18 @@ export default function AdminDepositsPage() {
                   </div>
                 </div>
 
-                {/* Right: action buttons (only for PENDING) */}
+                {/* Action buttons (full width on mobile) */}
                 {req.status === "PENDING" && (
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => setRejectTarget(req)}
-                      className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm"
+                      className="flex-1 md:flex-none bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm min-h-[44px]"
                     >
                       رفض ❌
                     </button>
                     <button
                       onClick={() => approveDeposit(req.id)}
-                      className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-sm text-sm"
+                      className="flex-1 md:flex-none bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-sm text-sm min-h-[44px]"
                     >
                       تأكيد الشحن ✅
                     </button>
@@ -381,43 +381,72 @@ export default function AdminDepositsPage() {
           <p className="text-slate-400 font-bold">لا يوجد بائعون نشطون</p>
         </div>
       ) : (
-        <table className="w-full text-sm" dir="rtl">
-          <thead>
-            <tr className="bg-[#F8FAFC] text-xs font-bold text-slate-400 border-b border-[#F1F5F9]">
-              <th className="py-3 px-5 text-right">البائع</th>
-              <th className="py-3 px-5 text-right">البريد / الهاتف</th>
-              <th className="py-3 px-5 text-left">الرصيد</th>
-              <th className="py-3 px-5 text-center">إجراء</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sellers.map((s) => (
-              <tr key={s.id} className="border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] transition">
-                <td className="py-3.5 px-5">
-                  <p className="font-bold text-[#1E293B]">{s.name}</p>
-                </td>
-                <td className="py-3.5 px-5">
-                  <p className="text-slate-500 text-xs">{s.email}</p>
-                  <p className="text-slate-400 text-xs">{s.phone}</p>
-                </td>
-                <td className="py-3.5 px-5 text-left" dir="ltr">
-                  <span className={`font-black text-base ${s.balance > 0 ? "text-green-600" : s.balance < 0 ? "text-red-500" : "text-slate-400"}`}>
-                    {s.balance.toFixed(2)}
-                  </span>
-                  <span className="text-xs text-slate-400 mr-1">د.م</span>
-                </td>
-                <td className="py-3.5 px-5 text-center">
-                  <button
-                    onClick={() => setTopupTarget(s)}
-                    className="bg-[#4361EE]/10 hover:bg-[#4361EE]/20 text-[#4361EE] px-3 py-1.5 rounded-lg font-bold text-xs transition"
-                  >
-                    + شحن
-                  </button>
-                </td>
+        <>
+          {/* Desktop table */}
+          <table className="hidden md:table w-full text-sm" dir="rtl">
+            <thead>
+              <tr className="bg-[#F8FAFC] text-xs font-bold text-slate-400 border-b border-[#F1F5F9]">
+                <th className="py-3 px-5 text-right">البائع</th>
+                <th className="py-3 px-5 text-right">البريد / الهاتف</th>
+                <th className="py-3 px-5 text-left">الرصيد</th>
+                <th className="py-3 px-5 text-center">إجراء</th>
               </tr>
+            </thead>
+            <tbody>
+              {sellers.map((s) => (
+                <tr key={s.id} className="border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] transition">
+                  <td className="py-3.5 px-5">
+                    <p className="font-bold text-[#1E293B]">{s.name}</p>
+                  </td>
+                  <td className="py-3.5 px-5">
+                    <p className="text-slate-500 text-xs">{s.email}</p>
+                    <p className="text-slate-400 text-xs">{s.phone}</p>
+                  </td>
+                  <td className="py-3.5 px-5 text-left" dir="ltr">
+                    <span className={`font-black text-base ${s.balance > 0 ? "text-green-600" : s.balance < 0 ? "text-red-500" : "text-slate-400"}`}>
+                      {s.balance.toFixed(2)}
+                    </span>
+                    <span className="text-xs text-slate-400 mr-1">د.م</span>
+                  </td>
+                  <td className="py-3.5 px-5 text-center">
+                    <button
+                      onClick={() => setTopupTarget(s)}
+                      className="bg-[#4361EE]/10 hover:bg-[#4361EE]/20 text-[#4361EE] px-3 py-1.5 rounded-lg font-bold text-xs transition"
+                    >
+                      + شحن
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-[#F1F5F9]">
+            {sellers.map((s) => (
+              <div key={s.id} className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#4361EE] text-white font-black text-sm flex items-center justify-center flex-shrink-0">
+                  {s.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-bold text-[#1E293B] truncate">{s.name}</p>
+                    <span className={`font-black text-sm flex-shrink-0 ${s.balance > 0 ? "text-green-600" : s.balance < 0 ? "text-red-500" : "text-slate-400"}`}>
+                      {s.balance.toFixed(2)} <span className="text-xs font-normal text-slate-400">د.م</span>
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-xs truncate">{s.phone}</p>
+                </div>
+                <button
+                  onClick={() => setTopupTarget(s)}
+                  className="bg-[#4361EE]/10 hover:bg-[#4361EE]/20 text-[#4361EE] px-3 py-2 rounded-lg font-bold text-xs transition flex-shrink-0 min-h-[44px]"
+                >
+                  + شحن
+                </button>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </div>
   );
@@ -426,9 +455,9 @@ export default function AdminDepositsPage() {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-black text-[#1E293B]">إدارة المحافظ المالية</h2>
+          <h2 className="text-xl md:text-2xl font-black text-[#1E293B]">إدارة المحافظ المالية</h2>
           <p className="text-slate-400 text-sm mt-0.5">مراجعة طلبات الشحن وإدارة أرصدة البائعين</p>
         </div>
 
@@ -445,11 +474,11 @@ export default function AdminDepositsPage() {
         </div>
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex gap-1 bg-[#F1F5F9] p-1 rounded-xl w-fit">
+      {/* Tab switcher — full width on mobile */}
+      <div className="flex gap-1 bg-[#F1F5F9] p-1 rounded-xl">
         <button
           onClick={() => setTab("deposits")}
-          className={`px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "deposits" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+          className={`flex-1 md:flex-none md:px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "deposits" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
         >
           💳 طلبات الشحن
           {counts.pending > 0 && (
@@ -458,7 +487,7 @@ export default function AdminDepositsPage() {
         </button>
         <button
           onClick={() => setTab("balances")}
-          className={`px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "balances" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+          className={`flex-1 md:flex-none md:px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "balances" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
         >
           💰 أرصدة البائعين
         </button>
@@ -467,7 +496,6 @@ export default function AdminDepositsPage() {
       {/* Tab content */}
       {tab === "deposits" ? depositsContent : balancesContent}
 
-      {/* Reject modal */}
       {rejectTarget && (
         <RejectModal
           deposit={rejectTarget}
@@ -476,7 +504,6 @@ export default function AdminDepositsPage() {
         />
       )}
 
-      {/* Topup modal */}
       {topupTarget && (
         <TopupModal
           seller={topupTarget}
