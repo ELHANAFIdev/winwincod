@@ -94,9 +94,9 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
   return (
     <aside
       className={`
-        flex flex-col bg-white border-r border-slate-100 flex-shrink-0 shadow-sm
-        fixed left-0 top-0 h-screen z-40 w-[260px]
-        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        flex flex-col bg-white border-l border-slate-100 flex-shrink-0 shadow-sm
+        fixed right-0 top-0 h-screen z-40 w-[260px]
+        ${mobileOpen ? "translate-x-0" : "translate-x-full"}
         md:sticky md:top-0 md:h-screen md:translate-x-0 md:z-auto
         ${collapsed ? "md:w-[72px]" : "md:w-[260px]"}
         transition-all duration-300
