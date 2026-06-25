@@ -15,27 +15,21 @@ export default function CallCenterLayout({ children }: { children: ReactNode }) 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans" dir="rtl">
+    <div className="flex min-h-screen bg-slate-50">
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
-      {/* Mobile backdrop */}
       {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/40 z-30"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div className="md:hidden fixed inset-0 bg-black/40 z-30" onClick={() => setMobileOpen(false)} />
       )}
 
       <CallCenterSidebar
         collapsed={collapsed}
-        onCollapsedChange={setCollapsed}
+        onToggle={() => setCollapsed((v) => !v)}
         mobileOpen={mobileOpen}
-        onMobileOpenChange={setMobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
       />
 
-      <div
-        className={`flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "md:mr-[72px]" : "md:mr-[260px]"}`}
-      >
+      <div className="flex-1 flex flex-col min-w-0">
         <TopNavbar onMenuToggle={() => setMobileOpen((v) => !v)} role="call-center" />
         <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">{children}</main>
       </div>

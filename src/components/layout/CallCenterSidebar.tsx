@@ -7,9 +7,9 @@ import type { ReactNode } from "react";
 
 export interface CallCenterSidebarProps {
   collapsed: boolean;
-  onCollapsedChange: (v: boolean) => void;
+  onToggle: () => void;
   mobileOpen: boolean;
-  onMobileOpenChange: (v: boolean) => void;
+  onMobileClose: () => void;
 }
 
 function NavItem({
@@ -22,10 +22,8 @@ function NavItem({
       href={href}
       title={collapsed ? label : undefined}
       className={`
-        relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all overflow-hidden
-        ${active
-          ? "bg-blue-50 text-blue-600 font-semibold"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}
+        relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all
+        ${active ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}
         ${collapsed ? "justify-center px-0" : ""}
       `}
     >
@@ -40,38 +38,36 @@ function NavItem({
 
 function Section({ label, children, collapsed }: { label: string; children: ReactNode; collapsed: boolean }) {
   return (
-    <div className="space-y-0.5 mt-5">
-      {!collapsed && (
-        <p className="text-[11px] text-slate-400 uppercase tracking-wider font-medium px-3 mb-2">{label}</p>
-      )}
-      {collapsed && <div className="border-t border-slate-100 my-3 mx-2" />}
+    <div className="mt-5 space-y-0.5">
+      {!collapsed && <p className="text-[11px] text-slate-400 uppercase tracking-wider font-medium px-3 mb-2">{label}</p>}
+      {collapsed && <div className="border-t border-slate-100 mx-2 my-3" />}
       {children}
     </div>
   );
 }
 
-export default function CallCenterSidebar({
-  collapsed, onCollapsedChange, mobileOpen, onMobileOpenChange,
-}: CallCenterSidebarProps) {
+export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: CallCenterSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const userName    = (session?.user as any)?.name ?? "كول سنتر";
-  const userInitial = userName.charAt(0).toUpperCase();
+  const name    = (session?.user as any)?.name ?? "كول سنتر";
+  const initial = name.charAt(0).toUpperCase();
 
   return (
     <aside
       className={`
-        fixed top-0 right-0 h-screen z-40 bg-white border-l border-slate-200
-        flex flex-col shadow-sm transition-all duration-300
-        w-[260px] ${collapsed ? "md:w-[72px]" : "md:w-[260px]"}
-        ${mobileOpen ? "translate-x-0" : "translate-x-full"} md:translate-x-0
+        flex flex-col bg-white border-l border-slate-200 flex-shrink-0
+        fixed right-0 top-0 h-screen z-40 w-[260px]
+        ${mobileOpen ? "translate-x-0" : "translate-x-full"}
+        md:sticky md:top-0 md:h-screen md:translate-x-0 md:z-auto
+        ${collapsed ? "md:w-[72px]" : "md:w-[260px]"}
+        transition-all duration-300
       `}
     >
-      {/* ── Header ── */}
-      <div className={`h-16 flex items-center border-b border-slate-100 flex-shrink-0 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
+      {/* Header */}
+      <div className={`h-16 flex items-center border-b border-slate-100 flex-shrink-0 gap-3 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
         {!collapsed && (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
               <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
@@ -87,14 +83,14 @@ export default function CallCenterSidebar({
           </div>
         )}
         <button
-          onClick={() => onCollapsedChange(!collapsed)}
-          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0"
+          onClick={onToggle}
+          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex-shrink-0"
         >
           {collapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* ── Navigation ── */}
+      {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-2 pt-2 pb-4">
         <Section label="الرئيسية" collapsed={collapsed}>
           <NavItem href="/call-center/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="لوحة التحكم"
@@ -102,41 +98,27 @@ export default function CallCenterSidebar({
         </Section>
 
         <Section label="العمليات" collapsed={collapsed}>
-          <NavItem
-            href="/call-center/orders"
-            icon={<Phone className="w-5 h-5" />}
-            label="الطلبات"
-            active={pathname.startsWith("/call-center/orders")}
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/call-center/sellers"
-            icon={<Users className="w-5 h-5" />}
-            label="البائعون"
-            active={pathname.startsWith("/call-center/sellers")}
-            collapsed={collapsed}
-          />
+          <NavItem href="/call-center/orders"  icon={<Phone className="w-5 h-5" />} label="الطلبات"   active={pathname.startsWith("/call-center/orders")}  collapsed={collapsed} />
+          <NavItem href="/call-center/sellers" icon={<Users className="w-5 h-5" />} label="البائعون"  active={pathname.startsWith("/call-center/sellers")} collapsed={collapsed} />
         </Section>
       </nav>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <div className="border-t border-slate-100 p-3 flex-shrink-0 space-y-1">
         {!collapsed && (
-          <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
+          <div className="flex items-center gap-3 px-2 py-2">
             <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-              {userInitial}
+              {initial}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-800 truncate">{userName}</p>
+              <p className="text-sm font-bold text-slate-800 truncate">{name}</p>
               <p className="text-[11px] text-slate-400">كول سنتر</p>
             </div>
           </div>
         )}
         {collapsed && (
           <div className="flex justify-center py-1">
-            <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
-              {userInitial}
-            </div>
+            <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">{initial}</div>
           </div>
         )}
         <button

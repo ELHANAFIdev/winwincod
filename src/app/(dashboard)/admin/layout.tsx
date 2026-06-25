@@ -14,26 +14,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans" dir="rtl">
+    // html dir="rtl" is on <html>: first flex child → RIGHT side (sidebar)
+    <div className="flex min-h-screen bg-slate-50">
       {/* Mobile backdrop */}
       {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/40 z-30"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div className="md:hidden fixed inset-0 bg-black/40 z-30" onClick={() => setMobileOpen(false)} />
       )}
 
       <AdminSidebar
         collapsed={collapsed}
-        onCollapsedChange={setCollapsed}
+        onToggle={() => setCollapsed((v) => !v)}
         mobileOpen={mobileOpen}
-        onMobileOpenChange={setMobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
       />
 
-      {/* Main content — offset by sidebar width */}
-      <div
-        className={`flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "md:mr-[72px]" : "md:mr-[260px]"}`}
-      >
+      {/* Main content — left of sidebar in RTL */}
+      <div className="flex-1 flex flex-col min-w-0">
         <TopNavbar onMenuToggle={() => setMobileOpen((v) => !v)} role="admin" />
         <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
       </div>
