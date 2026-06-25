@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { Search, ClipboardList } from "lucide-react";
 
 interface Order {
   id: string;
@@ -70,7 +71,7 @@ export default function ActivityTable({ orders }: { orders: Order[] }) {
       <div className="p-5 border-b border-[#E2E8F0]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-black text-[#1E293B] text-lg">آخر النشاطات</h3>
+            <h3 className="font-black text-[#0F172A] text-lg">آخر النشاطات</h3>
             <p className="text-slate-400 text-xs mt-0.5">{filtered.length} طلب</p>
           </div>
           <select
@@ -89,9 +90,7 @@ export default function ActivityTable({ orders }: { orders: Order[] }) {
 
         {/* Search bar */}
         <div className="relative">
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm select-none">
-            🔍
-          </span>
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={search}
@@ -112,7 +111,9 @@ export default function ActivityTable({ orders }: { orders: Order[] }) {
 
       {paginated.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-4xl mb-2">📋</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <ClipboardList className="w-7 h-7 text-slate-300" />
+          </div>
           <p className="text-slate-400 font-bold text-sm">
             {search ? "لا نتائج للبحث" : "لا توجد طلبات بهذه الحالة"}
           </p>

@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import Link from "next/link";
+import {
+  ClipboardList, CheckCircle2, XCircle, Clock, Banknote, Percent,
+  Phone, Search, AlertTriangle,
+} from "lucide-react";
 
 type SellerCard = {
   id: string; name: string; pendingCount: number; totalCOD: number;
@@ -28,6 +33,8 @@ export default function CallCenterDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"count" | "oldest">("count");
+  const { data: session } = useSession();
+  const agentName = (session?.user as any)?.name ?? "كول سنتر";
 
   useEffect(() => {
     axios
@@ -59,73 +66,105 @@ export default function CallCenterDashboard() {
   }
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl">
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-black text-[#0F172A]">قائمة التأكيد</h1>
-        <p className="text-slate-400 text-sm mt-0.5">
-          البائعون الذين لديهم طلبات بانتظار التأكيد
-        </p>
+    <div className="space-y-6">
+      {/* ── Hero Banner ──────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#4361EE] via-[#4361EE] to-[#3254D4] p-7 text-white shadow-lg shadow-[#4361EE]/20">
+        <div className="absolute -top-5 -right-5 w-36 h-36 bg-white/10 rounded-full pointer-events-none" />
+        <div className="absolute -bottom-8 right-1/3 w-28 h-28 bg-white/5 rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 -left-6 w-24 h-24 bg-[#FB923C]/20 rounded-full pointer-events-none" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+                <Phone className="w-3.5 h-3.5 text-white" />
+              </div>
+              <p className="text-blue-200 text-sm font-medium">مرحباً، {agentName}</p>
+            </div>
+            <h1 className="text-2xl font-black tracking-tight">قائمة التأكيد</h1>
+            <p className="text-blue-100/80 text-sm mt-1 font-medium">
+              البائعون الذين لديهم طلبات بانتظار التأكيد
+            </p>
+          </div>
+          {stats && (
+            <div className="flex items-center gap-3">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
+                <p className="text-2xl font-black leading-none">{stats.pending}</p>
+                <p className="text-blue-200 text-[11px] font-semibold mt-1">معلقة الآن</p>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
+                <p className="text-2xl font-black leading-none">{stats.totalToday}</p>
+                <p className="text-blue-200 text-[11px] font-semibold mt-1">طلبات اليوم</p>
+              </div>
+              <div className="bg-[#FB923C]/20 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-[#FB923C]/30">
+                <p className="text-2xl font-black leading-none text-orange-200">{stats.confirmationRate}%</p>
+                <p className="text-orange-200 text-[11px] font-semibold mt-1">نسبة التأكيد</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Stats bar — 6 cards */}
+      {/* ── Stats Row ─────────────────────────────────────────── */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           <StatCard
             label="طلبات اليوم"
             value={stats.totalToday}
-            icon={<ClipboardIcon />}
-            bgColor="bg-[#EEF2FF]"
+            icon={<ClipboardList className="w-6 h-6" />}
+            iconBg="bg-[#EEF2FF]"
             iconColor="text-[#4361EE]"
-            valueColor="text-[#4361EE]"
+            accent="border-t-[#4361EE]"
           />
           <StatCard
             label="تم التأكيد"
             value={stats.confirmedToday}
-            icon={<CheckIcon />}
-            bgColor="bg-green-50"
+            icon={<CheckCircle2 className="w-6 h-6" />}
+            iconBg="bg-green-50"
             iconColor="text-green-600"
-            valueColor="text-green-600"
+            accent="border-t-green-500"
           />
           <StatCard
-            label="ملغي"
+            label="ملغي اليوم"
             value={stats.cancelledToday}
-            icon={<XIcon />}
-            bgColor="bg-red-50"
+            icon={<XCircle className="w-6 h-6" />}
+            iconBg="bg-red-50"
             iconColor="text-red-500"
-            valueColor="text-red-500"
+            accent="border-t-red-500"
           />
           <StatCard
             label="في الانتظار"
             value={stats.pending}
-            icon={<ClockIcon />}
-            bgColor="bg-orange-50"
+            icon={<Clock className="w-6 h-6" />}
+            iconBg="bg-orange-50"
             iconColor="text-[#FB923C]"
-            valueColor="text-[#FB923C]"
+            accent="border-t-[#FB923C]"
           />
           <StatCard
-            label="إجمالي COD اليوم"
+            label="COD اليوم"
             value={`${stats.codToday.toFixed(0)} د.م`}
-            icon={<MoneyIcon />}
-            bgColor="bg-emerald-50"
+            icon={<Banknote className="w-6 h-6" />}
+            iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
-            valueColor="text-emerald-600"
+            accent="border-t-emerald-500"
           />
           <StatCard
-            label="نسبة التأكيد %"
+            label="نسبة التأكيد"
             value={`${stats.confirmationRate}%`}
-            icon={<PercentIcon />}
-            bgColor="bg-violet-50"
+            icon={<Percent className="w-6 h-6" />}
+            iconBg="bg-violet-50"
             iconColor="text-violet-600"
-            valueColor="text-violet-600"
+            accent="border-t-violet-500"
           />
         </div>
       )}
 
-      {/* Sellers */}
+      {/* ── Sellers ───────────────────────────────────────────── */}
       {sellers.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-20 text-center">
-          <div className="text-5xl mb-4">🎉</div>
+          <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-green-500" />
+          </div>
           <p className="font-black text-[#0F172A] text-xl">لا توجد طلبات معلقة</p>
           <p className="text-slate-400 text-sm mt-2">عمل رائع! كل الطلبات تمت معالجتها.</p>
         </div>
@@ -133,14 +172,17 @@ export default function CallCenterDashboard() {
         <div className="space-y-4">
           {/* Search & Sort bar */}
           <div className="flex gap-3 flex-wrap">
-            <input
-              type="text"
-              placeholder="بحث عن بائع..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-[180px] border border-[#E2E8F0] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#4361EE] bg-white"
-              dir="rtl"
-            />
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="بحث عن بائع..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full border border-[#E2E8F0] rounded-xl pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:border-[#4361EE] bg-white transition"
+                dir="rtl"
+              />
+            </div>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as "count" | "oldest")}
@@ -152,9 +194,9 @@ export default function CallCenterDashboard() {
           </div>
 
           <div className="flex items-center justify-between">
-            <h2 className="font-black text-[#0F172A] text-sm">
+            <p className="font-black text-[#0F172A] text-sm">
               {displayedSellers.length} بائع · {stats?.pending ?? 0} طلب إجمالي
-            </h2>
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -169,20 +211,18 @@ export default function CallCenterDashboard() {
 }
 
 function StatCard({
-  label, value, icon, bgColor, iconColor, valueColor,
+  label, value, icon, iconBg, iconColor, accent,
 }: {
-  label: string; value: number | string; icon: React.ReactNode;
-  bgColor: string; iconColor: string; valueColor: string;
+  label: string; value: number | string;
+  icon: React.ReactNode; iconBg: string; iconColor: string; accent: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-5 flex items-center gap-4 min-w-0">
-      <div className={`w-11 h-11 ${bgColor} rounded-xl flex items-center justify-center flex-shrink-0 ${iconColor}`}>
+    <div className={`bg-white rounded-2xl border border-slate-100 border-t-4 ${accent} p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group cursor-default`}>
+      <div className={`w-11 h-11 ${iconBg} rounded-2xl flex items-center justify-center mb-4 ${iconColor} group-hover:scale-110 transition-transform duration-200`}>
         {icon}
       </div>
-      <div className="min-w-0 flex-1">
-        <p className={`text-xl font-black ${valueColor} leading-none truncate`}>{value}</p>
-        <p className="text-slate-400 text-[11px] font-bold mt-1 leading-tight">{label}</p>
-      </div>
+      <p className="text-3xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{value}</p>
+      <p className="text-xs text-slate-500 font-semibold leading-tight">{label}</p>
     </div>
   );
 }
@@ -199,19 +239,20 @@ function SellerCardComponent({ seller }: { seller: SellerCard }) {
     : false;
 
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border p-5 flex flex-col gap-4 hover:shadow-md transition group ${
-      isUrgent ? "border-red-300 hover:border-red-300" : "border-[#E2E8F0] hover:border-[#4361EE]/20"
+    <div className={`bg-white rounded-2xl shadow-sm border p-5 flex flex-col gap-4 hover:shadow-lg transition-all duration-200 group ${
+      isUrgent ? "border-red-200 hover:border-red-300" : "border-[#E2E8F0] hover:border-[#4361EE]/30"
     }`}>
       <div className="flex items-center gap-3">
-        <div className={`w-12 h-12 ${avatarColors[colorIdx]} rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0`}>
+        <div className={`w-12 h-12 ${avatarColors[colorIdx]} rounded-2xl flex items-center justify-center text-white font-black text-lg flex-shrink-0`}>
           {initials || seller.name[0]}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-black text-[#0F172A] truncate">{seller.name}</h3>
             {isUrgent && (
-              <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-lg bg-red-100 text-red-600 border border-red-200">
-                ⚠️ عاجل
+              <span className="flex-shrink-0 flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-lg bg-red-100 text-red-600 border border-red-200">
+                <AlertTriangle className="w-3 h-3" />
+                عاجل
               </span>
             )}
           </div>
@@ -226,68 +267,24 @@ function SellerCardComponent({ seller }: { seller: SellerCard }) {
 
       <div className="flex items-center justify-between bg-[#F8FAFC] rounded-xl px-4 py-3 border border-[#E2E8F0]">
         <div>
-          <p className="text-[10px] text-slate-400 font-bold">إجمالي COD</p>
+          <p className="text-[10px] text-slate-400 font-semibold">إجمالي COD</p>
           <p className="font-black text-green-600 text-lg leading-none mt-0.5">
-            {seller.totalCOD.toFixed(2)}{" "}
+            {seller.totalCOD.toFixed(0)}{" "}
             <span className="text-xs font-normal text-slate-400">د.م</span>
           </p>
         </div>
         <div className="text-left">
-          <p className="text-[10px] text-slate-400 font-bold">طلبات معلقة</p>
+          <p className="text-[10px] text-slate-400 font-semibold">طلبات معلقة</p>
           <p className="font-black text-[#FB923C] text-lg leading-none mt-0.5">{seller.pendingCount}</p>
         </div>
       </div>
 
       <Link
         href={`/call-center/sellers/${seller.id}`}
-        className="w-full py-2.5 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl font-bold text-sm text-center transition shadow-sm group-hover:shadow-md"
+        className="w-full py-2.5 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl font-bold text-sm text-center transition-all shadow-sm group-hover:shadow-md group-hover:shadow-[#4361EE]/20"
       >
-        عرض الطلبات ←
+        عرض الطلبات
       </Link>
     </div>
-  );
-}
-
-// Icons
-function ClipboardIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-    </svg>
-  );
-}
-function CheckIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
-function XIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
-function ClockIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
-function MoneyIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-    </svg>
-  );
-}
-function PercentIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-    </svg>
   );
 }

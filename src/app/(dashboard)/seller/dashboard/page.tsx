@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Package, CheckCircle, DollarSign, Lightbulb, TrendingUp, RotateCcw } from "lucide-react";
 import axios from "axios";
 import {
@@ -38,6 +39,8 @@ export default function SellerDashboard() {
   const [to, setTo] = useState(defaults.to);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const sellerName = (session?.user as any)?.name ?? "بائع";
 
   useEffect(() => {
     setLoading(true);
@@ -57,19 +60,29 @@ export default function SellerDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Header ────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <p className="text-slate-400 text-sm">{periodLabel}</p>
+      {/* ── Hero Banner ────────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#10B981] via-[#059669] to-[#047857] p-7 text-white shadow-lg shadow-[#10B981]/20">
+        <div className="absolute -top-5 -right-5 w-36 h-36 bg-white/10 rounded-full pointer-events-none" />
+        <div className="absolute -bottom-8 right-1/3 w-28 h-28 bg-white/5 rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 -left-6 w-24 h-24 bg-[#4361EE]/20 rounded-full pointer-events-none" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <p className="text-green-200 text-sm font-medium">مرحباً، {sellerName}</p>
+            <h1 className="text-2xl font-black mt-1.5 tracking-tight">لوحة القيادة</h1>
+            <p className="text-green-100/80 text-sm mt-1 font-medium">تتبع أداء مبيعاتك · {periodLabel}</p>
+          </div>
+          <div className="flex-shrink-0">
+            <DateDropdown period={period} from={from} to={to} onChange={handleDateChange} />
+          </div>
         </div>
-        <DateDropdown period={period} from={from} to={to} onChange={handleDateChange} />
       </div>
 
       {loading || !data ? (
         <div className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-36 bg-white rounded-2xl border border-slate-100 animate-pulse" />
+              <div key={i} className="h-40 bg-white rounded-2xl border border-slate-100 animate-pulse" />
             ))}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -83,64 +96,64 @@ export default function SellerDashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
             {/* Total Orders */}
-            <div className="bg-white border border-slate-100 border-t-4 border-t-[#4361EE] rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="w-11 h-11 bg-[#EEF2FF] rounded-xl flex items-center justify-center mb-4">
-                <Package className="w-5 h-5 text-[#4361EE]" />
+            <div className="bg-white border border-slate-100 border-t-4 border-t-[#4361EE] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group cursor-default">
+              <div className="w-12 h-12 bg-[#EEF2FF] rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+                <Package className="w-6 h-6 text-[#4361EE]" />
               </div>
-              <p className="text-2xl font-bold text-[#1E293B] mb-1">{data.totalOrders}</p>
-              <p className="text-sm text-slate-500 font-medium">إجمالي الطلبات</p>
-              <p className="text-[11px] text-slate-400 mt-1">{periodLabel}</p>
+              <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{data.totalOrders}</p>
+              <p className="text-sm text-slate-500 font-semibold">إجمالي الطلبات</p>
+              <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{periodLabel}</p>
             </div>
 
             {/* Delivered */}
-            <div className="bg-white border border-slate-100 border-t-4 border-t-[#10B981] rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="w-11 h-11 bg-[#ECFDF5] rounded-xl flex items-center justify-center mb-4">
-                <CheckCircle className="w-5 h-5 text-[#10B981]" />
+            <div className="bg-white border border-slate-100 border-t-4 border-t-[#10B981] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group cursor-default">
+              <div className="w-12 h-12 bg-[#ECFDF5] rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+                <CheckCircle className="w-6 h-6 text-[#10B981]" />
               </div>
-              <p className="text-2xl font-bold text-[#10B981] mb-1">{data.delivered ?? 0}</p>
-              <p className="text-sm text-slate-500 font-medium">تم التسليم</p>
-              <p className="text-[11px] text-slate-400 mt-1">نسبة {data.deliveryRate ?? "0"}%</p>
+              <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{data.delivered ?? 0}</p>
+              <p className="text-sm text-slate-500 font-semibold">تم التسليم</p>
+              <p className="text-[11px] text-[#10B981] mt-1.5 font-bold">نسبة {data.deliveryRate ?? "0"}%</p>
             </div>
 
             {/* Net Profit */}
-            <div className="bg-white border border-slate-100 border-t-4 border-t-[#FB923C] rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="w-11 h-11 bg-[#FFF7ED] rounded-xl flex items-center justify-center mb-4">
-                <DollarSign className="w-5 h-5 text-[#FB923C]" />
+            <div className="bg-white border border-slate-100 border-t-4 border-t-[#FB923C] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group cursor-default">
+              <div className="w-12 h-12 bg-[#FFF7ED] rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+                <DollarSign className="w-6 h-6 text-[#FB923C]" />
               </div>
-              <p className="text-2xl font-bold text-[#FB923C] mb-1">
+              <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">
                 {Number(data.totalProfit ?? 0).toLocaleString("ar-MA", { maximumFractionDigits: 0 })}
-                <span className="text-base font-medium opacity-70 mr-1">د.م</span>
+                <span className="text-lg font-semibold text-slate-400 mr-1">د.م</span>
               </p>
-              <p className="text-sm text-slate-500 font-medium">الربح الصافي</p>
-              <p className="text-[11px] text-slate-400 mt-1">من الطلبات المُسلَّمة</p>
+              <p className="text-sm text-slate-500 font-semibold">الربح الصافي</p>
+              <p className="text-[11px] text-slate-400 mt-1.5 font-medium">من الطلبات المُسلَّمة</p>
             </div>
 
             {/* Return Rate */}
-            <div className="bg-white border border-slate-100 border-t-4 border-t-[#EF4444] rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="w-11 h-11 bg-[#FEF2F2] rounded-xl flex items-center justify-center mb-4">
-                <RotateCcw className="w-5 h-5 text-[#EF4444]" />
+            <div className="bg-white border border-slate-100 border-t-4 border-t-[#EF4444] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group cursor-default">
+              <div className="w-12 h-12 bg-[#FEF2F2] rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+                <RotateCcw className="w-6 h-6 text-[#EF4444]" />
               </div>
-              <p className="text-2xl font-bold text-[#EF4444] mb-1">
+              <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">
                 {(data.delivered + data.returned) > 0
                   ? Math.round((data.returned / (data.delivered + data.returned)) * 100)
                   : 0}%
               </p>
-              <p className="text-sm text-slate-500 font-medium">نسبة الإرجاع</p>
-              <p className="text-[11px] text-slate-400 mt-1">{periodLabel}</p>
+              <p className="text-sm text-slate-500 font-semibold">نسبة الإرجاع</p>
+              <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{periodLabel}</p>
             </div>
           </div>
 
           {/* ── Charts ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Bar Chart */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-bold text-[#1E293B] text-base">نشاط الطلبات</h3>
+                  <h3 className="font-black text-[#1E293B] text-base">نشاط الطلبات</h3>
                   <p className="text-xs text-slate-400 mt-0.5">{periodLabel}</p>
                 </div>
-                <div className="w-9 h-9 bg-[#EEF2FF] rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-4.5 h-4.5 text-[#4361EE]" />
+                <div className="w-10 h-10 bg-[#EEF2FF] rounded-2xl flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-[#4361EE]" />
                 </div>
               </div>
               {data.barData?.length > 0 ? (
@@ -169,14 +182,14 @@ export default function SellerDashboard() {
             </div>
 
             {/* Pie Chart */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-bold text-[#1E293B] text-base">حالة الطلبات</h3>
+                  <h3 className="font-black text-[#1E293B] text-base">حالة الطلبات</h3>
                   <p className="text-xs text-slate-400 mt-0.5">توزيع الحالات في الفترة</p>
                 </div>
-                <div className="w-9 h-9 bg-[#ECFDF5] rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-4.5 h-4.5 text-[#10B981]" />
+                <div className="w-10 h-10 bg-[#ECFDF5] rounded-2xl flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-[#10B981]" />
                 </div>
               </div>
               {data.pieData?.length > 0 ? (
@@ -223,12 +236,13 @@ export default function SellerDashboard() {
           </div>
 
           {/* ── Tip Card ──────────────────────────────────────── */}
-          <div className="bg-gradient-to-l from-[#4361EE]/5 to-[#4361EE]/10 border border-[#4361EE]/20 rounded-2xl p-5 flex items-start gap-4">
-            <div className="w-10 h-10 bg-[#4361EE] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#4361EE]/8 to-[#4361EE]/12 border border-[#4361EE]/20 rounded-2xl p-5 flex items-start gap-4">
+            <div className="absolute -bottom-3 -left-3 w-16 h-16 bg-[#4361EE]/10 rounded-full pointer-events-none" />
+            <div className="w-11 h-11 bg-[#4361EE] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#4361EE]/30">
               <Lightbulb className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <p className="font-bold text-[#4361EE] text-sm mb-1">نصيحة اليوم</p>
+            <div className="relative">
+              <p className="font-black text-[#4361EE] text-sm mb-1">نصيحة اليوم</p>
               <p className="text-slate-600 text-sm leading-relaxed">
                 الرد السريع على الهاتف يرفع نسبة التوصيل بـ 30%. تأكد من أرقام الزبائن قبل الإرسال!
               </p>
