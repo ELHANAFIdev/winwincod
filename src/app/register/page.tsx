@@ -3,8 +3,10 @@ import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -16,11 +18,9 @@ export default function RegisterPage() {
     setMessage({ type: "", text: "" });
     try {
       await axios.post("/api/auth/register", formData);
-      setMessage({ type: "success", text: "تم تسجيل طلبك بنجاح! سيتم تفعيل حسابك بعد مراجعة الإدارة." });
-      setFormData({ name: "", email: "", phone: "", password: "" });
+      router.push("/login?error=PendingApproval");
     } catch (error: any) {
       setMessage({ type: "error", text: error.response?.data?.error || "فشل التسجيل" });
-    } finally {
       setLoading(false);
     }
   };
