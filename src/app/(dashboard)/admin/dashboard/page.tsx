@@ -1,4 +1,8 @@
 import { Suspense } from "react";
+import {
+  Package, Clock, DollarSign, TrendingUp, CheckCircle,
+  Users, RotateCcw, Truck, Wallet,
+} from "lucide-react";
 import prisma from "@/lib/prisma";
 import ActivityTable from "./ActivityTable";
 import DateFilter from "./DateFilter";
@@ -183,25 +187,25 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <StatCard
           label={`طلبات ${periodLabel}`}
           value={periodOrders.toLocaleString("ar-MA")}
-          icon="📦"
+          icon={<Package className="w-6 h-6" />}
           border="border-r-4 border-r-blue-500"
         />
         <StatCard
           label={`إيرادات ${periodLabel}`}
           value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon="💰"
+          icon={<DollarSign className="w-6 h-6" />}
           border="border-r-4 border-r-green-500"
         />
         <StatCard
           label="طلبات قيد الانتظار"
           value={pendingCount.toLocaleString("ar-MA")}
-          icon="⏳"
+          icon={<Clock className="w-6 h-6" />}
           border="border-r-4 border-r-orange-500"
         />
         <StatCard
           label={`معدل الإرجاع ${periodLabel}`}
           value={`${returnRate}%`}
-          icon="↩️"
+          icon={<RotateCcw className="w-6 h-6" />}
           border="border-r-4 border-r-red-500"
         />
       </div>
@@ -212,14 +216,14 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <StatCard
           label={`ربح المنصة — ${periodLabel}`}
           value={`${platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon="📈"
+          icon={<TrendingUp className="w-6 h-6" />}
           border="border-r-4 border-r-blue-500"
           sub="الفرق بين سعر المورد وسعر البائع"
         />
 
         {/* Delivery Rate — with progress bar */}
         <div className="bg-white rounded-xl border border-slate-200 border-r-4 border-r-green-500 p-6 shadow-sm hover:-translate-y-px transition-transform">
-          <p className="text-2xl mb-3">✅</p>
+          <CheckCircle className="w-6 h-6 text-slate-400 mb-3" />
           <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">
             نسبة التسليم — {periodLabel}
           </p>
@@ -234,7 +238,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 
         {/* Today's Orders — with progress bar */}
         <div className="bg-white rounded-xl border border-slate-200 border-r-4 border-r-orange-500 p-6 shadow-sm hover:-translate-y-px transition-transform">
-          <p className="text-2xl mb-3">🔥</p>
+          <TrendingUp className="w-6 h-6 text-slate-400 mb-3" />
           <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">طلبات اليوم</p>
           <p className="text-3xl font-bold text-[#1E293B]">{todayOrders.toLocaleString("ar-MA")}</p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
@@ -252,7 +256,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <StatCard
           label="البائعون النشطون"
           value={activeSellers.toLocaleString("ar-MA")}
-          icon="👥"
+          icon={<Users className="w-6 h-6" />}
           border="border-r-4 border-r-blue-500"
           sub={`سيولة: ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
         />
@@ -263,28 +267,28 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <StatCard
           label="تم التسليم"
           value={deliveredOrders.toLocaleString("ar-MA")}
-          icon="✅"
+          icon={<CheckCircle className="w-6 h-6" />}
           border="border-r-4 border-r-green-500"
           sub={periodLabel}
         />
         <StatCard
           label="في الطريق"
           value={shippedOrders.toLocaleString("ar-MA")}
-          icon="🚚"
+          icon={<Truck className="w-6 h-6" />}
           border="border-r-4 border-r-blue-500"
           sub={periodLabel}
         />
         <StatCard
           label="مرتجعات"
           value={returnedOrders.toLocaleString("ar-MA")}
-          icon="↩️"
+          icon={<RotateCcw className="w-6 h-6" />}
           border="border-r-4 border-r-red-500"
           sub={periodLabel}
         />
         <StatCard
           label="سيولة المحافظ"
           value={`${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon="💳"
+          icon={<Wallet className="w-6 h-6" />}
           border="border-r-4 border-r-blue-500"
           sub="إجمالي أرصدة البائعين"
         />
@@ -303,6 +307,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 
           {topSellers.length === 0 ? (
             <div className="text-center py-12">
+              <Users className="w-10 h-10 text-slate-200 mx-auto mb-2" />
               <p className="text-slate-400 text-sm font-medium">لا توجد بيانات بعد</p>
             </div>
           ) : (
@@ -344,15 +349,15 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
-// Pure white card with a colored right border accent. No colored backgrounds.
+
 function StatCard({
   label, value, icon, border, sub,
 }: {
-  label: string; value: string; icon: string; border: string; sub?: string;
+  label: string; value: string; icon: React.ReactNode; border: string; sub?: string;
 }) {
   return (
     <div className={`bg-white rounded-xl border border-slate-200 ${border} p-6 shadow-sm hover:-translate-y-px transition-transform`}>
-      <p className="text-2xl mb-3">{icon}</p>
+      <div className="text-slate-400 mb-3">{icon}</div>
       <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-3xl font-bold text-[#1E293B]">{value}</p>
       {sub && <p className="text-[10px] text-slate-400 mt-1.5">{sub}</p>}

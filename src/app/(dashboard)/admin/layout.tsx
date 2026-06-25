@@ -2,6 +2,10 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import {
+  BarChart3, Package, Truck, RefreshCw, Wallet, ArrowDownCircle,
+  Receipt, Box, Building2, UserPlus, Users, LogOut, Menu, X,
+} from "lucide-react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 import NotificationBell from "@/components/ui/NotificationBell";
 import MobileNav from "@/components/layout/MobileNav";
@@ -26,41 +30,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={() => setIsOpen(!isOpen)}
             className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
           >
-            {isOpen ? "✕" : "☰"}
+            {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
           <NavGroup label="الرئيسية" isOpen={isOpen}>
-            <NavItem href="/admin/dashboard" icon="📊" label="الإحصائيات" active={pathname === "/admin/dashboard"} isOpen={isOpen} />
+            <NavItem href="/admin/dashboard" icon={<BarChart3 className="w-5 h-5" />} label="الإحصائيات" active={pathname === "/admin/dashboard"} isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="العمليات" isOpen={isOpen}>
-            <NavItem href="/admin/orders" icon="📋" label="إدارة الطلبات" active={pathname.startsWith("/admin/orders")} isOpen={isOpen} highlight />
-            <NavItem href="/admin/logistics" icon="🚚" label="شحن الطلبيات" active={pathname === "/admin/logistics"} isOpen={isOpen} />
-            <NavItem href="/admin/logistics/update" icon="🔄" label="تحديث التوصيل" active={pathname === "/admin/logistics/update"} isOpen={isOpen} />
-            <NavItem href="/admin/deposits" icon="💰" label="إدارة المحافظ" active={pathname === "/admin/deposits"} isOpen={isOpen} highlight />
-            <NavItem href="/admin/withdrawals" icon="💳" label="سحوبات الأرباح" active={pathname === "/admin/withdrawals"} isOpen={isOpen} highlight />
-            <NavItem href="/admin/transactions" icon="📋" label="المعاملات المالية" active={pathname === "/admin/transactions"} isOpen={isOpen} />
+            <NavItem href="/admin/orders"            icon={<Package className="w-5 h-5" />}         label="إدارة الطلبات"    active={pathname.startsWith("/admin/orders")}         isOpen={isOpen} highlight />
+            <NavItem href="/admin/logistics"         icon={<Truck className="w-5 h-5" />}           label="شحن الطلبيات"    active={pathname === "/admin/logistics"}              isOpen={isOpen} />
+            <NavItem href="/admin/logistics/update"  icon={<RefreshCw className="w-5 h-5" />}       label="تحديث التوصيل"   active={pathname === "/admin/logistics/update"}       isOpen={isOpen} />
+            <NavItem href="/admin/deposits"          icon={<Wallet className="w-5 h-5" />}          label="إدارة المحافظ"   active={pathname === "/admin/deposits"}               isOpen={isOpen} highlight />
+            <NavItem href="/admin/withdrawals"       icon={<ArrowDownCircle className="w-5 h-5" />} label="سحوبات الأرباح"  active={pathname === "/admin/withdrawals"}            isOpen={isOpen} highlight />
+            <NavItem href="/admin/transactions"      icon={<Receipt className="w-5 h-5" />}         label="المعاملات المالية" active={pathname === "/admin/transactions"}          isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="المخزون" isOpen={isOpen}>
-            <NavItem href="/admin/products" icon="📦" label="المنتجات" active={pathname === "/admin/products"} isOpen={isOpen} />
-            <NavItem href="/admin/suppliers" icon="🏭" label="الموردين" active={pathname === "/admin/suppliers"} isOpen={isOpen} />
+            <NavItem href="/admin/products"  icon={<Box className="w-5 h-5" />}       label="المنتجات" active={pathname === "/admin/products"}  isOpen={isOpen} />
+            <NavItem href="/admin/suppliers" icon={<Building2 className="w-5 h-5" />} label="الموردين" active={pathname === "/admin/suppliers"} isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="المستخدمين" isOpen={isOpen}>
-            <NavItem href="/admin/users/requests" icon="🔔" label="طلبات الانضمام" active={pathname === "/admin/users/requests"} isOpen={isOpen} />
-            <NavItem href="/admin/users" icon="👥" label="كل المستخدمين" active={pathname === "/admin/users"} isOpen={isOpen} />
+            <NavItem href="/admin/users/requests" icon={<UserPlus className="w-5 h-5" />} label="طلبات الانضمام"  active={pathname === "/admin/users/requests"} isOpen={isOpen} />
+            <NavItem href="/admin/users"          icon={<Users className="w-5 h-5" />}    label="كل المستخدمين"  active={pathname === "/admin/users"}          isOpen={isOpen} />
           </NavGroup>
         </nav>
 
         <div className="p-3 border-t border-white/10">
           <button
             onClick={() => signOut()}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-300 hover:bg-red-500/15 transition font-bold ${!isOpen && "justify-center"}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl text-orange-400 hover:bg-white/10 transition font-bold ${!isOpen && "justify-center"}`}
           >
-            <span>🚪</span>
+            <LogOut className="w-5 h-5 flex-shrink-0" />
             {isOpen && <span className="text-sm">تسجيل الخروج</span>}
           </button>
         </div>

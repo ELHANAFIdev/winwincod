@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { Package, CheckCircle, DollarSign, Lightbulb } from "lucide-react";
 import axios from "axios";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -60,7 +61,7 @@ export default function SellerDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-[#1E293B]">لوحة القيادة</h2>
-          <p className="text-[#64748B] text-sm mt-0.5">إحصائيات · {periodLabel}</p>
+          <p className="text-sm text-slate-500 mt-0.5">إحصائيات · {periodLabel}</p>
         </div>
         <DateDropdown period={period} from={from} to={to} onChange={handleDateChange} />
       </div>
@@ -83,7 +84,9 @@ export default function SellerDashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {/* Total Orders */}
             <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:-translate-y-px transition-transform">
-              <div className="w-10 h-10 bg-[#EEF2FF] rounded-full flex items-center justify-center text-xl mb-4">📦</div>
+              <div className="w-10 h-10 bg-[#EEF2FF] rounded-full flex items-center justify-center mb-4">
+                <Package className="w-6 h-6 text-[#4361EE]" />
+              </div>
               <p className="text-[13px] font-medium text-[#64748B] uppercase tracking-wide mb-2">إجمالي الطلبات</p>
               <p className="text-4xl font-bold text-[#1E293B]">{data.totalOrders}</p>
               <p className="text-xs text-[#64748B] mt-2">{periodLabel}</p>
@@ -91,7 +94,9 @@ export default function SellerDashboard() {
 
             {/* Delivered */}
             <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:-translate-y-px transition-transform">
-              <div className="w-10 h-10 bg-[#ECFDF5] rounded-full flex items-center justify-center text-xl mb-4">✅</div>
+              <div className="w-10 h-10 bg-[#ECFDF5] rounded-full flex items-center justify-center mb-4">
+                <CheckCircle className="w-6 h-6 text-[#10B981]" />
+              </div>
               <p className="text-[13px] font-medium text-[#64748B] uppercase tracking-wide mb-2">تم التسليم</p>
               <p className="text-4xl font-bold text-[#10B981]">{data.delivered ?? 0}</p>
               <p className="text-xs text-[#64748B] mt-2">نسبة {data.deliveryRate ?? "0"}%</p>
@@ -99,7 +104,9 @@ export default function SellerDashboard() {
 
             {/* Net Profit */}
             <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:-translate-y-px transition-transform col-span-2 sm:col-span-1">
-              <div className="w-10 h-10 bg-[#FFF7ED] rounded-full flex items-center justify-center text-xl mb-4">💰</div>
+              <div className="w-10 h-10 bg-[#FFF7ED] rounded-full flex items-center justify-center mb-4">
+                <DollarSign className="w-6 h-6 text-[#FB923C]" />
+              </div>
               <p className="text-[13px] font-medium text-[#64748B] uppercase tracking-wide mb-2">الربح الصافي</p>
               <p className="text-4xl font-bold text-[#FB923C]">
                 {Number(data.totalProfit ?? 0).toLocaleString("ar-MA", { maximumFractionDigits: 0 })}
@@ -189,7 +196,7 @@ export default function SellerDashboard() {
           {/* Tip */}
           <div className="bg-[#EEF2FF] border border-blue-100 rounded-xl p-5 flex items-start gap-4">
             <div className="w-9 h-9 bg-[#4361EE] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-base">💡</span>
+              <Lightbulb className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="font-bold text-[#4361EE] text-sm mb-0.5">نصيحة</p>

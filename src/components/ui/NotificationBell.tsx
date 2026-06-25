@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Bell, CheckCircle, XCircle, DollarSign, Package, Minus, X } from "lucide-react";
 import axios from "axios";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,16 +32,19 @@ function timeAgo(dateStr: string): string {
   return `منذ ${days} أيام`;
 }
 
-// ─── Icon per type ────────────────────────────────────────────────────────────
+// ─── Icon per notification type ───────────────────────────────────────────────
 
-const TYPE_ICON: Record<string, string> = {
-  DEPOSIT_APPROVED: "✅",
-  DEPOSIT_REJECTED: "❌",
-  PROFIT_CREDITED:  "💰",
-  ORDER_STATUS:     "🚚",
-  WALLET_DEDUCTED:  "📦",
-  NEW_ORDER:        "🔔",
-};
+function getTypeIcon(type: string) {
+  switch (type) {
+    case "DEPOSIT_APPROVED": return <CheckCircle className="w-4 h-4 text-green-500" />;
+    case "DEPOSIT_REJECTED": return <XCircle className="w-4 h-4 text-red-500" />;
+    case "PROFIT_CREDITED":  return <DollarSign className="w-4 h-4 text-orange-500" />;
+    case "ORDER_STATUS":     return <Package className="w-4 h-4 text-blue-500" />;
+    case "WALLET_DEDUCTED":  return <Minus className="w-4 h-4 text-slate-400" />;
+    case "NEW_ORDER":        return <Bell className="w-4 h-4 text-blue-500" />;
+    default:                 return <Bell className="w-4 h-4 text-blue-500" />;
+  }
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -109,11 +113,7 @@ export default function NotificationBell() {
   // ── Lock body scroll when open on mobile ─────────────────────────────────
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
@@ -150,19 +150,7 @@ export default function NotificationBell() {
         className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition"
         aria-label="الإشعارات"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className={`w-5 h-5 ${pulse ? "animate-bounce" : ""}`}
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-
+        <Bell className={`w-5 h-5 ${pulse ? "animate-bounce" : ""}`} />
         {unread > 0 && (
           <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center shadow leading-none">
             {unread > 9 ? "9+" : unread}
@@ -182,9 +170,7 @@ export default function NotificationBell() {
           <div
             dir="rtl"
             className={[
-              // Mobile: full screen
               "fixed inset-0 z-50 flex flex-col bg-white overflow-hidden",
-              // Desktop: dropdown
               "md:absolute md:inset-auto md:left-0 md:top-12 md:w-80 md:rounded-2xl md:shadow-2xl md:border md:border-[#E2E8F0]",
             ].join(" ")}
           >
@@ -200,12 +186,11 @@ export default function NotificationBell() {
                     تحديد الكل كمقروء
                   </button>
                 )}
-                {/* Close button — mobile only */}
                 <button
                   onClick={() => setOpen(false)}
-                  className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xl rounded-lg hover:bg-slate-100 transition"
+                  className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -217,8 +202,8 @@ export default function NotificationBell() {
                   <div className="w-6 h-6 border-2 border-[#4361EE] border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : items.length === 0 ? (
-                <div className="text-center py-16">
-                  <p className="text-4xl mb-2">🔔</p>
+                <div className="text-center py-16 flex flex-col items-center gap-2">
+                  <Bell className="w-10 h-10 text-slate-200" />
                   <p className="text-slate-400 text-sm font-medium">لا توجد إشعارات</p>
                 </div>
               ) : (
@@ -235,7 +220,7 @@ export default function NotificationBell() {
                       }
                     </div>
 
-                    <span className="text-xl flex-shrink-0">{TYPE_ICON[item.type] ?? "🔔"}</span>
+                    <span className="flex-shrink-0 mt-0.5">{getTypeIcon(item.type)}</span>
 
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm leading-snug ${item.isRead ? "text-slate-600 font-medium" : "text-[#1E293B] font-bold"}`}>

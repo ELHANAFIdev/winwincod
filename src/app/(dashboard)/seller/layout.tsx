@@ -2,6 +2,10 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import {
+  ShoppingBag, Box, FileSpreadsheet, PlusCircle, FileText,
+  Package, MapPin, Wallet, Bell, BarChart3, LogOut, Menu, X,
+} from "lucide-react";
 import { NavGroup, NavItem } from "@/components/layout/SidebarItems";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { CartDrawer } from "@/components/seller/CartDrawer";
@@ -36,28 +40,28 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
             onClick={() => setIsOpen(!isOpen)}
             className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
           >
-            {isOpen ? "✕" : "☰"}
+            {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
           <NavGroup label="التجارة" isOpen={isOpen}>
-            <NavItem href="/seller/products" icon="🏪" label="سوق المنتجات" active={pathname === "/seller/products"} isOpen={isOpen} />
-            <NavItem href="/seller/my-products" icon="💼" label="منتجاتي" active={pathname === "/seller/my-products"} isOpen={isOpen} />
-            <NavItem href="/seller/orders/import" icon="📥" label="استيراد Excel" active={pathname === "/seller/orders/import"} isOpen={isOpen} />
+            <NavItem href="/seller/products"      icon={<ShoppingBag className="w-5 h-5" />}    label="سوق المنتجات" active={pathname === "/seller/products"}      isOpen={isOpen} />
+            <NavItem href="/seller/my-products"   icon={<Box className="w-5 h-5" />}            label="منتجاتي"      active={pathname === "/seller/my-products"}   isOpen={isOpen} />
+            <NavItem href="/seller/orders/import" icon={<FileSpreadsheet className="w-5 h-5" />} label="استيراد Excel" active={pathname === "/seller/orders/import"} isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="الطلبات" isOpen={isOpen}>
-            <NavItem href="/seller/orders/new" icon="➕" label="إضافة طلب" active={pathname === "/seller/orders/new"} isOpen={isOpen} />
-            <NavItem href="/seller/orders/drafts" icon="📝" label="المسودات" active={pathname === "/seller/orders/drafts"} isOpen={isOpen} />
-            <NavItem href="/seller/batches" icon="📦" label="الدفعات" active={pathname === "/seller/batches"} isOpen={isOpen} />
-            <NavItem href="/seller/tracking" icon="🔍" label="تتبع الطلبات" active={pathname === "/seller/tracking"} isOpen={isOpen} />
+            <NavItem href="/seller/orders/new"    icon={<PlusCircle className="w-5 h-5" />} label="إضافة طلب"    active={pathname === "/seller/orders/new"}    isOpen={isOpen} />
+            <NavItem href="/seller/orders/drafts" icon={<FileText className="w-5 h-5" />}   label="المسودات"     active={pathname === "/seller/orders/drafts"} isOpen={isOpen} />
+            <NavItem href="/seller/batches"       icon={<Package className="w-5 h-5" />}    label="الدفعات"      active={pathname === "/seller/batches"}       isOpen={isOpen} />
+            <NavItem href="/seller/tracking"      icon={<MapPin className="w-5 h-5" />}     label="تتبع الطلبات" active={pathname === "/seller/tracking"}      isOpen={isOpen} />
           </NavGroup>
 
           <NavGroup label="المالية" isOpen={isOpen}>
-            <NavItem href="/seller/wallet" icon="💰" label="المحفظة" active={pathname === "/seller/wallet"} isOpen={isOpen} highlight />
-            <NavItem href="/seller/dashboard" icon="📊" label="الإحصائيات" active={pathname === "/seller/dashboard"} isOpen={isOpen} />
-            <NavItem href="/seller/notifications" icon="🔔" label="الإشعارات" active={pathname === "/seller/notifications"} isOpen={isOpen} />
+            <NavItem href="/seller/wallet"        icon={<Wallet className="w-5 h-5" />}    label="المحفظة"    active={pathname === "/seller/wallet"}        isOpen={isOpen} highlight />
+            <NavItem href="/seller/dashboard"     icon={<BarChart3 className="w-5 h-5" />} label="الإحصائيات" active={pathname === "/seller/dashboard"}     isOpen={isOpen} />
+            <NavItem href="/seller/notifications" icon={<Bell className="w-5 h-5" />}      label="الإشعارات"  active={pathname === "/seller/notifications"} isOpen={isOpen} />
           </NavGroup>
         </nav>
 
@@ -73,9 +77,9 @@ function SellerLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="p-3 border-t border-white/10">
           <button
             onClick={() => signOut()}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl text-red-300 hover:bg-red-500/15 transition font-bold ${!isOpen && "justify-center"}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl text-orange-400 hover:bg-white/10 transition font-bold ${!isOpen && "justify-center"}`}
           >
-            <span>🚪</span>
+            <LogOut className="w-5 h-5 flex-shrink-0" />
             {isOpen && <span className="text-sm">خروج</span>}
           </button>
         </div>
