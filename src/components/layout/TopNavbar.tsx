@@ -43,7 +43,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-20 flex-shrink-0">
+    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 flex-shrink-0">
       {/* Right side: hamburger (mobile) */}
       <div className="flex items-center gap-2">
         <button
