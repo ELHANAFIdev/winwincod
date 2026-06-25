@@ -27,6 +27,7 @@ const customAdapter: Adapter = {
 };
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   adapter: customAdapter,
   session: {
     strategy: "jwt",
