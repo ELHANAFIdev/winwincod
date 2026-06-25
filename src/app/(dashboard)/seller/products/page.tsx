@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Store, Package, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 interface Product {
@@ -54,7 +55,7 @@ export default function MarketplacePage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[#1E293B]">سوق المنتجات 🏪</h1>
+          <h1 className="text-2xl font-black text-[#1E293B] flex items-center gap-2">سوق المنتجات <Store className="w-5 h-5 text-slate-400" /></h1>
           <p className="text-slate-400 text-sm mt-0.5">تصفح المنتجات المتوفرة وابدأ بيعها الآن</p>
         </div>
         <span className="bg-[#EEF2FF] text-[#4361EE] font-bold text-sm px-4 py-2 rounded-xl border border-blue-100 w-fit">
@@ -64,7 +65,9 @@ export default function MarketplacePage() {
 
       {products.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-20 text-center">
-          <p className="text-4xl mb-3">🏪</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Store className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد منتجات متوفرة حالياً</p>
         </div>
       ) : (
@@ -84,7 +87,7 @@ export default function MarketplacePage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl text-slate-200">📦</div>
+                    <div className="w-full h-full flex items-center justify-center"><Package className="w-8 h-8 text-slate-200" /></div>
                   )}
                   <div className={`absolute top-2.5 right-2.5 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm ${
                     outOfStock ? "bg-red-500 text-white" : "bg-green-500 text-white"
@@ -142,7 +145,7 @@ export default function MarketplacePage() {
                       <button
                         onClick={() => handleAddToCart(product)}
                         className="w-full py-2.5 rounded-xl bg-[#4361EE] hover:bg-[#3254D4] text-white font-bold text-sm transition shadow-sm">
-                        بيع هذا المنتج 🛒
+                        <span className="flex items-center gap-1">بيع هذا المنتج <ShoppingCart className="w-4 h-4" /></span>
                       </button>
                     )}
                   </div>

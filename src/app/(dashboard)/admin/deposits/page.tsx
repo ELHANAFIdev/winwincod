@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { CheckCircle, XCircle, RotateCcw, Bell, CreditCard, DollarSign } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,7 +93,7 @@ function RejectModal({
               disabled={loading}
               className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition disabled:opacity-50 min-h-[48px]"
             >
-              {loading ? "جاري..." : "تأكيد الرفض ❌"}
+              {loading ? "جاري..." : <span className="flex items-center justify-center gap-1">تأكيد الرفض <XCircle className="w-4 h-4" /></span>}
             </button>
           </div>
         </div>
@@ -126,7 +127,7 @@ function TopupModal({
         amount: Number(amount),
         note: note || undefined,
       });
-      toast.success(`تم شحن ${Number(amount).toFixed(2)} د.م لـ ${seller.name} ✅`, { id: tid });
+      toast.success(`تم شحن ${Number(amount).toFixed(2)} د.م لـ ${seller.name}`, { id: tid });
       onDone();
       onClose();
     } catch (err: any) {
@@ -182,7 +183,7 @@ function TopupModal({
               disabled={loading || !amount}
               className="flex-1 bg-[#4361EE] hover:bg-[#3254D4] text-white py-3 rounded-xl font-bold transition disabled:opacity-50 min-h-[48px]"
             >
-              {loading ? "جاري..." : "شحن الرصيد ✅"}
+              {loading ? "جاري..." : <span className="flex items-center justify-center gap-1">شحن الرصيد <CheckCircle className="w-4 h-4" /></span>}
             </button>
           </div>
         </form>
@@ -195,8 +196,8 @@ function TopupModal({
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "PENDING")  return <span className="bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold px-2.5 py-1 rounded-full">في الانتظار</span>;
-  if (status === "APPROVED") return <span className="bg-green-100 text-green-700 border border-green-200 text-xs font-bold px-2.5 py-1 rounded-full">تم الشحن ✅</span>;
-  if (status === "REJECTED") return <span className="bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-2.5 py-1 rounded-full">مرفوض ❌</span>;
+  if (status === "APPROVED") return <span className="bg-green-100 text-green-700 border border-green-200 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit">تم الشحن <CheckCircle className="w-3 h-3" /></span>;
+  if (status === "REJECTED") return <span className="bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit">مرفوض <XCircle className="w-3 h-3" /></span>;
   return null;
 }
 
@@ -254,7 +255,7 @@ export default function AdminDepositsPage() {
     const tid = toast.loading("جاري تنفيذ العملية...");
     try {
       const res = await axios.post("/api/admin/deposits/approve", { id });
-      toast.success(`تم شحن الرصيد بنجاح ✅  —  الرصيد الجديد: ${Number(res.data.newBalance).toFixed(2)} د.م`, { id: tid, duration: 5000 });
+      toast.success(`تم شحن الرصيد بنجاح — الرصيد الجديد: ${Number(res.data.newBalance).toFixed(2)} د.م`, { id: tid, duration: 5000 });
       fetchDeposits();
     } catch (err: any) {
       toast.error(err.response?.data?.error || "حدث خطأ", { id: tid });
@@ -289,9 +290,9 @@ export default function AdminDepositsPage() {
         })}
         <button
           onClick={() => fetchDeposits()}
-          className="mr-auto px-3 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-[#4361EE] transition flex-shrink-0"
+          className="mr-auto px-3 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-[#4361EE] transition flex-shrink-0 flex items-center gap-1"
         >
-          🔄 تحديث
+          <RotateCcw className="w-4 h-4" /> تحديث
         </button>
       </div>
 
@@ -302,7 +303,9 @@ export default function AdminDepositsPage() {
         </div>
       ) : requests.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">💸</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <DollarSign className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد طلبات شحن في هذا التصنيف</p>
         </div>
       ) : (
@@ -322,7 +325,7 @@ export default function AdminDepositsPage() {
                         <img src={req.receiptImage} alt="وصل" className="object-cover w-full h-full hover:opacity-80 transition" />
                       </a>
                     ) : (
-                      <span className="text-2xl">🧾</span>
+                      <span className="text-2xl text-slate-300">—</span>
                     )}
                   </div>
 
@@ -334,7 +337,7 @@ export default function AdminDepositsPage() {
                       </p>
                       <StatusBadge status={req.status} />
                     </div>
-                    <p className="text-sm font-bold text-slate-600 truncate">👤 {req.seller.name}</p>
+                    <p className="text-sm font-bold text-slate-600 truncate">{req.seller.name}</p>
                     <p className="text-xs text-slate-400 truncate">{req.seller.phone} · {req.seller.email}</p>
                     <p className="text-xs text-slate-300 mt-0.5">{new Date(req.createdAt).toLocaleString("ar-MA")}</p>
                     {req.notes && req.status === "REJECTED" && (
@@ -350,13 +353,13 @@ export default function AdminDepositsPage() {
                       onClick={() => setRejectTarget(req)}
                       className="flex-1 md:flex-none bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm min-h-[44px]"
                     >
-                      رفض ❌
+                      <span className="flex items-center gap-1">رفض <XCircle className="w-4 h-4" /></span>
                     </button>
                     <button
                       onClick={() => approveDeposit(req.id)}
                       className="flex-1 md:flex-none bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-sm text-sm min-h-[44px]"
                     >
-                      تأكيد الشحن ✅
+                      <span className="flex items-center gap-1">تأكيد الشحن <CheckCircle className="w-4 h-4" /></span>
                     </button>
                   </div>
                 )}
@@ -377,7 +380,9 @@ export default function AdminDepositsPage() {
         </div>
       ) : sellers.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-4xl mb-3">👥</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Bell className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا يوجد بائعون نشطون</p>
         </div>
       ) : (
@@ -465,7 +470,7 @@ export default function AdminDepositsPage() {
         <div className="flex gap-2 flex-wrap">
           {counts.pending > 0 && (
             <span className="bg-amber-100 text-amber-700 font-bold text-sm px-4 py-2 rounded-xl border border-amber-200">
-              🔔 {counts.pending} طلب معلق
+              <span className="flex items-center gap-1"><Bell className="w-4 h-4" /> {counts.pending} طلب معلق</span>
             </span>
           )}
           <span className="bg-[#EEF2FF] text-[#4361EE] font-bold text-sm px-4 py-2 rounded-xl border border-[#4361EE]/20">
@@ -480,7 +485,7 @@ export default function AdminDepositsPage() {
           onClick={() => setTab("deposits")}
           className={`flex-1 md:flex-none md:px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "deposits" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
         >
-          💳 طلبات الشحن
+          <span className="flex items-center gap-1"><CreditCard className="w-4 h-4" /> طلبات الشحن</span>
           {counts.pending > 0 && (
             <span className="mr-1.5 bg-[#FB923C] text-white text-xs rounded-full px-1.5 py-0.5">{counts.pending}</span>
           )}
@@ -489,7 +494,7 @@ export default function AdminDepositsPage() {
           onClick={() => setTab("balances")}
           className={`flex-1 md:flex-none md:px-5 py-2.5 rounded-lg text-sm font-bold transition ${tab === "balances" ? "bg-white text-[#4361EE] shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
         >
-          💰 أرصدة البائعين
+          <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" /> أرصدة البائعين</span>
         </button>
       </div>
 

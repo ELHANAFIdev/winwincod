@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Package, CheckCircle } from "lucide-react";
 
 export default function SellerBatches() {
   const [batches, setBatches] = useState([]);
@@ -40,7 +41,9 @@ export default function SellerBatches() {
 
       {batches.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">📦</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Package className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد دفعات حتى الآن</p>
         </div>
       ) : (
@@ -65,7 +68,7 @@ export default function SellerBatches() {
                   <td className="p-4 font-bold text-[#4361EE]">{Number(batch.totalAmount).toFixed(2)} <span className="text-slate-400 font-normal">د.م</span></td>
                   <td className="p-4">
                     {batch.isPaid ? (
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">تم الدفع ✅</span>
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">تم الدفع <CheckCircle className="w-3.5 h-3.5" /></span>
                     ) : (
                       <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#FB923C]/10 text-[#FB923C] border border-[#FB923C]/20">بانتظار الدفع</span>
                     )}

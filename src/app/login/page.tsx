@@ -3,6 +3,7 @@
 import { signIn, getSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Clock, AlertTriangle, Package, Truck, DollarSign } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -63,9 +64,13 @@ export default function LoginPage() {
             منصة إدارة الطلبات والدفع عند التسليم للبائعين المغاربة
           </p>
           <div className="mt-10 grid grid-cols-3 gap-4 text-center">
-            {[["📦", "طلبات"], ["🚚", "توصيل"], ["💰", "أرباح"]].map(([icon, label]) => (
+            {[
+              { icon: <Package className="w-6 h-6 mx-auto" />, label: "طلبات" },
+              { icon: <Truck className="w-6 h-6 mx-auto" />, label: "توصيل" },
+              { icon: <DollarSign className="w-6 h-6 mx-auto" />, label: "أرباح" },
+            ].map(({ icon, label }) => (
               <div key={label} className="bg-white/10 rounded-2xl p-4">
-                <div className="text-2xl mb-1">{icon}</div>
+                <div className="text-white/80 mb-1">{icon}</div>
                 <p className="text-white/80 text-xs font-bold">{label}</p>
               </div>
             ))}
@@ -81,18 +86,18 @@ export default function LoginPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8">
-            <h2 className="text-2xl font-black text-[#1E293B] mb-1">مرحباً بعودتك 👋</h2>
+            <h2 className="text-2xl font-black text-[#1E293B] mb-1">مرحباً بعودتك</h2>
             <p className="text-slate-400 text-sm mb-8">سجل دخولك للوصول إلى لوحتك</p>
 
             {pendingApproval && (
               <div className="bg-orange-50 text-orange-700 p-3.5 mb-6 rounded-xl text-sm font-bold border border-orange-100 flex items-center gap-2">
-                <span>⏳</span> تم تسجيل طلبك بنجاح! في انتظار موافقة الإدارة.
+                <Clock className="w-4 h-4" /> تم تسجيل طلبك بنجاح! في انتظار موافقة الإدارة.
               </div>
             )}
 
             {error && (
               <div className="bg-red-50 text-red-600 p-3.5 mb-6 rounded-xl text-sm font-bold border border-red-100 flex items-center gap-2">
-                <span>⚠️</span> {error}
+                <AlertTriangle className="w-4 h-4" /> {error}
               </div>
             )}
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { Package, Pencil, Trash2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -72,7 +73,7 @@ export default function AdminProductsPage() {
                       <div className="w-12 h-12 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] overflow-hidden flex-shrink-0">
                         {p.images
                           ? <img src={p.images} alt={p.name} className="w-full h-full object-cover" />
-                          : <div className="w-full h-full flex items-center justify-center text-xl">📦</div>
+                          : <div className="w-full h-full flex items-center justify-center"><Package className="w-5 h-5 text-slate-300" /></div>
                         }
                       </div>
                       <div>
@@ -111,7 +112,7 @@ export default function AdminProductsPage() {
 
                   <td className="p-4">
                     <div className="flex gap-1">
-                      <Link href={`/admin/products/edit/${p.id}`} className="p-2 hover:bg-blue-50 text-[#4361EE] rounded-lg transition">✏️</Link>
+                      <Link href={`/admin/products/edit/${p.id}`} className="p-2 hover:bg-blue-50 text-[#4361EE] rounded-lg transition"><Pencil className="w-4 h-4" /></Link>
                       <button
                         onClick={async () => {
                           if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
@@ -124,7 +125,7 @@ export default function AdminProductsPage() {
                           }
                         }}
                         className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition"
-                      >🗑️</button>
+                      ><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>

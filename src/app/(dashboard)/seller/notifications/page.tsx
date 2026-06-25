@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { CheckCircle, XCircle, DollarSign, Truck, Package, Bell } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,13 +21,13 @@ type FilterTab = "all" | "unread" | "read";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const TYPE_ICON: Record<string, string> = {
-  DEPOSIT_APPROVED: "✅",
-  DEPOSIT_REJECTED: "❌",
-  PROFIT_CREDITED:  "💰",
-  ORDER_STATUS:     "🚚",
-  WALLET_DEDUCTED:  "📦",
-  NEW_ORDER:        "🔔",
+const TYPE_ICON: Record<string, ReactNode> = {
+  DEPOSIT_APPROVED: <CheckCircle className="w-5 h-5 text-green-500" />,
+  DEPOSIT_REJECTED: <XCircle className="w-5 h-5 text-red-500" />,
+  PROFIT_CREDITED:  <DollarSign className="w-5 h-5 text-amber-500" />,
+  ORDER_STATUS:     <Truck className="w-5 h-5 text-blue-500" />,
+  WALLET_DEDUCTED:  <Package className="w-5 h-5 text-slate-500" />,
+  NEW_ORDER:        <Bell className="w-5 h-5 text-[#4361EE]" />,
 };
 
 const TYPE_COLOR: Record<string, string> = {
@@ -91,8 +92,8 @@ function NotifRow({
       </div>
 
       {/* Icon bubble */}
-      <div className="w-11 h-11 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
-        {TYPE_ICON[item.type] ?? "🔔"}
+      <div className="w-11 h-11 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-center flex-shrink-0 shadow-sm">
+        {TYPE_ICON[item.type] ?? <Bell className="w-5 h-5 text-[#4361EE]" />}
       </div>
 
       {/* Content */}
@@ -214,10 +215,12 @@ export default function NotificationsPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-[#E2E8F0]">
-          <p className="text-5xl mb-3">🔔</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Bell className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold text-lg">لا توجد إشعارات</p>
           <p className="text-slate-300 text-sm mt-1">
-            {tab === "unread" ? "أنت محدّث تماماً! ✅" : "ستظهر إشعاراتك هنا عند وصولها"}
+            {tab === "unread" ? "أنت محدّث تماماً!" : "ستظهر إشعاراتك هنا عند وصولها"}
           </p>
         </div>
       ) : (

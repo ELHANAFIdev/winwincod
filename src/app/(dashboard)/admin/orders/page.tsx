@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { Clock, Truck, CheckCircle, RotateCcw } from "lucide-react";
 
 type Order = {
   id: string;
@@ -23,11 +24,11 @@ type Order = {
 
 type Tab = "PROCESSING" | "SHIPPED" | "DELIVERED" | "RETURNED";
 
-const TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: "PROCESSING", label: "قيد الانتظار", icon: "⏳" },
-  { key: "SHIPPED", label: "في الطريق", icon: "🚚" },
-  { key: "DELIVERED", label: "تم التسليم", icon: "✅" },
-  { key: "RETURNED", label: "مرجع", icon: "↩️" },
+const TABS: { key: Tab; label: string }[] = [
+  { key: "PROCESSING", label: "قيد الانتظار" },
+  { key: "SHIPPED", label: "في الطريق" },
+  { key: "DELIVERED", label: "تم التسليم" },
+  { key: "RETURNED", label: "مرجع" },
 ];
 
 const COMMISSION = 20;
@@ -157,7 +158,6 @@ export default function AdminOrdersPage() {
                 : "bg-white text-slate-500 border border-[#E2E8F0] hover:border-[#4361EE]/40"
             }`}
           >
-            <span>{tab.icon}</span>
             <span>{tab.label}</span>
             {activeTab === tab.key && orders.length > 0 && (
               <span className="bg-white/20 text-white text-xs font-black px-1.5 py-0.5 rounded-lg">
@@ -179,7 +179,7 @@ export default function AdminOrdersPage() {
             disabled={dispatching}
             className="bg-[#4361EE] hover:bg-[#3254D4] text-white px-6 py-2 rounded-xl font-bold text-sm transition disabled:opacity-60"
           >
-            {dispatching ? "جاري الإرسال..." : "إرسال للتوصيل 🚚"}
+            {dispatching ? "جاري الإرسال..." : <span className="flex items-center gap-1">إرسال للتوصيل <Truck className="w-4 h-4" /></span>}
           </button>
         </div>
       )}
@@ -192,9 +192,12 @@ export default function AdminOrdersPage() {
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">
-            {TABS.find((t) => t.key === activeTab)?.icon}
-          </p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            {activeTab === "PROCESSING" ? <Clock className="w-7 h-7 text-slate-400" />
+              : activeTab === "SHIPPED" ? <Truck className="w-7 h-7 text-slate-400" />
+              : activeTab === "DELIVERED" ? <CheckCircle className="w-7 h-7 text-slate-400" />
+              : <RotateCcw className="w-7 h-7 text-slate-400" />}
+          </div>
           <p className="text-slate-400 font-bold">لا توجد طلبات في هذه الفئة</p>
         </div>
       ) : (
@@ -428,7 +431,9 @@ export default function AdminOrdersPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5">
             <div className="text-center">
-              <p className="text-4xl mb-3">↩️</p>
+              <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <RotateCcw className="w-7 h-7 text-slate-400" />
+              </div>
               <h3 className="text-xl font-black text-[#1E293B]">
                 تأكيد المرجع
               </h3>

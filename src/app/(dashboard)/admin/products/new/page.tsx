@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/ui/ImageUpload";
+import { Package, Lock, CheckCircle } from "lucide-react";
 
 const inputCls = "w-full border border-gray-200 focus:border-[#4361EE] p-3 rounded-xl outline-none transition bg-white text-[#1E293B]";
 const labelCls = "block text-sm font-bold text-[#1E293B] mb-2";
@@ -26,7 +27,7 @@ export default function NewProductPage() {
     setLoading(true);
     try {
       await axios.post("/api/admin/products", formData);
-      alert("تمت إضافة المنتج للمستودع بنجاح! ✅");
+      alert("تمت إضافة المنتج للمستودع بنجاح!");
       router.push("/admin/products");
     } catch {
       alert("فشل الحفظ: تأكد من تعبئة جميع الحقول");
@@ -71,7 +72,7 @@ export default function NewProductPage() {
           <h3 className="font-bold text-[#1E293B] text-sm border-b border-[#E2E8F0] pb-3">الكمية والسعر</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className={labelCls}>الكمية المتوفرة (Stock) 📦</label>
+              <label className={labelCls}><span className="flex items-center gap-1">الكمية المتوفرة (Stock) <Package className="w-4 h-4 inline" /></span></label>
               <input type="number" min="0" className={inputCls} placeholder="0" value={formData.stock} onChange={e => set("stock", e.target.value)} required />
             </div>
             <div>
@@ -84,7 +85,7 @@ export default function NewProductPage() {
 
         {/* Section 3: Sensitive prices */}
         <div className="bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] p-6 space-y-5">
-          <h3 className="font-bold text-[#1E293B] text-sm border-b border-[#E2E8F0] pb-3">الأسعار الداخلية 🔒</h3>
+          <h3 className="font-bold text-[#1E293B] text-sm border-b border-[#E2E8F0] pb-3 flex items-center gap-1">الأسعار الداخلية <Lock className="w-4 h-4" /></h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-red-600 mb-2">سعر التكلفة (من المورد)</label>
@@ -109,7 +110,7 @@ export default function NewProductPage() {
           disabled={loading}
           className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-4 rounded-xl font-bold transition shadow-sm text-base disabled:opacity-60"
         >
-          {loading ? "جاري الحفظ..." : "حفظ وإضافة للمستودع ✅"}
+          {loading ? "جاري الحفظ..." : <span className="flex items-center justify-center gap-1">حفظ وإضافة للمستودع <CheckCircle className="w-4 h-4" /></span>}
         </button>
       </form>
     </div>

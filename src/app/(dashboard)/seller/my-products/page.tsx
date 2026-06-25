@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { Briefcase, Package, Download, Rocket } from "lucide-react";
 
 export default function MyCatalogPage() {
   const [items, setItems] = useState([]);
@@ -23,7 +24,7 @@ export default function MyCatalogPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-[#1E293B]">منتجاتي 💼</h2>
+          <h2 className="text-2xl font-black text-[#1E293B]">منتجاتي</h2>
           <p className="text-slate-400 text-sm mt-0.5">المنتجات التي أضفتها لقائمة عملك</p>
         </div>
         <Link href="/seller/products" className="bg-[#4361EE] hover:bg-[#3254D4] text-white px-5 py-2.5 rounded-xl font-bold transition shadow-sm text-sm">
@@ -33,7 +34,9 @@ export default function MyCatalogPage() {
 
       {items.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-20 text-center">
-          <p className="text-4xl mb-3">💼</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Briefcase className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold mb-4">لم تضف أي منتج لقائمتك بعد</p>
           <Link href="/seller/products" className="bg-[#4361EE] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#3254D4] transition">
             تصفح السوق
@@ -48,7 +51,7 @@ export default function MyCatalogPage() {
                 {item.product.images ? (
                   <img src={item.product.images} className="w-full h-full object-cover" alt={item.product.name} />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-2xl">📦</div>
+                  <div className="flex items-center justify-center h-full"><Package className="w-5 h-5 text-slate-300" /></div>
                 )}
               </div>
 
@@ -64,14 +67,14 @@ export default function MyCatalogPage() {
 
               {/* Actions */}
               <div className="flex gap-3 w-full md:w-auto flex-shrink-0">
-                <button className="px-4 py-2 border border-[#E2E8F0] rounded-xl text-slate-600 hover:bg-[#F8FAFC] font-bold text-sm transition">
-                  📥 الصور
+                <button className="flex items-center gap-1 px-4 py-2 border border-[#E2E8F0] rounded-xl text-slate-600 hover:bg-[#F8FAFC] font-bold text-sm transition">
+                  <Download className="w-4 h-4" /> الصور
                 </button>
                 <Link
                   href={`/seller/orders/new?productId=${item.product.id}`}
-                  className="px-6 py-2 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl font-bold text-sm transition shadow-sm"
+                  className="flex items-center gap-1 px-6 py-2 bg-[#4361EE] hover:bg-[#3254D4] text-white rounded-xl font-bold text-sm transition shadow-sm"
                 >
-                  🚀 بيع الآن
+                  <Rocket className="w-4 h-4" /> بيع الآن
                 </Link>
               </div>
             </div>

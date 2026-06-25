@@ -24,7 +24,7 @@ export async function notifyDepositApproved(sellerId: string, amount: number) {
   return createNotification(
     sellerId,
     "DEPOSIT_APPROVED",
-    "تم شحن المحفظة ✅",
+    "تم شحن المحفظة",
     `تم إضافة ${amount.toFixed(2)} درهم لمحفظتك بنجاح`,
     "/seller/wallet"
   );
@@ -34,7 +34,7 @@ export async function notifyDepositRejected(sellerId: string, amount: number, re
   return createNotification(
     sellerId,
     "DEPOSIT_REJECTED",
-    "تم رفض طلب الشحن ❌",
+    "تم رفض طلب الشحن",
     `تم رفض طلب شحن ${amount.toFixed(2)} درهم — السبب: ${reason}`,
     "/seller/wallet"
   );
@@ -49,7 +49,7 @@ export async function notifyProfitCredited(
   return createNotification(
     sellerId,
     "PROFIT_CREDITED",
-    "تم إضافة أرباحك 💰",
+    "تم إضافة أرباحك",
     `تم إضافة ${amount.toFixed(2)} درهم لمحفظتك من الطلب ORD-${shortId}`,
     "/seller/wallet"
   );
@@ -65,7 +65,7 @@ export async function notifyWalletDeducted(
   return createNotification(
     sellerId,
     "WALLET_DEDUCTED",
-    "تم خصم الدفعة من محفظتك 📦",
+    "تم خصم الدفعة من محفظتك",
     `تم خصم ${amount.toFixed(2)} درهم مقابل ${orderCount} طلب — الدفعة #${shortId}`,
     "/seller/wallet"
   );
@@ -74,11 +74,11 @@ export async function notifyWalletDeducted(
 // ─── Order status events ──────────────────────────────────────────────────────
 
 const ORDER_STATUS_TITLES: Record<string, string> = {
-  SHIPPED:   "طلبك في الطريق 🚚",
-  DELIVERED: "تم تسليم طلبك ✅",
-  RETURNED:  "تم إرجاع طلبك ↩️",
-  PROCESSING: "طلبك قيد التجهيز ⚙️",
-  CANCELLED: "تم إلغاء طلبك ❌",
+  SHIPPED:   "طلبك في الطريق",
+  DELIVERED: "تم تسليم طلبك",
+  RETURNED:  "تم إرجاع طلبك",
+  PROCESSING: "طلبك قيد التجهيز",
+  CANCELLED: "تم إلغاء طلبك",
 };
 
 export async function notifyOrderStatusChanged(

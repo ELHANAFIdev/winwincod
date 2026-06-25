@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { CheckCircle, XCircle, User, CreditCard } from "lucide-react";
 
 function getRef(req: any) {
   const d = new Date(req.createdAt);
@@ -36,7 +37,7 @@ export default function AdminWithdrawalsPage() {
     const tid = toast.loading("جاري تنفيذ العملية...");
     try {
       await axios.post("/api/admin/withdrawals/action", { id, action, receiptUrl: action === "APPROVE" ? receiptUrl : undefined });
-      toast.success(action === "APPROVE" ? "تم تأكيد السحب ✅" : "تم رفض الطلب", { id: tid });
+      toast.success(action === "APPROVE" ? "تم تأكيد السحب" : "تم رفض الطلب", { id: tid });
       setActiveRequest(null);
       setReceiptUrl("");
       fetchRequests();
@@ -61,7 +62,9 @@ export default function AdminWithdrawalsPage() {
 
       {requests.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">💳</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <CreditCard className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد طلبات سحب في الانتظار</p>
         </div>
       ) : (
@@ -78,7 +81,7 @@ export default function AdminWithdrawalsPage() {
                         {getRef(req)}
                       </span>
                       <p className="text-3xl font-black text-green-600">{Number(req.amount).toFixed(2)} <span className="text-xl">د.م</span></p>
-                      <p className="text-sm font-bold text-[#1E293B] mt-1">👤 {req.seller.name}</p>
+                      <p className="text-sm font-bold text-[#1E293B] mt-1 flex items-center gap-1"><User className="w-4 h-4" /> {req.seller.name}</p>
                       <p className="text-xs text-slate-400">{req.seller.email}</p>
                     </div>
                     <span className="text-xs text-slate-400 bg-[#F8FAFC] border border-[#E2E8F0] px-3 py-1.5 rounded-xl">
@@ -119,7 +122,7 @@ export default function AdminWithdrawalsPage() {
                       />
                       <div className="flex gap-2">
                         <button onClick={() => handleAction(req.id, "APPROVE")} className="flex-1 bg-green-600 text-white text-sm py-2.5 rounded-xl font-bold hover:bg-green-700 transition">
-                          دفع الآن ✅
+                          <span className="flex items-center justify-center gap-1">دفع الآن <CheckCircle className="w-4 h-4" /></span>
                         </button>
                         <button onClick={() => setActiveRequest(null)} className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] text-slate-600 text-sm py-2.5 rounded-xl font-bold hover:bg-gray-100 transition">
                           إلغاء
@@ -132,13 +135,13 @@ export default function AdminWithdrawalsPage() {
                         onClick={() => setActiveRequest(req.id)}
                         className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-sm"
                       >
-                        إرفاق الوصل وتأكيد ✅
+                        <span className="flex items-center justify-center gap-1">إرفاق الوصل وتأكيد <CheckCircle className="w-4 h-4" /></span>
                       </button>
                       <button
                         onClick={() => handleAction(req.id, "REJECT")}
                         className="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition border border-red-100"
                       >
-                        إلغاء الطلب ❌
+                        <span className="flex items-center justify-center gap-1">إلغاء الطلب <XCircle className="w-4 h-4" /></span>
                       </button>
                     </>
                   )}

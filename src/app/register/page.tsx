@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { CheckCircle, Truck, DollarSign, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -40,8 +41,12 @@ export default function RegisterPage() {
             انضم لآلاف البائعين المغاربة وابدأ تجارتك الإلكترونية اليوم
           </p>
           <div className="mt-10 space-y-3">
-            {["✅ مخزون جاهز للبيع","🚚 توصيل سريع لكل المدن","💰 أرباح تُسحب فوراً"].map(t => (
-              <div key={t} className="bg-white/10 rounded-xl px-5 py-3 text-white text-sm font-bold text-right">{t}</div>
+            {[
+              { icon: <CheckCircle className="w-4 h-4" />, text: "مخزون جاهز للبيع" },
+              { icon: <Truck className="w-4 h-4" />, text: "توصيل سريع لكل المدن" },
+              { icon: <DollarSign className="w-4 h-4" />, text: "أرباح تُسحب فوراً" },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-center gap-2 bg-white/10 rounded-xl px-5 py-3 text-white text-sm font-bold">{icon} {text}</div>
             ))}
           </div>
         </div>
@@ -55,7 +60,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8">
-            <h2 className="text-2xl font-black text-[#1E293B] mb-1">إنشاء حساب جديد 🚀</h2>
+            <h2 className="text-2xl font-black text-[#1E293B] mb-1">إنشاء حساب جديد</h2>
             <p className="text-slate-400 text-sm mb-8">أدخل بياناتك وسيتم مراجعة طلبك</p>
 
             {message.text && (
@@ -64,7 +69,7 @@ export default function RegisterPage() {
                   ? "bg-green-50 text-green-700 border-green-100"
                   : "bg-red-50 text-red-700 border-red-100"
               }`}>
-                {message.type === "success" ? "✅ " : "⚠️ "}{message.text}
+                {message.type === "success" ? <CheckCircle className="w-4 h-4 inline mr-1" /> : <AlertTriangle className="w-4 h-4 inline mr-1" />}{message.text}
               </div>
             )}
 

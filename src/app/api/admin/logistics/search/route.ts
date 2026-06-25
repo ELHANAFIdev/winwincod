@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     // البحث عن الطلبات التي خرجت للشحن فقط (SHIPPED)
     const orders = await prisma.order.findMany({
       where: {
-        status: 'SHIPPED', // 👈 نبحث فقط في المشحون
+        status: 'SHIPPED', // نبحث فقط في المشحون
         OR: [
           { customerPhone: { contains: query } },
           { customerName: { contains: query } }

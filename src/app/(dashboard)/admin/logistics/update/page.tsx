@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { Search, CheckCircle, RotateCcw } from "lucide-react";
 
 export default function UpdateStatusPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,7 +55,7 @@ export default function UpdateStatusPage() {
             <span className="flex items-center gap-2">
               <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
             </span>
-          ) : "🔍 بحث"}
+          ) : <span className="flex items-center gap-1"><Search className="w-4 h-4" /> بحث</span>}
         </button>
       </form>
 
@@ -77,13 +78,13 @@ export default function UpdateStatusPage() {
                 onClick={() => updateStatus(order.id, "RETURNED")}
                 className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold hover:bg-red-100 transition border border-red-100 text-sm"
               >
-                ↩️ مرتجع
+                <span className="flex items-center gap-1"><RotateCcw className="w-4 h-4" /> مرتجع</span>
               </button>
               <button
                 onClick={() => updateStatus(order.id, "DELIVERED")}
                 className="bg-green-50 text-green-700 px-4 py-2.5 rounded-xl font-bold hover:bg-green-100 transition border border-green-100 text-sm"
               >
-                ✅ تم التسليم
+                <span className="flex items-center gap-1"><CheckCircle className="w-4 h-4" /> تم التسليم</span>
               </button>
             </div>
           </div>

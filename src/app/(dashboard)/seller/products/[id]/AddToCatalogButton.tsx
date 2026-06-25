@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { CheckCircle, Plus } from "lucide-react";
 
 export default function AddToCatalogButton({ productId, isAlreadyAdded }: any) {
   const [added, setAdded] = useState(isAlreadyAdded);
@@ -14,7 +15,7 @@ export default function AddToCatalogButton({ productId, isAlreadyAdded }: any) {
       await axios.post("/api/seller/catalog", { productId });
       setAdded(true);
       router.refresh(); // لتحديث البيانات في الصفحة
-      alert("تمت الإضافة لقائمتك بنجاح! 🎉");
+      alert("تمت الإضافة لقائمتك بنجاح!");
     } catch (err) {
       alert("حدث خطأ");
     } finally {
@@ -24,19 +25,19 @@ export default function AddToCatalogButton({ productId, isAlreadyAdded }: any) {
 
   if (added) {
     return (
-      <button disabled className="bg-gray-100 text-gray-500 px-6 py-3 rounded-lg font-bold cursor-default border border-gray-200">
-        ✅ مضاف لقائمتك
+      <button disabled className="flex items-center gap-1 bg-gray-100 text-gray-500 px-6 py-3 rounded-lg font-bold cursor-default border border-gray-200">
+        <CheckCircle className="w-4 h-4" /> مضاف لقائمتك
       </button>
     );
   }
 
   return (
-    <button 
+    <button
       onClick={handleAdd}
       disabled={loading}
-      className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition"
+      className="flex items-center gap-1 bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition"
     >
-      {loading ? "جاري الإضافة..." : "➕ إضافة لمنتجاتي"}
+      {loading ? "جاري الإضافة..." : <><Plus className="w-4 h-4" /> إضافة لمنتجاتي</>}
     </button>
   );
 }

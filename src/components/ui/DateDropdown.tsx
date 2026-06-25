@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { CalendarDays, Calendar } from "lucide-react";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 export function fmtDate(d: Date) {
@@ -115,7 +116,7 @@ export default function DateDropdown({ period, from, to, onChange }: Props) {
           }`}
       >
         <span className="flex items-center gap-2 min-w-0">
-          <span className="text-base leading-none flex-shrink-0">📅</span>
+          <CalendarDays className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">{label}</span>
           {period === "custom" && (
             <span className="hidden md:inline text-[10px] font-mono text-slate-400 truncate">
@@ -165,7 +166,7 @@ export default function DateDropdown({ period, from, to, onChange }: Props) {
         {/* Custom date range */}
         <div className="border-t border-[#E2E8F0] p-3 bg-[#F8FAFC]">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-            <span>🗓️</span> تاريخ مخصص
+            <Calendar className="w-4 h-4" /> تاريخ مخصص
           </p>
           <div className="space-y-2">
             <div className="flex items-center gap-2">

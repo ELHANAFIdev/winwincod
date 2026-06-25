@@ -3,6 +3,11 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import {
+  Rocket, Package, DollarSign, User, BookOpen,
+  ClipboardList, Phone, Truck, Lightbulb, CheckCircle,
+  AlertTriangle, Landmark, CreditCard
+} from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 
@@ -62,7 +67,7 @@ function Step1({ onNext }: { onNext: () => void }) {
       <div>
         <h1 className="text-3xl md:text-4xl font-black text-[#1E293B] leading-tight">
           مرحباً بك في<br />
-          <span className="text-[#4361EE]">WinWinCOD</span> 🎉
+          <span className="text-[#4361EE]">WinWinCOD</span>
         </h1>
         <p className="text-slate-500 text-base mt-3 font-medium">
           منصة التجارة الإلكترونية بالدفع عند الاستلام
@@ -73,19 +78,19 @@ function Step1({ onNext }: { onNext: () => void }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
         {[
           {
-            icon: "🚀",
+            icon: <Rocket className="w-8 h-8 text-[#4361EE] mx-auto" />,
             title: "ابدأ بدون رأس مال",
             desc: "لا تحتاج دفع مسبق للمنتجات",
             color: "from-blue-50 to-indigo-50 border-blue-100",
           },
           {
-            icon: "📦",
+            icon: <Package className="w-8 h-8 text-orange-500 mx-auto" />,
             title: "شحن سريع",
             desc: "توصيل لجميع مدن المغرب",
             color: "from-orange-50 to-amber-50 border-orange-100",
           },
           {
-            icon: "💰",
+            icon: <DollarSign className="w-8 h-8 text-green-500 mx-auto" />,
             title: "أرباح مضمونة",
             desc: "استلم أرباحك بعد كل تسليم",
             color: "from-green-50 to-emerald-50 border-green-100",
@@ -95,7 +100,7 @@ function Step1({ onNext }: { onNext: () => void }) {
             key={f.title}
             className={`bg-gradient-to-br ${f.color} border rounded-2xl p-4 text-center`}
           >
-            <span className="text-4xl block mb-3">{f.icon}</span>
+            <span className="block mb-3">{f.icon}</span>
             <p className="font-black text-[#1E293B] text-sm mb-1">{f.title}</p>
             <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
           </div>
@@ -166,7 +171,7 @@ function Step2({
   return (
     <div className="space-y-5">
       <div className="text-center mb-2">
-        <span className="text-4xl">👤</span>
+        <User className="w-10 h-10 text-[#4361EE] mx-auto" />
         <h2 className="text-2xl font-black text-[#1E293B] mt-2">أكمل ملفك الشخصي</h2>
         <p className="text-slate-400 text-sm mt-1">هذه المعلومات تساعدنا على خدمتك بشكل أفضل</p>
       </div>
@@ -235,16 +240,16 @@ function Step2({
 
 function Step3({ onNext }: { onNext: () => void }) {
   const steps = [
-    { icon: "📋", title: "أضف منتجاتك",             desc: "حدد سعر البيع والتكلفة لكل منتج" },
-    { icon: "📞", title: "فريقنا يتصل بالعملاء",    desc: "نؤكد الطلبات مع عملائك نيابة عنك" },
-    { icon: "🚚", title: "نرسل للعميل",              desc: "شركة التوصيل تتكفل بإيصال الطلب" },
-    { icon: "💰", title: "تستلم أرباحك",             desc: "الربح = سعر البيع - التكلفة - رسوم الشحن" },
+    { icon: <ClipboardList className="w-5 h-5 text-[#4361EE]" />, title: "أضف منتجاتك",             desc: "حدد سعر البيع والتكلفة لكل منتج" },
+    { icon: <Phone className="w-5 h-5 text-[#4361EE]" />,         title: "فريقنا يتصل بالعملاء",    desc: "نؤكد الطلبات مع عملائك نيابة عنك" },
+    { icon: <Truck className="w-5 h-5 text-[#4361EE]" />,         title: "نرسل للعميل",              desc: "شركة التوصيل تتكفل بإيصال الطلب" },
+    { icon: <DollarSign className="w-5 h-5 text-[#4361EE]" />,    title: "تستلم أرباحك",             desc: "الربح = سعر البيع - التكلفة - رسوم الشحن" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <span className="text-4xl">📖</span>
+        <BookOpen className="w-10 h-10 text-[#4361EE] mx-auto" />
         <h2 className="text-2xl font-black text-[#1E293B] mt-2">كيف تعمل المنصة؟</h2>
         <p className="text-slate-400 text-sm mt-1">4 خطوات بسيطة لتحقيق أرباحك</p>
       </div>
@@ -257,7 +262,7 @@ function Step3({ onNext }: { onNext: () => void }) {
               {i + 1}
             </div>
             <div>
-              <p className="font-black text-[#1E293B] text-sm">
+              <p className="font-black text-[#1E293B] text-sm flex items-center gap-1">
                 {s.icon} {s.title}
               </p>
               <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">{s.desc}</p>
@@ -269,7 +274,7 @@ function Step3({ onNext }: { onNext: () => void }) {
       {/* Pricing example */}
       <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] rounded-2xl p-5 text-white">
         <p className="font-black text-base mb-4 flex items-center gap-2">
-          💡 مثال على الأرباح
+          <Lightbulb className="w-5 h-5" /> مثال على الأرباح
         </p>
         <div className="space-y-2.5">
           {[
@@ -285,7 +290,7 @@ function Step3({ onNext }: { onNext: () => void }) {
             </div>
           ))}
           <div className="border-t border-white/20 pt-2.5 flex items-center justify-between">
-            <span className="text-white font-black">✅ ربحك الصافي</span>
+            <span className="text-white font-black flex items-center gap-1"><CheckCircle className="w-4 h-4" /> ربحك الصافي</span>
             <span className="text-green-300 font-black text-xl">70 درهم</span>
           </div>
         </div>
@@ -313,7 +318,7 @@ function Step4({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <span className="text-4xl">💰</span>
+        <DollarSign className="w-10 h-10 text-[#4361EE] mx-auto" />
         <h2 className="text-2xl font-black text-[#1E293B] mt-2">شحن المحفظة</h2>
         <p className="text-slate-400 text-sm mt-1 leading-relaxed">
           لإضافة طلباتك، تحتاج رصيداً في محفظتك لتغطية تكاليف الشحن
@@ -322,7 +327,7 @@ function Step4({
 
       {/* Info banner */}
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0">⚠️</span>
+        <AlertTriangle className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-black text-amber-800 text-sm">الرصيد الأدنى الموصى به</p>
           <p className="text-amber-700 font-black text-3xl mt-1">200 درهم</p>
@@ -333,7 +338,7 @@ function Step4({
       {/* Bank transfer card */}
       <div className="bg-white border-2 border-[#4361EE]/20 rounded-2xl p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl">🏦</span>
+          <Landmark className="w-6 h-6 text-[#4361EE]" />
           <p className="font-black text-[#1E293B]">تفاصيل التحويل البنكي</p>
         </div>
         <div className="space-y-3">
@@ -364,7 +369,7 @@ function Step4({
             <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
-              <span className="text-xl">💳</span>
+              <CreditCard className="w-5 h-5" />
               شحن المحفظة الآن
             </>
           )}

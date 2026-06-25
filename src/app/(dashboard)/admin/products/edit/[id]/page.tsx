@@ -3,6 +3,7 @@ import { useState, useEffect, use } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/ui/ImageUpload";
+import { CheckCircle } from "lucide-react";
 
 const inputCls = "w-full border border-gray-200 focus:border-[#4361EE] p-3 rounded-xl outline-none transition bg-white text-[#1E293B]";
 const labelCls = "block text-sm font-bold text-[#1E293B] mb-2";
@@ -29,7 +30,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     e.preventDefault();
     try {
       await axios.put(`/api/admin/products/${id}`, formData);
-      alert("تم تحديث المنتج بنجاح! ✨");
+      alert("تم تحديث المنتج بنجاح!");
       router.push("/admin/products");
     } catch {
       alert("حدث خطأ في التحديث");
@@ -97,8 +98,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <ImageUpload value={formData.images} onSuccess={url => set("images", url)} />
         </div>
 
-        <button className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-4 rounded-xl font-bold transition shadow-sm">
-          تحديث البيانات ✅
+        <button className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-4 rounded-xl font-bold transition shadow-sm flex items-center justify-center gap-1">
+          تحديث البيانات <CheckCircle className="w-4 h-4" />
         </button>
       </form>
     </div>

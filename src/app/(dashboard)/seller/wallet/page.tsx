@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { CreditCard, Package, DollarSign, RotateCcw, Banknote, Paperclip, CheckCircle } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,12 +36,12 @@ const TYPE_LABELS: Record<TxType, string> = {
   WITHDRAWAL: "سحب أرباح",
 };
 
-const TYPE_ICON: Record<TxType, string> = {
-  DEPOSIT:    "💳",
-  DEDUCTION:  "📦",
-  PROFIT:     "💰",
-  REFUND:     "↩️",
-  WITHDRAWAL: "💸",
+const TYPE_ICON: Record<TxType, ReactNode> = {
+  DEPOSIT:    <CreditCard className="w-5 h-5" />,
+  DEDUCTION:  <Package className="w-5 h-5" />,
+  PROFIT:     <DollarSign className="w-5 h-5" />,
+  REFUND:     <RotateCcw className="w-5 h-5" />,
+  WITHDRAWAL: <Banknote className="w-5 h-5" />,
 };
 
 const STATUS_BADGE: Record<TxStatus, { label: string; cls: string }> = {
@@ -149,14 +150,14 @@ function DepositModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
                 <img src={preview} alt="وصل" className="h-full w-full object-contain p-1" />
               ) : (
                 <div className="text-center">
-                  <p className="text-3xl mb-1">📎</p>
+                  <Paperclip className="w-8 h-8 text-slate-300 mx-auto mb-1" />
                   <p className="text-sm text-slate-400 font-medium">اضغط لرفع صورة الوصل</p>
                   <p className="text-xs text-slate-300 mt-0.5">JPG, PNG, PDF</p>
                 </div>
               )}
               <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} disabled={uploading} />
             </label>
-            {receiptUrl && <p className="text-xs text-green-600 font-bold mt-1.5">✅ تم رفع الوصل بنجاح</p>}
+            {receiptUrl && <p className="text-xs text-green-600 font-bold mt-1.5 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> تم رفع الوصل بنجاح</p>}
           </div>
 
           <p className="text-xs text-slate-400 text-center">سيتم تأكيد الشحن خلال 24 ساعة من مراجعة الإدارة</p>
@@ -185,10 +186,10 @@ function DepositModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: 
 
 // ─── Stats card (compact on mobile) ──────────────────────────────────────────
 
-function StatCard({ icon, label, value, color }: { icon: string; label: string; value: number; color: string }) {
+function StatCard({ icon, label, value, color }: { icon: ReactNode; label: string; value: number; color: string }) {
   return (
     <div className={`bg-white border border-[#E2E8F0] rounded-xl p-3 md:p-5 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 ${color}`}>
-      <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl flex-shrink-0 ${color}`}>
+      <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
         {icon}
       </div>
       <div className="text-center md:text-right">
@@ -213,7 +214,7 @@ function TxRow({ item }: { item: WalletItem }) {
     <tr className="border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] transition">
       <td className="py-3.5 px-4">
         <div className="flex items-center gap-2">
-          <span className="text-base">{TYPE_ICON[item.type]}</span>
+          <span className="text-slate-400">{TYPE_ICON[item.type]}</span>
           <span className="font-bold text-sm text-[#1E293B]">{TYPE_LABELS[item.type]}</span>
         </div>
         {item.orderId && (
@@ -257,7 +258,7 @@ function TxCard({ item }: { item: WalletItem }) {
 
   return (
     <div className="p-4 flex items-start gap-3 border-b border-[#F1F5F9] last:border-0">
-      <span className="text-2xl flex-shrink-0 mt-0.5">{TYPE_ICON[item.type]}</span>
+      <span className="text-slate-400 flex-shrink-0 mt-0.5">{TYPE_ICON[item.type]}</span>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <p className="font-bold text-sm text-[#1E293B]">{TYPE_LABELS[item.type]}</p>
@@ -358,9 +359,9 @@ export default function SellerWalletPage() {
 
       {/* ── Stats row (3 cols on mobile) ── */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
-        <StatCard icon="✅" label="إجمالي الشحنات المعتمدة" value={stats.totalDeposits}   color="bg-green-50" />
-        <StatCard icon="📦" label="إجمالي الخصومات"         value={stats.totalDeductions} color="bg-red-50" />
-        <StatCard icon="💰" label="إجمالي الأرباح"           value={stats.totalProfits}    color="bg-amber-50" />
+        <StatCard icon={<CheckCircle className="w-5 h-5 text-green-500" />} label="إجمالي الشحنات المعتمدة" value={stats.totalDeposits}   color="bg-green-50" />
+        <StatCard icon={<Package className="w-5 h-5 text-red-400" />}       label="إجمالي الخصومات"         value={stats.totalDeductions} color="bg-red-50" />
+        <StatCard icon={<DollarSign className="w-5 h-5 text-amber-500" />}  label="إجمالي الأرباح"           value={stats.totalProfits}    color="bg-amber-50" />
       </div>
 
       {/* ── Transaction history ── */}
@@ -376,7 +377,9 @@ export default function SellerWalletPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-4xl mb-3">📭</p>
+            <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <CreditCard className="w-7 h-7 text-slate-400" />
+            </div>
             <p className="text-slate-400 font-medium">لا توجد حركات مالية بعد</p>
             <p className="text-slate-300 text-sm mt-1">ابدأ بشحن محفظتك لتتمكن من تسجيل الطلبات</p>
           </div>

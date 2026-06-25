@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { Rocket, CheckCircle, Package, Truck, Banknote, BarChart3, Bell } from "lucide-react";
 
 /* ── tiny count-up hook ──────────────────────────────────────────────── */
 function useCountUp(target: number, duration = 1800, started = false, delay = 0) {
@@ -29,12 +30,12 @@ function StatCard({
   target, prefix = "", suffix = "", label, icon, started, delay, cls,
 }: {
   target: number; prefix?: string; suffix?: string; label: string;
-  icon: string; started: boolean; delay: number; cls: string;
+  icon: ReactNode; started: boolean; delay: number; cls: string;
 }) {
   const val = useCountUp(target, 1800, started, delay);
   return (
     <div className={`${cls} bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3.5 text-center`}>
-      <span className="text-xl leading-none">{icon}</span>
+      <span className="inline-flex justify-center text-white/70">{icon}</span>
       <p className="text-xl font-black text-white mt-1 tabular-nums">
         {prefix}{val.toLocaleString()}{suffix}
       </p>
@@ -99,7 +100,7 @@ export default function HeroSection({
           {/* Badge */}
           <div className="anim-fsu inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white/90 text-sm font-bold mb-8 w-fit">
             <span className="anim-blink w-2.5 h-2.5 bg-green-400 rounded-full flex-shrink-0" />
-            🚀 انضم لـ +500 بائع مغربي ناجح
+            <Rocket className="w-4 h-4" /> انضم لـ +500 بائع مغربي ناجح
           </div>
 
           {/* Headline */}
@@ -114,7 +115,7 @@ export default function HeroSection({
 
           {/* Subtitle */}
           <p className="anim-fsu-3 text-white/80 text-xl lg:text-2xl font-bold mb-10">
-            لا مخزون، لا رأس مال، فقط أرباح 💰
+            لا مخزون، لا رأس مال، فقط أرباح
           </p>
 
           {/* Buttons */}
@@ -137,10 +138,10 @@ export default function HeroSection({
 
           {/* Stats — 4 cards with staggered counter */}
           <div ref={statsRef} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 pt-8 border-t border-white/20">
-            <StatCard target={500}   prefix="+"  suffix="" label="بائع نشط"       icon="✅" started={statsStarted} delay={0}   cls="anim-s1" />
-            <StatCard target={10000} prefix="" suffix="+" label="طلبية شهرياً"    icon="📦" started={statsStarted} delay={150} cls="anim-s2" />
-            <StatCard target={85}    prefix=""  suffix="%" label="معدل تسليم"      icon="🚚" started={statsStarted} delay={300} cls="anim-s3" />
-            <StatCard target={48}    prefix=""  suffix="h" label="تحويل الأرباح"  icon="💸" started={statsStarted} delay={450} cls="anim-s4" />
+            <StatCard target={500}   prefix="+"  suffix="" label="بائع نشط"       icon={<CheckCircle className="w-5 h-5" />} started={statsStarted} delay={0}   cls="anim-s1" />
+            <StatCard target={10000} prefix="" suffix="+" label="طلبية شهرياً"    icon={<Package className="w-5 h-5" />}     started={statsStarted} delay={150} cls="anim-s2" />
+            <StatCard target={85}    prefix=""  suffix="%" label="معدل تسليم"      icon={<Truck className="w-5 h-5" />}        started={statsStarted} delay={300} cls="anim-s3" />
+            <StatCard target={48}    prefix=""  suffix="h" label="تحويل الأرباح"  icon={<Banknote className="w-5 h-5" />}     started={statsStarted} delay={450} cls="anim-s4" />
           </div>
         </div>
 
@@ -150,7 +151,7 @@ export default function HeroSection({
           {/* ① Notification: تم التسليم — bounce-in from top */}
           <div className="anim-bounce-in absolute top-2 right-2 z-30">
             <div className="bg-white rounded-2xl shadow-2xl shadow-blue-900/40 px-4 py-3 flex items-center gap-3 border border-green-100 w-60">
-              <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center text-lg flex-shrink-0">✅</div>
+              <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0"><CheckCircle className="w-5 h-5 text-green-500" /></div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-black text-green-600 uppercase tracking-wide">تم التسليم!</p>
                 <p className="text-xs font-bold text-[#1E293B] truncate">سعاد الحسني · مراكش</p>
@@ -164,7 +165,7 @@ export default function HeroSection({
             {/* card header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#EEF2FF] rounded-xl flex items-center justify-center text-sm">📊</div>
+                <div className="w-8 h-8 bg-[#EEF2FF] rounded-xl flex items-center justify-center"><BarChart3 className="w-4 h-4 text-[#4361EE]" /></div>
                 <div>
                   <p className="text-[10px] font-black text-[#4361EE] uppercase tracking-wider">لوحتي</p>
                   <p className="text-[10px] text-slate-400">هذا الشهر</p>
@@ -216,7 +217,7 @@ export default function HeroSection({
           <div className="anim-slide-right absolute bottom-10 right-0 z-30">
             <div className="bg-white rounded-2xl shadow-xl shadow-blue-900/25 p-4 w-56 border border-[#E2E8F0]">
               <div className="flex items-center gap-2 mb-2.5">
-                <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center text-base flex-shrink-0">🔔</div>
+                <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0"><Bell className="w-4 h-4 text-[#FB923C]" /></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] font-black text-[#FB923C] uppercase tracking-wide">طلب جديد</p>
                   <p className="text-[10px] text-slate-400">منذ دقيقتين</p>

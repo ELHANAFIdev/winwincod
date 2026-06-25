@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
+import { BarChart3, ClipboardList, DollarSign, FileText } from "lucide-react";
 
 type Row = {
   id: string;
@@ -94,7 +95,7 @@ export default function AdminTransactionsPage() {
           onClick={exportExcel}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition"
         >
-          <span>📊</span> تصدير Excel
+          <BarChart3 className="w-4 h-4" /> تصدير Excel
         </button>
       </div>
 
@@ -139,7 +140,9 @@ export default function AdminTransactionsPage() {
       {/* Table */}
       {filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">📋</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <ClipboardList className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد نتائج بالفلاتر المختارة</p>
         </div>
       ) : (
@@ -162,7 +165,7 @@ export default function AdminTransactionsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${row.type === "DEPOSIT" ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-purple-50 text-purple-700 border-purple-200"}`}>
-                      {row.type === "DEPOSIT" ? "💰 إيداع" : "💸 سحب"}
+                      <span className="flex items-center gap-1">{row.type === "DEPOSIT" ? <><DollarSign className="w-3 h-3" /> إيداع</> : <>سحب</>}</span>
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -195,7 +198,7 @@ export default function AdminTransactionsPage() {
                     {row.receiptImage ? (
                       <a href={row.receiptImage} target="_blank" rel="noreferrer"
                         className="text-xs font-bold text-[#4361EE] hover:underline flex items-center gap-1">
-                        <span>🧾</span> عرض
+                        <FileText className="w-3.5 h-3.5" /> عرض
                       </a>
                     ) : (
                       <span className="text-slate-300">—</span>

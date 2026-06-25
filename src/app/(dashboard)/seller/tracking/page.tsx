@@ -1,6 +1,11 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import axios from "axios";
+import {
+  Search, AlertTriangle, Package, ClipboardList, Phone,
+  Truck, CheckCircle, RotateCcw, XCircle, User, DollarSign,
+  CalendarDays, Ship
+} from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,7 +43,7 @@ const STATUS_META: Record<OrderStatus, { label: string; color: string; bg: strin
 
 interface TimelineStep {
   id: number;
-  icon: string;
+  icon: ReactNode;
   label: string;
   sub: string;
   reachedAt: readonly OrderStatus[];
@@ -47,7 +52,7 @@ interface TimelineStep {
 const STEPS: TimelineStep[] = [
   {
     id: 0,
-    icon: "📋",
+    icon: <ClipboardList className="w-5 h-5" />,
     label: "تم إنشاء الطلب",
     sub: "تم تسجيل الطلب في المنصة",
     reachedAt: [
@@ -57,28 +62,28 @@ const STEPS: TimelineStep[] = [
   },
   {
     id: 1,
-    icon: "📞",
+    icon: <Phone className="w-5 h-5" />,
     label: "تم التأكيد مع العميل",
     sub: "تأكيد الطلب مع العميل بنجاح",
     reachedAt: ["CONFIRMED","WAITING_PAYMENT","PROCESSING","SHIPPED","DELIVERED","RETURNED"],
   },
   {
     id: 2,
-    icon: "📦",
+    icon: <Package className="w-5 h-5" />,
     label: "تم تسليم الطلب للشركة",
     sub: "الطلب جاهز للشحن مع شركة Ozon",
     reachedAt: ["PROCESSING","SHIPPED","DELIVERED","RETURNED"],
   },
   {
     id: 3,
-    icon: "🚚",
+    icon: <Truck className="w-5 h-5" />,
     label: "الطلب في الطريق",
     sub: "الطلب خرج من المستودع نحو العميل",
     reachedAt: ["SHIPPED","DELIVERED","RETURNED"],
   },
   {
     id: 4,
-    icon: "✅",
+    icon: <CheckCircle className="w-5 h-5" />,
     label: "تم التسليم",
     sub: "تم تسليم الطلب للعميل بنجاح",
     reachedAt: ["DELIVERED"],
@@ -86,8 +91,8 @@ const STEPS: TimelineStep[] = [
 ];
 
 // Returned and Cancelled get their own last step
-const RETURNED_STEP = { id: 4, icon: "↩️", label: "مرتجع", sub: "رُفض أو أُعيد الطلب" };
-const CANCELLED_STEP = { id: 4, icon: "❌", label: "ملغي", sub: "تم إلغاء الطلب" };
+const RETURNED_STEP = { id: 4, icon: <RotateCcw className="w-5 h-5" />, label: "مرتجع", sub: "رُفض أو أُعيد الطلب" };
+const CANCELLED_STEP = { id: 4, icon: <XCircle className="w-5 h-5" />, label: "ملغي", sub: "تم إلغاء الطلب" };
 
 function getStepIndex(status: OrderStatus): number {
   if (status === "DRAFT") return 0;
@@ -163,13 +168,13 @@ function TrackingTimeline({ order }: { order: OrderData }) {
                   </svg>
                 </div>
               ) : isCurrent ? (
-                <div className="w-10 h-10 rounded-full bg-[#FB923C] flex items-center justify-center shadow-md shadow-orange-200 relative">
-                  <span className="text-lg">{step.icon}</span>
+                <div className="w-10 h-10 rounded-full bg-[#FB923C] flex items-center justify-center shadow-md shadow-orange-200 relative text-white">
+                  {step.icon}
                   <span className="absolute inset-0 rounded-full bg-[#FB923C]/40 animate-ping" />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
-                  <span className="text-lg opacity-40">{step.icon}</span>
+                <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center text-slate-300">
+                  {step.icon}
                 </div>
               )}
             </div>
@@ -179,7 +184,7 @@ function TrackingTimeline({ order }: { order: OrderData }) {
               <p className={`font-black text-sm leading-tight ${
                 isDone ? "text-[#1E293B]" : isCurrent ? "text-[#FB923C]" : "text-slate-400"
               }`}>
-                {step.icon} {step.label}
+                {step.label}
               </p>
               <p className={`text-xs mt-0.5 ${isDone || isCurrent ? "text-slate-400" : "text-slate-300"}`}>
                 {step.sub}
@@ -237,7 +242,7 @@ export default function TrackingPage() {
     <div className="space-y-6 max-w-2xl mx-auto" dir="rtl">
       {/* Header */}
       <div>
-        <h2 className="text-xl md:text-2xl font-black text-[#1E293B]">تتبع الطلبات 🔍</h2>
+        <h2 className="text-xl md:text-2xl font-black text-[#1E293B] flex items-center gap-2">تتبع الطلبات <Search className="w-5 h-5 text-slate-400" /></h2>
         <p className="text-slate-400 text-sm mt-0.5">ابحث برقم الطلب أو رقم هاتف العميل</p>
       </div>
 
@@ -245,7 +250,7 @@ export default function TrackingPage() {
       <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-4 md:p-5">
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">🔍</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Search className="w-4 h-4" /></span>
             <input
               ref={inputRef}
               type="text"
@@ -294,7 +299,7 @@ export default function TrackingPage() {
       {/* Error */}
       {error && (
         <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3">
-          <span className="text-2xl flex-shrink-0">⚠️</span>
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-500" />
           <p className="text-red-600 font-bold text-sm">{error}</p>
         </div>
       )}
@@ -302,7 +307,9 @@ export default function TrackingPage() {
       {/* Not found */}
       {searched && !order && !error && (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] py-20 text-center">
-          <p className="text-5xl mb-4">🔍</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Search className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-xl font-black text-[#1E293B] mb-2">لم يتم العثور على الطلب</p>
           <p className="text-slate-400 text-sm">تأكد من رقم الطلب أو رقم الهاتف وحاول مجددًا</p>
         </div>
@@ -317,14 +324,14 @@ export default function TrackingPage() {
               <p className="text-xs font-bold text-slate-400 mb-0.5">الحالة الحالية</p>
               <p className={`text-2xl font-black ${statusMeta.color}`}>{statusMeta.label}</p>
             </div>
-            <div className={`text-4xl opacity-80`}>
-              {order.status === "DELIVERED" ? "✅"
-                : order.status === "RETURNED" ? "↩️"
-                : order.status === "SHIPPED" ? "🚚"
-                : order.status === "PROCESSING" ? "📦"
-                : order.status === "CONFIRMED" ? "📞"
-                : order.status === "CANCELLED" ? "❌"
-                : "📋"}
+            <div className="opacity-80 text-slate-500">
+              {order.status === "DELIVERED" ? <CheckCircle className="w-8 h-8 text-green-500" />
+                : order.status === "RETURNED" ? <RotateCcw className="w-8 h-8 text-red-500" />
+                : order.status === "SHIPPED" ? <Truck className="w-8 h-8 text-cyan-500" />
+                : order.status === "PROCESSING" ? <Package className="w-8 h-8 text-orange-400" />
+                : order.status === "CONFIRMED" ? <Phone className="w-8 h-8 text-blue-500" />
+                : order.status === "CANCELLED" ? <XCircle className="w-8 h-8 text-slate-400" />
+                : <ClipboardList className="w-8 h-8 text-slate-400" />}
             </div>
           </div>
 
@@ -337,14 +344,14 @@ export default function TrackingPage() {
               </span>
             </div>
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoRow icon="👤" label="العميل" value={order.customerName} />
-              <InfoRow icon="📞" label="الهاتف" value={order.customerPhone} isPhone />
-              <InfoRow icon="📦" label="المنتج" value={`${order.productName} × ${order.quantity}`} />
-              <InfoRow icon="💰" label="مبلغ COD" value={`${order.codAmount.toFixed(0)} درهم`} highlight />
-              <InfoRow icon="🏙️" label="المدينة" value={order.city} />
-              <InfoRow icon="📅" label="تاريخ الإنشاء" value={fmtDate(order.createdAt)} />
+              <InfoRow icon={<User className="w-5 h-5" />} label="العميل" value={order.customerName} />
+              <InfoRow icon={<Phone className="w-5 h-5" />} label="الهاتف" value={order.customerPhone} isPhone />
+              <InfoRow icon={<Package className="w-5 h-5" />} label="المنتج" value={`${order.productName} × ${order.quantity}`} />
+              <InfoRow icon={<DollarSign className="w-5 h-5" />} label="مبلغ COD" value={`${order.codAmount.toFixed(0)} درهم`} highlight />
+              <InfoRow icon={<Search className="w-5 h-5" />} label="المدينة" value={order.city} />
+              <InfoRow icon={<CalendarDays className="w-5 h-5" />} label="تاريخ الإنشاء" value={fmtDate(order.createdAt)} />
               {order.trackingNumber && (
-                <InfoRow icon="🚢" label="رقم التتبع" value={order.trackingNumber} mono />
+                <InfoRow icon={<Ship className="w-5 h-5" />} label="رقم التتبع" value={order.trackingNumber} mono />
               )}
             </div>
           </div>
@@ -365,7 +372,9 @@ export default function TrackingPage() {
       {/* Initial empty state */}
       {!searched && !loading && !error && (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] py-16 text-center">
-          <p className="text-5xl mb-4">📦</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-lg font-black text-[#1E293B] mb-1">تتبع طلباتك</p>
           <p className="text-slate-400 text-sm">أدخل رقم الطلب أو هاتف العميل للبحث</p>
         </div>
@@ -379,12 +388,12 @@ export default function TrackingPage() {
 function InfoRow({
   icon, label, value, highlight, isPhone, mono,
 }: {
-  icon: string; label: string; value: string;
+  icon: ReactNode; label: string; value: string;
   highlight?: boolean; isPhone?: boolean; mono?: boolean;
 }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="text-lg flex-shrink-0 mt-0.5">{icon}</span>
+      <span className="text-slate-400 flex-shrink-0 mt-0.5">{icon}</span>
       <div className="min-w-0">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
         {isPhone ? (

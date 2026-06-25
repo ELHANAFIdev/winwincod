@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { CheckCircle, XCircle, UserCheck } from "lucide-react";
 
 export default function UserRequestsPage() {
   const [users, setUsers] = useState([]);
@@ -44,7 +45,9 @@ export default function UserRequestsPage() {
 
       {users.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">🆕</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <UserCheck className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد طلبات انضمام معلقة حالياً</p>
         </div>
       ) : (
@@ -72,13 +75,13 @@ export default function UserRequestsPage() {
                         onClick={() => handleAction(u.id, "APPROVE")}
                         className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition"
                       >
-                        موافقة ✅
+                        <span className="flex items-center gap-1">موافقة <CheckCircle className="w-3.5 h-3.5" /></span>
                       </button>
                       <button
                         onClick={() => handleAction(u.id, "REJECT")}
                         className="bg-red-50 text-red-600 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition border border-red-100"
                       >
-                        رفض ❌
+                        <span className="flex items-center gap-1">رفض <XCircle className="w-3.5 h-3.5" /></span>
                       </button>
                     </div>
                   </td>

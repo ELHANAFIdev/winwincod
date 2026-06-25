@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { CheckCircle2, ShoppingCart, Rocket } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { MOROCCAN_CITIES } from "@/lib/moroccan-cities";
 
@@ -87,7 +88,9 @@ function SuccessView({ orders }: { orders: { id: string; productName: string; cu
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="bg-white rounded-2xl border border-green-200 p-8 text-center shadow-sm">
-        <div className="text-5xl mb-3">🎉</div>
+        <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <CheckCircle2 className="w-7 h-7 text-green-500" />
+        </div>
         <h2 className="text-2xl font-black text-green-700 mb-1">تم تأكيد {orders.length} طلب بنجاح!</h2>
         <p className="text-slate-400 text-sm">ستجد طلباتك في قسم المسودات جاهزة للإرسال</p>
       </div>
@@ -179,7 +182,7 @@ export default function CheckoutPage() {
         customerName: forms[item.cartId].customerName,
         amount: Number(forms[item.cartId].codAmount),
       })));
-      toast.success("تم تأكيد جميع الطلبات 🎉");
+      toast.success("تم تأكيد جميع الطلبات");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "حدث خطأ");
     } finally {
@@ -192,7 +195,9 @@ export default function CheckoutPage() {
   if (items.length === 0) return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center space-y-4">
-        <p className="text-5xl">🛒</p>
+        <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto">
+          <ShoppingCart className="w-7 h-7 text-slate-400" />
+        </div>
         <p className="font-black text-[#1E293B] text-lg">السلة فارغة</p>
         <Link href="/seller/products"
           className="inline-block bg-[#4361EE] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#3254D4] transition">
@@ -328,7 +333,7 @@ export default function CheckoutPage() {
           className="w-full bg-[#4361EE] hover:bg-[#3254D4] disabled:opacity-60 text-white py-4 rounded-xl font-black text-base transition shadow-sm flex items-center justify-center gap-2">
           {submitting
             ? <><span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />جاري تأكيد الطلبات...</>
-            : `تأكيد ${items.length} طلب 🚀`}
+            : <span className="flex items-center gap-1">تأكيد {items.length} طلب <Rocket className="w-4 h-4" /></span>}
         </button>
       </div>
     </div>

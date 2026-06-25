@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { Package, Truck, FileText } from "lucide-react";
 
 export default function LogisticsPage() {
   const [batches, setBatches] = useState([]);
@@ -26,7 +27,7 @@ export default function LogisticsPage() {
     try {
       const res = await axios.post("/api/admin/logistics/ship", { batchId });
       if (res.data.success) {
-        alert("تم تحديث الحالة إلى (مشحون 🚚) بنجاح!");
+        alert("تم تحديث الحالة إلى (مشحون) بنجاح!");
         fetchReadyBatches();
       }
     } catch {
@@ -55,7 +56,9 @@ export default function LogisticsPage() {
 
       {batches.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-20 text-center">
-          <p className="text-4xl mb-3">📦</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Package className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد شحنات مدفوعة حالياً</p>
           <p className="text-slate-300 text-sm mt-1">بمجرد أن يقوم البائع بالدفع، ستظهر هنا</p>
         </div>
@@ -94,13 +97,13 @@ export default function LogisticsPage() {
                     target="_blank"
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] px-5 py-3 rounded-xl font-bold hover:bg-gray-100 transition"
                   >
-                    📄 المانيفست
+                    <FileText className="w-4 h-4" /> المانيفست
                   </Link>
                   <button
                     onClick={() => markAsShipped(batch.id)}
                     className="flex-1 md:flex-none bg-[#4361EE] hover:bg-[#3254D4] text-white px-7 py-3 rounded-xl font-bold transition shadow-sm flex items-center justify-center gap-2"
                   >
-                    🚚 تم الشحن
+                    <Truck className="w-4 h-4" /> تم الشحن
                   </button>
                 </div>
               </div>

@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         phone,
         role: "SELLER",
-        isActive: false, // 👈 أهم نقطة: الحساب معطل حتى يوافق المدير
+        isActive: false, // أهم نقطة: الحساب معطل حتى يوافق المدير
       },
     });
 

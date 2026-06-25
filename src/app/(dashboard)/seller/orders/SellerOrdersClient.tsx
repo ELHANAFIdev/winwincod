@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DateDropdown from "@/components/ui/DateDropdown";
+import { Plus, Truck, CheckCircle, RotateCcw, DollarSign, Search, Package } from "lucide-react";
 
 interface Order {
   id: string;
@@ -184,12 +185,12 @@ export default function SellerOrdersClient({ orders: initial, todayStats, period
     return Array.from({ length: 5 }, (_, i) => start + i);
   })();
 
-  const statCards: Array<{ tab: string; icon: string; label: string; value: number | string; color: string; wide?: boolean }> = [
-    { tab: "new",       icon: "🆕", label: "جديد اليوم",   value: todayStats.new,       color: "text-[#4361EE]" },
-    { tab: "transit",   icon: "🚚", label: "في الطريق",    value: todayStats.shipped,   color: "text-cyan-600"  },
-    { tab: "delivered", icon: "✅", label: "تم التسليم",   value: todayStats.delivered, color: "text-green-600" },
-    { tab: "returned",  icon: "↩️", label: "مرتجع",        value: todayStats.returned,  color: "text-red-500"   },
-    { tab: "profit",    icon: "💰", label: "أرباح اليوم",  value: `${todayStats.profit.toFixed(0)} د.م`, color: "text-emerald-600", wide: true },
+  const statCards: Array<{ tab: string; icon: ReactNode; label: string; value: number | string; color: string; wide?: boolean }> = [
+    { tab: "new",       icon: <Plus className="w-4 h-4" />,          label: "جديد اليوم",   value: todayStats.new,       color: "text-[#4361EE]" },
+    { tab: "transit",   icon: <Truck className="w-4 h-4" />,         label: "في الطريق",    value: todayStats.shipped,   color: "text-cyan-600"  },
+    { tab: "delivered", icon: <CheckCircle className="w-4 h-4" />,   label: "تم التسليم",   value: todayStats.delivered, color: "text-green-600" },
+    { tab: "returned",  icon: <RotateCcw className="w-4 h-4" />,     label: "مرتجع",        value: todayStats.returned,  color: "text-red-500"   },
+    { tab: "profit",    icon: <DollarSign className="w-4 h-4" />,    label: "أرباح اليوم",  value: `${todayStats.profit.toFixed(0)} د.م`, color: "text-emerald-600", wide: true },
   ];
 
   return (
@@ -227,7 +228,7 @@ export default function SellerOrdersClient({ orders: initial, todayStats, period
             ].join(" ")}
           >
             <div className="flex items-start justify-between mb-1">
-              <span className="text-lg">{card.icon}</span>
+              <span className="text-slate-400">{card.icon}</span>
               <span className={`text-xl font-black ${card.color}`}>{card.value}</span>
             </div>
             <p className="text-xs text-slate-400 font-bold">{card.label}</p>
@@ -249,7 +250,7 @@ export default function SellerOrdersClient({ orders: initial, todayStats, period
           </div>
           {/* Search */}
           <div className="relative flex-1 sm:max-w-sm">
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Search className="w-4 h-4" /></span>
             <input
               type="text"
               value={search}
@@ -298,7 +299,9 @@ export default function SellerOrdersClient({ orders: initial, todayStats, period
       {/* ── Empty State ── */}
       {filtered.length === 0 && (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] py-20 text-center">
-          <p className="text-5xl mb-4">{search ? "🔍" : "📦"}</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            {search ? <Search className="w-7 h-7 text-slate-400" /> : <Package className="w-7 h-7 text-slate-400" />}
+          </div>
           <p className="text-xl font-black text-[#1E293B] mb-2">
             {search ? "لا توجد نتائج" : "لا توجد طلبات"}
           </p>

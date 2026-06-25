@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FileText } from "lucide-react";
 
 const SHIPPING_COST = 30;
 
@@ -120,7 +121,9 @@ export default function DraftsPage() {
       {/* Empty state */}
       {drafts.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">📝</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <FileText className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد مسودات حالياً</p>
           <p className="text-slate-400 text-sm mt-1">
             أضف طلبات من صفحة المنتجات

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useCart } from "@/context/CartContext";
+import { ShoppingCart, Package } from "lucide-react";
 
 function parseFirstImage(images: string): string {
   try {
@@ -38,7 +39,7 @@ export default function ProductSelectionPage() {
       quantity: qty,
     });
     setQuantities(q => ({ ...q, [product.id]: 1 }));
-    toast.success("تمت الإضافة للسلة ✅");
+    toast.success("تمت الإضافة للسلة");
   };
 
   return (
@@ -51,7 +52,7 @@ export default function ProductSelectionPage() {
         {totalCount > 0 && (
           <button onClick={openDrawer}
             className="flex items-center gap-2 bg-[#4361EE] text-white px-5 py-2.5 rounded-xl font-bold shadow hover:bg-[#3254D4] transition">
-            🛒 السلة ({totalCount})
+            <ShoppingCart className="w-4 h-4" /> السلة ({totalCount})
           </button>
         )}
       </div>
@@ -63,7 +64,9 @@ export default function ProductSelectionPage() {
         </div>
       ) : products.length === 0 ? (
         <div className="bg-white rounded-2xl border-2 border-dashed border-[#E2E8F0] p-16 text-center">
-          <p className="text-4xl mb-3">📦</p>
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Package className="w-7 h-7 text-slate-400" />
+          </div>
           <p className="text-slate-400 font-bold">لا توجد منتجات متاحة</p>
         </div>
       ) : (
@@ -89,7 +92,7 @@ export default function ProductSelectionPage() {
                       className="h-full w-full object-contain p-3"
                       onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   ) : (
-                    <span className="text-5xl opacity-20">📦</span>
+                    <Package className="w-10 h-10 text-slate-200" />
                   )}
                   {inCartCount > 0 && (
                     <span className="absolute top-2 right-2 bg-[#4361EE] text-white text-xs font-black px-2.5 py-1 rounded-lg shadow">

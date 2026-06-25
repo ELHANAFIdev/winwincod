@@ -51,7 +51,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
     />
   ) : (
     <div className="flex items-center justify-center h-full text-6xl bg-gray-50 text-gray-200">
-      🖼️ لا توجد صورة
+      لا توجد صورة
     </div>
   )}
 </div>
@@ -83,7 +83,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             <div className="bg-white p-6 rounded-xl shadow-sm flex justify-between items-center">
                 <span className="font-bold">حالة المخزون:</span>
                 <span className={`px-4 py-2 rounded-lg font-bold ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {product.stock > 0 ? `متوفر (${product.stock} قطعة)` : 'نفذت الكمية ❌'}
+                    {product.stock > 0 ? `متوفر (${product.stock} قطعة)` : 'نفذت الكمية'}
                 </span>
             </div>
         </div>

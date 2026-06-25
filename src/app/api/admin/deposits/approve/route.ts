@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "تم شحن رصيد البائع وتحديث الحالة بنجاح ✅",
+      message: "تم شحن رصيد البائع وتحديث الحالة بنجاح",
       newBalance: Number(wallet.balance),
     });
   } catch (error: any) {

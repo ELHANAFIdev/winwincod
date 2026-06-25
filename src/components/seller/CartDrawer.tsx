@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { ShoppingCart, Package, Rocket } from "lucide-react";
 
 export function CartDrawer() {
   const { items, removeItem, updateQty, clearAll, drawerOpen, closeDrawer } = useCart();
@@ -32,7 +33,7 @@ export function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 bg-[#4361EE] flex-shrink-0">
           <div className="flex items-center gap-2 text-white">
-            <span className="text-xl">🛒</span>
+            <ShoppingCart className="w-5 h-5" />
             <span className="font-black text-base">سلة المشتريات</span>
             {items.length > 0 && (
               <span className="bg-white text-[#4361EE] text-xs font-black px-2 py-0.5 rounded-full">
@@ -52,7 +53,9 @@ export function CartDrawer() {
         <div className="flex-1 overflow-y-auto">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
-              <span className="text-6xl">🛒</span>
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                <ShoppingCart className="w-8 h-8 text-slate-400" />
+              </div>
               <p className="font-black text-[#1E293B] text-lg">السلة فارغة</p>
               <p className="text-sm text-slate-400">أضف منتجات من السوق أو صفحة إضافة طلب</p>
               <button
@@ -76,7 +79,7 @@ export function CartDrawer() {
                         onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
                       />
                     ) : (
-                      <span className="text-2xl">📦</span>
+                      <Package className="w-6 h-6 text-slate-300" />
                     )}
                   </div>
 
@@ -139,7 +142,7 @@ export function CartDrawer() {
               onClick={closeDrawer}
               className="block w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-3.5 rounded-xl font-black text-center transition shadow-sm text-sm"
             >
-              إكمال الطلب 🚀
+              <span className="flex items-center gap-1">إكمال الطلب <Rocket className="w-4 h-4" /></span>
             </Link>
             <button
               onClick={clearAll}

@@ -3,6 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import LandingNavbar from "./LandingNavbar";
 import HeroSection from "./HeroSection";
+import {
+  ClipboardList, ShoppingBag, Upload, Banknote,
+  Package, Truck, DollarSign, BarChart3, Headphones, TrendingUp,
+  UserPlus, CreditCard, Unlock, Mail, Smartphone, MapPin
+} from "lucide-react";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -39,14 +44,14 @@ export default async function HomePage() {
             <div className="hidden md:block absolute top-10 right-[12.5%] left-[12.5%] h-0.5 bg-gradient-to-l from-[#4361EE] to-[#FB923C] opacity-20" />
 
             {[
-              { num: "01", icon: "📝", title: "سجل مجاناً", desc: "أنشئ حسابك في ثوانٍ وانضم لمجتمع الآلاف من البائعين" },
-              { num: "02", icon: "🛍️", title: "اختر منتجاتك", desc: "تصفح كتالوجنا المتنوع واختر المنتجات التي تريد بيعها" },
-              { num: "03", icon: "📤", title: "أضف طلباتك", desc: "أدخل طلبات زبائنك بسهولة وتابع حالتها لحظة بلحظة" },
-              { num: "04", icon: "💸", title: "اسحب أرباحك", desc: "بعد التسليم، احسب أرباحك واسحبها فوراً لحسابك البنكي" },
+              { num: "01", icon: <ClipboardList className="w-8 h-8" />, title: "سجل مجاناً", desc: "أنشئ حسابك في ثوانٍ وانضم لمجتمع الآلاف من البائعين" },
+              { num: "02", icon: <ShoppingBag className="w-8 h-8" />, title: "اختر منتجاتك", desc: "تصفح كتالوجنا المتنوع واختر المنتجات التي تريد بيعها" },
+              { num: "03", icon: <Upload className="w-8 h-8" />, title: "أضف طلباتك", desc: "أدخل طلبات زبائنك بسهولة وتابع حالتها لحظة بلحظة" },
+              { num: "04", icon: <Banknote className="w-8 h-8" />, title: "اسحب أرباحك", desc: "بعد التسليم، احسب أرباحك واسحبها فوراً لحسابك البنكي" },
             ].map(({ num, icon, title, desc }, i) => (
               <div key={num} className="relative text-center group">
                 <div className="relative w-20 h-20 mx-auto mb-6">
-                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg shadow-blue-100 border border-[#E2E8F0] flex items-center justify-center text-3xl group-hover:scale-110 group-hover:shadow-blue-200 transition-all duration-300">
+                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg shadow-blue-100 border border-[#E2E8F0] flex items-center justify-center text-[#4361EE] group-hover:scale-110 group-hover:shadow-blue-200 transition-all duration-300">
                     {icon}
                   </div>
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#4361EE] rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-md">
@@ -75,32 +80,32 @@ export default async function HomePage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: "📦", color: "#EEF2FF", iconColor: "#4361EE",
+                icon: <Package className="w-6 h-6" />, color: "#EEF2FF", iconColor: "#4361EE",
                 title: "بدون مخزون",
                 desc: "لا حاجة لشراء أي منتج مسبقاً. اختر من كتالوجنا وابدأ البيع فوراً بدون أي مخاطرة مالية.",
               },
               {
-                icon: "🚚", color: "#ECFDF5", iconColor: "#059669",
+                icon: <Truck className="w-6 h-6" />, color: "#ECFDF5", iconColor: "#059669",
                 title: "شحن سريع لكل المغرب",
                 desc: "نغطي أكثر من 50 مدينة مغربية بشركاء توصيل موثوقين وتتبع لحظي للطلبات.",
               },
               {
-                icon: "💰", color: "#FFF7ED", iconColor: "#EA580C",
+                icon: <DollarSign className="w-6 h-6" />, color: "#FFF7ED", iconColor: "#EA580C",
                 title: "أرباح مضمونة",
                 desc: "كل درهم ربحته في حسابك فور تسليم الطلب. سحب فوري بدون تأخير ولا رسوم خفية.",
               },
               {
-                icon: "📊", color: "#F0FDF4", iconColor: "#16A34A",
+                icon: <BarChart3 className="w-6 h-6" />, color: "#F0FDF4", iconColor: "#16A34A",
                 title: "لوحة تحكم ذكية",
                 desc: "تابع طلباتك وأرباحك وإحصاءاتك في الوقت الفعلي من أي جهاز وأي مكان.",
               },
               {
-                icon: "🎧", color: "#FDF4FF", iconColor: "#9333EA",
+                icon: <Headphones className="w-6 h-6" />, color: "#FDF4FF", iconColor: "#9333EA",
                 title: "دعم 24/7",
                 desc: "فريق الدعم متاح على مدار الساعة لحل أي مشكلة وضمان تجربة بيع سلسة دائماً.",
               },
               {
-                icon: "📈", color: "#FFF1F2", iconColor: "#E11D48",
+                icon: <TrendingUp className="w-6 h-6" />, color: "#FFF1F2", iconColor: "#E11D48",
                 title: "تقارير مفصلة",
                 desc: "احصل على تقارير يومية وأسبوعية وشهرية عن أداء مبيعاتك لاتخاذ قرارات أفضل.",
               },
@@ -110,8 +115,8 @@ export default async function HomePage() {
                 className="group bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#4361EE]/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/50 hover:-translate-y-1"
               >
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5 transition-transform duration-300 group-hover:scale-110"
-                  style={{ background: color }}
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: color, color: iconColor }}
                 >
                   {icon}
                 </div>
@@ -199,12 +204,12 @@ export default async function HomePage() {
 
           <div className="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {[
-              { icon: "🎯", title: "تسجيل مجاني", desc: "أنشئ حسابك بدون أي رسوم أو بطاقة بنكية مطلوبة" },
-              { icon: "💳", title: "ادفع عند البيع فقط", desc: "عمولة رمزية فقط عند تسليم الطلب بنجاح. لا مبيعات = لا رسوم" },
-              { icon: "🔓", title: "بدون قيود", desc: "أضف طلبات غير محدودة، وصول كامل لجميع الميزات من اليوم الأول" },
+              { icon: <UserPlus className="w-7 h-7 text-[#4361EE]" />, title: "تسجيل مجاني", desc: "أنشئ حسابك بدون أي رسوم أو بطاقة بنكية مطلوبة" },
+              { icon: <CreditCard className="w-7 h-7 text-[#4361EE]" />, title: "ادفع عند البيع فقط", desc: "عمولة رمزية فقط عند تسليم الطلب بنجاح. لا مبيعات = لا رسوم" },
+              { icon: <Unlock className="w-7 h-7 text-[#4361EE]" />, title: "بدون قيود", desc: "أضف طلبات غير محدودة، وصول كامل لجميع الميزات من اليوم الأول" },
             ].map(({ icon, title, desc }) => (
               <div key={title} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6 text-center hover:border-[#4361EE]/40 hover:shadow-lg transition-all duration-300">
-                <div className="text-3xl mb-4">{icon}</div>
+                <div className="flex justify-center mb-4">{icon}</div>
                 <h3 className="font-black text-[#1E293B] mb-2">{title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
               </div>
@@ -265,7 +270,7 @@ export default async function HomePage() {
                 منصة الدروب شيبينغ الأولى في المغرب بنظام الدفع عند الاستلام. ابدأ البيع بدون رأس مال اليوم.
               </p>
               <div className="flex gap-3 mt-5">
-                {["📘", "📸", "🐦"].map((icon, i) => (
+                {[0, 1, 2].map((i) => (
                   <div key={i} className="w-9 h-9 bg-white/10 hover:bg-[#4361EE] rounded-xl flex items-center justify-center text-sm cursor-pointer transition" />
                 ))}
               </div>
@@ -293,12 +298,12 @@ export default async function HomePage() {
               <h4 className="font-black text-white mb-4 text-sm">تواصل معنا</h4>
               <ul className="space-y-2.5">
                 {[
-                  { icon: "✉️", text: "support@winwincod.ma" },
-                  { icon: "📱", text: "واتساب 24/7" },
-                  { icon: "📍", text: "المغرب 🇲🇦" },
+                  { icon: <Mail className="w-4 h-4" />, text: "support@winwincod.ma" },
+                  { icon: <Smartphone className="w-4 h-4" />, text: "واتساب 24/7" },
+                  { icon: <MapPin className="w-4 h-4" />, text: "المغرب" },
                 ].map(({ icon, text }) => (
                   <li key={text} className="flex items-center gap-2 text-slate-400 text-sm">
-                    <span>{icon}</span> {text}
+                    <span className="text-slate-500">{icon}</span> {text}
                   </li>
                 ))}
               </ul>

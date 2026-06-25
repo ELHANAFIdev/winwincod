@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import toast from "react-hot-toast";
+import { FileText, FolderOpen, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ImportOrdersPage() {
@@ -60,7 +61,7 @@ export default function ImportOrdersPage() {
           <p className="text-slate-400 text-sm mt-0.5">رفع ملف Excel يحتوي على بيانات الزبائن</p>
         </div>
         <button onClick={downloadTemplate} className="text-[#4361EE] text-sm font-bold hover:underline flex items-center gap-1">
-          📄 تحميل النموذج
+          <FileText className="w-4 h-4" /> تحميل النموذج
         </button>
       </div>
 
@@ -81,7 +82,7 @@ export default function ImportOrdersPage() {
         <div className="relative border-2 border-dashed border-[#E2E8F0] hover:border-[#4361EE] rounded-2xl p-10 text-center bg-[#F8FAFC] hover:bg-[#EEF2FF]/50 transition cursor-pointer">
           <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
           <div className="space-y-2 pointer-events-none">
-            <span className="text-4xl block">📂</span>
+            <FolderOpen className="w-10 h-10 text-slate-300 mx-auto" />
             <p className="font-bold text-[#1E293B]">اضغط هنا لرفع ملف Excel</p>
             <p className="text-xs text-slate-400">أعمدة مطلوبة: name, phone, city, address, quantity, price</p>
           </div>
@@ -122,7 +123,7 @@ export default function ImportOrdersPage() {
           disabled={loading || fileData.length === 0}
           className="w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-4 rounded-xl font-bold transition shadow-sm disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
         >
-          {loading ? "جاري المعالجة..." : `استيراد ${fileData.length > 0 ? fileData.length : ""} طلب الآن 🚀`}
+          {loading ? "جاري المعالجة..." : <span className="flex items-center justify-center gap-1">استيراد {fileData.length > 0 ? fileData.length : ""} طلب الآن <Rocket className="w-4 h-4" /></span>}
         </button>
       </div>
     </div>

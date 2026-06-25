@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       });
     });
 
-    return NextResponse.json({ success: true, message: "تم الشحن وتحديث المخزون بنجاح ✅" });
+    return NextResponse.json({ success: true, message: "تم الشحن وتحديث المخزون بنجاح" });
   } catch (error: any) {
     console.error("Shipping Error:", error);
     return errorResponse("فشل تحديث المخزون: " + error.message, 500);

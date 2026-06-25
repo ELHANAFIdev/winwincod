@@ -1,6 +1,7 @@
 "use client";
 import { useState, useId } from "react";
 import axios from "axios";
+import { Camera } from "lucide-react";
 
 export default function ImageUpload({ value, onSuccess }: { value: string; onSuccess: (url: string) => void }) {
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ export default function ImageUpload({ value, onSuccess }: { value: string; onSuc
         </div>
       ) : (
         <label htmlFor={inputId} className="flex flex-col items-center cursor-pointer text-slate-400 hover:text-[#4361EE] transition gap-2">
-          <span className="text-4xl">📸</span>
+          <Camera className="w-10 h-10 text-slate-300 mx-auto" />
           <span className="text-sm font-bold">اضغط هنا لرفع صورة</span>
           <span className="text-[10px] text-slate-300">PNG, JPG (Max 5MB)</span>
         </label>

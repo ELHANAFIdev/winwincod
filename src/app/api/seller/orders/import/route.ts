@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       count: created.length,
-      message: `تم استيراد ${created.length} طلب بنجاح ✅`,
+      message: `تم استيراد ${created.length} طلب بنجاح`,
     });
   } catch (error: any) {
     console.error("Import Error:", error);
