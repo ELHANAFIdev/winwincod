@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Package, CheckCircle, DollarSign, Lightbulb, TrendingUp, RotateCcw } from "lucide-react";
 import axios from "axios";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -40,6 +41,7 @@ export default function SellerDashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const sellerName = (session?.user as any)?.name ?? "بائع";
 
   useEffect(() => {
@@ -68,9 +70,9 @@ export default function SellerDashboard() {
 
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div>
-            <p className="text-green-200 text-sm font-medium">مرحباً، {sellerName}</p>
-            <h1 className="text-2xl font-black mt-1.5 tracking-tight">لوحة القيادة</h1>
-            <p className="text-green-100/80 text-sm mt-1 font-medium">تتبع أداء مبيعاتك · {periodLabel}</p>
+            <p className="text-green-200 text-sm font-medium">{t("dashboard.hello")}، {sellerName}</p>
+            <h1 className="text-2xl font-black mt-1.5 tracking-tight">{t("nav.dashboard")}</h1>
+            <p className="text-green-100/80 text-sm mt-1 font-medium">{t("dashboard.trackPerf")} · {periodLabel}</p>
           </div>
           <div className="flex-shrink-0">
             <DateDropdown period={period} from={from} to={to} onChange={handleDateChange} />
@@ -101,7 +103,7 @@ export default function SellerDashboard() {
                 <Package className="w-6 h-6 text-[#4361EE]" />
               </div>
               <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{data.totalOrders}</p>
-              <p className="text-sm text-slate-500 font-semibold">إجمالي الطلبات</p>
+              <p className="text-sm text-slate-500 font-semibold">{t("dashboard.totalOrdersCard")}</p>
               <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{periodLabel}</p>
             </div>
 
@@ -111,8 +113,8 @@ export default function SellerDashboard() {
                 <CheckCircle className="w-6 h-6 text-[#10B981]" />
               </div>
               <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{data.delivered ?? 0}</p>
-              <p className="text-sm text-slate-500 font-semibold">تم التسليم</p>
-              <p className="text-[11px] text-[#10B981] mt-1.5 font-bold">نسبة {data.deliveryRate ?? "0"}%</p>
+              <p className="text-sm text-slate-500 font-semibold">{t("dashboard.delivered")}</p>
+              <p className="text-[11px] text-[#10B981] mt-1.5 font-bold">{t("dashboard.deliveryRateLabel")} {data.deliveryRate ?? "0"}%</p>
             </div>
 
             {/* Net Profit */}
@@ -124,8 +126,8 @@ export default function SellerDashboard() {
                 {Number(data.totalProfit ?? 0).toLocaleString("ar-MA", { maximumFractionDigits: 0 })}
                 <span className="text-lg font-semibold text-slate-400 mr-1">د.م</span>
               </p>
-              <p className="text-sm text-slate-500 font-semibold">الربح الصافي</p>
-              <p className="text-[11px] text-slate-400 mt-1.5 font-medium">من الطلبات المُسلَّمة</p>
+              <p className="text-sm text-slate-500 font-semibold">{t("dashboard.netProfit")}</p>
+              <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{t("dashboard.fromDelivered")}</p>
             </div>
 
             {/* Return Rate */}
@@ -138,7 +140,7 @@ export default function SellerDashboard() {
                   ? Math.round((data.returned / (data.delivered + data.returned)) * 100)
                   : 0}%
               </p>
-              <p className="text-sm text-slate-500 font-semibold">نسبة الإرجاع</p>
+              <p className="text-sm text-slate-500 font-semibold">{t("dashboard.returnRate")}</p>
               <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{periodLabel}</p>
             </div>
           </div>
@@ -149,7 +151,7 @@ export default function SellerDashboard() {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-black text-[#1E293B] text-base">نشاط الطلبات</h3>
+                  <h3 className="font-black text-[#1E293B] text-base">{t("dashboard.ordersActivity")}</h3>
                   <p className="text-xs text-slate-400 mt-0.5">{periodLabel}</p>
                 </div>
                 <div className="w-10 h-10 bg-[#EEF2FF] rounded-2xl flex items-center justify-center">
@@ -176,7 +178,7 @@ export default function SellerDashboard() {
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[220px] flex items-center justify-center">
-                  <p className="text-sm font-medium text-slate-400">لا توجد بيانات</p>
+                  <p className="text-sm font-medium text-slate-400">{t("common.noData")}</p>
                 </div>
               )}
             </div>
@@ -185,8 +187,8 @@ export default function SellerDashboard() {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-black text-[#1E293B] text-base">حالة الطلبات</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">توزيع الحالات في الفترة</p>
+                  <h3 className="font-black text-[#1E293B] text-base">{t("dashboard.ordersStatus")}</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{t("dashboard.statusDistribution")}</p>
                 </div>
                 <div className="w-10 h-10 bg-[#ECFDF5] rounded-2xl flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-[#10B981]" />
@@ -229,7 +231,7 @@ export default function SellerDashboard() {
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[220px] flex items-center justify-center">
-                  <p className="text-sm font-medium text-slate-400">لا توجد بيانات</p>
+                  <p className="text-sm font-medium text-slate-400">{t("common.noData")}</p>
                 </div>
               )}
             </div>
@@ -242,10 +244,8 @@ export default function SellerDashboard() {
               <Lightbulb className="w-5 h-5 text-white" />
             </div>
             <div className="relative">
-              <p className="font-black text-[#4361EE] text-sm mb-1">نصيحة اليوم</p>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                الرد السريع على الهاتف يرفع نسبة التوصيل بـ 30%. تأكد من أرقام الزبائن قبل الإرسال!
-              </p>
+              <p className="font-black text-[#4361EE] text-sm mb-1">{t("dashboard.tipTitle")}</p>
+              <p className="text-slate-600 text-sm leading-relaxed">{t("dashboard.tipBody")}</p>
             </div>
           </div>
         </>

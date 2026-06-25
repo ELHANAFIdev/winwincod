@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, Search, ChevronDown, LogOut, User, Settings, Command } from "lucide-react";
 import NotificationBell from "@/components/ui/NotificationBell";
+import { useLanguage } from "@/context/LanguageContext";
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN:       "مدير النظام",
@@ -61,6 +62,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { lang, setLang, t } = useLanguage();
 
   const userName    = (session?.user as any)?.name ?? "مستخدم";
   const userRole    = ROLE_LABELS[(session?.user as any)?.role ?? ""] ?? "مستخدم";
@@ -117,13 +119,24 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
           <input
             id="global-search"
             type="text"
-            placeholder="بحث..."
+            placeholder={`${t("common.search")}...`}
             className="bg-transparent text-sm outline-none w-full text-slate-600 placeholder:text-slate-400"
           />
           <kbd className="hidden group-hover:flex items-center gap-0.5 text-[10px] text-slate-400 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 leading-none flex-shrink-0 font-mono select-none">
             ⌘K
           </kbd>
         </div>
+
+        {/* Language switcher */}
+        <button
+          onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
+          className="flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-sm hover:border-[#4361EE]/40 transition"
+          title="Switch language / تغيير اللغة"
+        >
+          <span className={lang === "ar" ? "font-bold text-[#4361EE]" : "text-slate-400"}>AR</span>
+          <span className="text-slate-300 select-none">|</span>
+          <span className={lang === "fr" ? "font-bold text-[#4361EE]" : "text-slate-400"}>FR</span>
+        </button>
 
         <NotificationBell notificationsPath={
           role === "seller" ? "/seller/notifications" : `/${role}/dashboard`
@@ -168,7 +181,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
                 <div className="w-7 h-7 bg-[#EEF2FF] rounded-lg flex items-center justify-center flex-shrink-0">
                   <User className="w-3.5 h-3.5 text-[#4361EE]" />
                 </div>
-                <span>الملف الشخصي</span>
+                <span>{t("nav.profile")}</span>
               </button>
               <button
                 onClick={() => setDropdownOpen(false)}
@@ -177,7 +190,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
                 <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Settings className="w-3.5 h-3.5 text-slate-500" />
                 </div>
-                <span>الإعدادات</span>
+                <span>{t("nav.settings")}</span>
               </button>
 
               <div className="border-t border-slate-100 my-1" />
@@ -189,7 +202,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
                 <div className="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
                   <LogOut className="w-3.5 h-3.5 text-red-500" />
                 </div>
-                <span>تسجيل الخروج</span>
+                <span>{t("nav.logout")}</span>
               </button>
             </div>
           )}

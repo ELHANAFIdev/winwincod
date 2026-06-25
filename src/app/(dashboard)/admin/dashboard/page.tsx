@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import {
   Package, Clock, DollarSign, TrendingUp, CheckCircle,
   Users, RotateCcw, Truck, Wallet,
@@ -7,6 +8,8 @@ import prisma from "@/lib/prisma";
 import ActivityTable from "./ActivityTable";
 import DateFilter from "./DateFilter";
 import { PERIOD_LABELS } from "@/components/ui/DateDropdown";
+import ar from "@/messages/ar.json";
+import fr from "@/messages/fr.json";
 
 type SearchParams = Promise<{ from?: string; to?: string; period?: string }>;
 
@@ -28,6 +31,9 @@ const AVATAR_COLORS = [
 
 export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("winwincod_lang")?.value === "fr" ? "fr" : "ar";
+  const msgs = lang === "fr" ? fr : ar;
   const now = new Date();
   const period = sp.period ?? "month";
   const periodLabel = PERIOD_LABELS[period] ?? "هذا الشهر";
@@ -172,21 +178,21 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
             <p className="text-blue-200 text-sm font-medium">
               {now.toLocaleDateString("ar-MA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
-            <h1 className="text-2xl font-black mt-1.5 tracking-tight">لوحة التحكم الرئيسية</h1>
-            <p className="text-blue-100/80 text-sm mt-1 font-medium">نظرة شاملة على أداء المنصة · {periodLabel}</p>
+            <h1 className="text-2xl font-black mt-1.5 tracking-tight">{msgs.dashboard.title}</h1>
+            <p className="text-blue-100/80 text-sm mt-1 font-medium">{msgs.dashboard.subtitle} · {periodLabel}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
               <p className="text-2xl font-black leading-none">{periodOrders.toLocaleString("ar-MA")}</p>
-              <p className="text-blue-200 text-[11px] font-semibold mt-1">طلبات الفترة</p>
+              <p className="text-blue-200 text-[11px] font-semibold mt-1">{lang === "fr" ? "Commandes" : "طلبات الفترة"}</p>
             </div>
             <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
               <p className="text-2xl font-black leading-none">{activeSellers.toLocaleString("ar-MA")}</p>
-              <p className="text-blue-200 text-[11px] font-semibold mt-1">بائع نشط</p>
+              <p className="text-blue-200 text-[11px] font-semibold mt-1">{msgs.dashboard.activeSeller}</p>
             </div>
             <div className="bg-[#FB923C]/20 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-[#FB923C]/30">
               <p className="text-2xl font-black leading-none text-orange-200">{deliveryRate}%</p>
-              <p className="text-orange-200 text-[11px] font-semibold mt-1">نسبة التسليم</p>
+              <p className="text-orange-200 text-[11px] font-semibold mt-1">{msgs.dashboard.deliveryRate}</p>
             </div>
           </div>
         </div>
@@ -202,7 +208,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
       {/* ── Row 1 — Period summary ──────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label={`طلبات ${periodLabel}`}
+          label={lang === "fr" ? `Commandes ${periodLabel}` : `طلبات ${periodLabel}`}
           value={periodOrders.toLocaleString("ar-MA")}
           icon={<Package className="w-5 h-5" />}
           iconBg="bg-[#EEF2FF]"
@@ -210,7 +216,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           accent="border-t-[#4361EE]"
         />
         <StatCard
-          label={`إيرادات ${periodLabel}`}
+          label={lang === "fr" ? `Revenus ${periodLabel}` : `إيرادات ${periodLabel}`}
           value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon={<DollarSign className="w-5 h-5" />}
           iconBg="bg-[#ECFDF5]"
@@ -218,7 +224,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           accent="border-t-[#10B981]"
         />
         <StatCard
-          label="بانتظار التأكيد"
+          label={msgs.dashboard.pendingConfirm}
           value={pendingCount.toLocaleString("ar-MA")}
           icon={<Clock className="w-5 h-5" />}
           iconBg="bg-[#FFF7ED]"
@@ -226,7 +232,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           accent="border-t-[#FB923C]"
         />
         <StatCard
-          label={`معدل الإرجاع ${periodLabel}`}
+          label={lang === "fr" ? `Taux de retour ${periodLabel}` : `معدل الإرجاع ${periodLabel}`}
           value={`${returnRate}%`}
           icon={<RotateCcw className="w-5 h-5" />}
           iconBg="bg-[#FEF2F2]"
@@ -239,13 +245,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         <StatCard
-          label={`ربح المنصة — ${periodLabel}`}
+          label={lang === "fr" ? `Profit plateforme — ${periodLabel}` : `ربح المنصة — ${periodLabel}`}
           value={`${platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon={<TrendingUp className="w-5 h-5" />}
           iconBg="bg-[#EEF2FF]"
           iconColor="text-[#4361EE]"
           accent="border-t-[#4361EE]"
-          sub="الفرق: سعر المورد ← سعر البائع"
+          sub={lang === "fr" ? "Différence: prix fournisseur ← prix vendeur" : "الفرق: سعر المورد ← سعر البائع"}
         />
 
         {/* Delivery Rate — with progress bar */}
@@ -254,12 +260,12 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
             <CheckCircle className="w-6 h-6 text-[#10B981]" />
           </div>
           <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{deliveryRate}%</p>
-          <p className="text-sm text-slate-500 font-semibold mb-3">نسبة التسليم — {periodLabel}</p>
+          <p className="text-sm text-slate-500 font-semibold mb-3">{msgs.dashboard.deliveryRate} — {periodLabel}</p>
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
             <div className="bg-[#10B981] h-full rounded-full transition-all" style={{ width: `${deliveryRate}%` }} />
           </div>
           <p className="text-[11px] text-slate-400 mt-2 font-medium">
-            {deliveredOrders.toLocaleString("ar-MA")} من {(deliveredOrders + returnedOrders).toLocaleString("ar-MA")}
+            {deliveredOrders.toLocaleString("ar-MA")} {msgs.dashboard.ordersFrom} {(deliveredOrders + returnedOrders).toLocaleString("ar-MA")}
           </p>
         </div>
 
@@ -269,7 +275,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
             <TrendingUp className="w-6 h-6 text-[#FB923C]" />
           </div>
           <p className="text-4xl font-black text-[#0F172A] leading-none mb-2 tracking-tight">{todayOrders.toLocaleString("ar-MA")}</p>
-          <p className="text-sm text-slate-500 font-semibold mb-3">طلبات اليوم</p>
+          <p className="text-sm text-slate-500 font-semibold mb-3">{msgs.dashboard.todayOrders}</p>
           <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
             <div
               className="bg-[#FB923C] h-full rounded-full"
@@ -277,25 +283,25 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
             />
           </div>
           <p className="text-[11px] text-slate-400 mt-2 font-medium">
-            من إجمالي {totalOrders.toLocaleString("ar-MA")} طلب
+            {msgs.dashboard.ordersOf} {totalOrders.toLocaleString("ar-MA")} {msgs.dashboard.order}
           </p>
         </div>
 
         <StatCard
-          label="البائعون النشطون"
+          label={msgs.dashboard.activeSellers}
           value={activeSellers.toLocaleString("ar-MA")}
           icon={<Users className="w-5 h-5" />}
           iconBg="bg-[#F5F3FF]"
           iconColor="text-[#8B5CF6]"
           accent="border-t-[#8B5CF6]"
-          sub={`سيولة: ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
+          sub={`${lang === "fr" ? "Liquidité:" : "سيولة:"} ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
         />
       </div>
 
       {/* ── Row 3 — Status breakdown ─────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
-          label="تم التسليم"
+          label={msgs.dashboard.delivered}
           value={deliveredOrders.toLocaleString("ar-MA")}
           icon={<CheckCircle className="w-5 h-5" />}
           iconBg="bg-[#ECFDF5]"
@@ -304,7 +310,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           sub={periodLabel}
         />
         <StatCard
-          label="في الطريق"
+          label={msgs.dashboard.shipped}
           value={shippedOrders.toLocaleString("ar-MA")}
           icon={<Truck className="w-5 h-5" />}
           iconBg="bg-[#EEF2FF]"
@@ -313,7 +319,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           sub={periodLabel}
         />
         <StatCard
-          label="مرتجعات"
+          label={msgs.dashboard.returned}
           value={returnedOrders.toLocaleString("ar-MA")}
           icon={<RotateCcw className="w-5 h-5" />}
           iconBg="bg-[#FEF2F2]"
@@ -322,13 +328,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           sub={periodLabel}
         />
         <StatCard
-          label="سيولة المحافظ"
+          label={msgs.dashboard.walletLiquidity}
           value={`${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon={<Wallet className="w-5 h-5" />}
           iconBg="bg-[#FFF7ED]"
           iconColor="text-[#FB923C]"
           accent="border-t-[#FB923C]"
-          sub="إجمالي أرصدة البائعين"
+          sub={msgs.dashboard.walletBalance}
         />
       </div>
 
@@ -342,7 +348,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="font-black text-[#1E293B] text-base">أفضل 5 بائعين</h3>
+              <h3 className="font-black text-[#1E293B] text-base">{msgs.dashboard.topSellers}</h3>
               <p className="text-slate-400 text-xs mt-0.5">{periodLabel} — مرتبون حسب الطلبات</p>
             </div>
             <div className="w-10 h-10 bg-[#EEF2FF] rounded-2xl flex items-center justify-center">
@@ -355,7 +361,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
               <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <Users className="w-7 h-7 text-slate-300" />
               </div>
-              <p className="text-slate-400 text-sm font-medium">لا توجد بيانات بعد</p>
+              <p className="text-slate-400 text-sm font-medium">{msgs.common.noData}</p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -383,7 +389,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
                   </div>
                   <div className="text-left flex-shrink-0">
                     <p className="text-sm font-bold text-[#4361EE]">
-                      {seller.orderCount.toLocaleString("ar-MA")} طلب
+                      {seller.orderCount.toLocaleString("ar-MA")} {msgs.dashboard.order}
                     </p>
                     <p className="text-[10px] text-slate-400">
                       {seller.revenue.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م

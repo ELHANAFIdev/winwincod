@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   BarChart3, Package, Truck, RefreshCw, Wallet, ArrowDownCircle,
   Receipt, Box, Building2, UserPlus, Users, LogOut,
@@ -83,6 +84,7 @@ export default function AdminSidebar({ collapsed, onToggle, mobileOpen, onMobile
       .catch(() => {});
   }, []);
 
+  const { t } = useLanguage();
   const name    = (session?.user as any)?.name ?? "مدير";
   const initial = name.charAt(0).toUpperCase();
 
@@ -148,31 +150,31 @@ export default function AdminSidebar({ collapsed, onToggle, mobileOpen, onMobile
 
       {/* ── Nav ──────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-2 pt-1 pb-4">
-        <Section label="الرئيسية" collapsed={collapsed}>
-          <NavItem href="/admin/dashboard" icon={<BarChart3 className="w-5 h-5" />}    label="الإحصائيات" active={pathname === "/admin/dashboard"} collapsed={collapsed} />
-          <NavItem href="/admin/calendar"  icon={<CalendarDays className="w-5 h-5" />} label="التقويم"    active={pathname === "/admin/calendar"}  collapsed={collapsed} />
+        <Section label={t("section.main")} collapsed={collapsed}>
+          <NavItem href="/admin/dashboard" icon={<BarChart3 className="w-5 h-5" />}    label={t("nav.statistics")} active={pathname === "/admin/dashboard"} collapsed={collapsed} />
+          <NavItem href="/admin/calendar"  icon={<CalendarDays className="w-5 h-5" />} label={t("nav.calendar")}   active={pathname === "/admin/calendar"}  collapsed={collapsed} />
         </Section>
 
-        <Section label="العمليات" collapsed={collapsed}>
-          <NavItem href="/admin/orders"           icon={<Package className="w-5 h-5" />}         label="إدارة الطلبات"   active={pathname.startsWith("/admin/orders")}        collapsed={collapsed} />
-          <NavItem href="/admin/logistics"        icon={<Truck className="w-5 h-5" />}           label="شحن الطلبيات"   active={pathname === "/admin/logistics"}             collapsed={collapsed} />
-          <NavItem href="/admin/logistics/update" icon={<RefreshCw className="w-5 h-5" />}       label="تحديث التوصيل"  active={pathname === "/admin/logistics/update"}      collapsed={collapsed} />
+        <Section label={t("section.operations")} collapsed={collapsed}>
+          <NavItem href="/admin/orders"           icon={<Package className="w-5 h-5" />}         label={t("nav.manageOrders")}   active={pathname.startsWith("/admin/orders")}        collapsed={collapsed} />
+          <NavItem href="/admin/logistics"        icon={<Truck className="w-5 h-5" />}           label={t("nav.logistics")}      active={pathname === "/admin/logistics"}             collapsed={collapsed} />
+          <NavItem href="/admin/logistics/update" icon={<RefreshCw className="w-5 h-5" />}       label={t("nav.deliveryUpdate")} active={pathname === "/admin/logistics/update"}      collapsed={collapsed} />
         </Section>
 
-        <Section label="المالية" collapsed={collapsed}>
-          <NavItem href="/admin/deposits"     icon={<Wallet className="w-5 h-5" />}          label="إدارة المحافظ"     active={pathname === "/admin/deposits"}    collapsed={collapsed} />
-          <NavItem href="/admin/withdrawals"  icon={<ArrowDownCircle className="w-5 h-5" />} label="سحوبات الأرباح"    active={pathname === "/admin/withdrawals"} collapsed={collapsed} />
-          <NavItem href="/admin/transactions" icon={<Receipt className="w-5 h-5" />}         label="المعاملات المالية" active={pathname === "/admin/transactions"} collapsed={collapsed} />
+        <Section label={t("section.finance")} collapsed={collapsed}>
+          <NavItem href="/admin/deposits"     icon={<Wallet className="w-5 h-5" />}          label={t("nav.wallets")}      active={pathname === "/admin/deposits"}    collapsed={collapsed} />
+          <NavItem href="/admin/withdrawals"  icon={<ArrowDownCircle className="w-5 h-5" />} label={t("nav.withdrawals")}  active={pathname === "/admin/withdrawals"} collapsed={collapsed} />
+          <NavItem href="/admin/transactions" icon={<Receipt className="w-5 h-5" />}         label={t("nav.transactions")} active={pathname === "/admin/transactions"} collapsed={collapsed} />
         </Section>
 
-        <Section label="المخزون" collapsed={collapsed}>
-          <NavItem href="/admin/products"  icon={<Box className="w-5 h-5" />}       label="المنتجات" active={pathname === "/admin/products"}  collapsed={collapsed} />
-          <NavItem href="/admin/suppliers" icon={<Building2 className="w-5 h-5" />} label="الموردين" active={pathname === "/admin/suppliers"} collapsed={collapsed} />
+        <Section label={t("section.inventory")} collapsed={collapsed}>
+          <NavItem href="/admin/products"  icon={<Box className="w-5 h-5" />}       label={t("nav.products")}  active={pathname === "/admin/products"}  collapsed={collapsed} />
+          <NavItem href="/admin/suppliers" icon={<Building2 className="w-5 h-5" />} label={t("nav.suppliers")} active={pathname === "/admin/suppliers"} collapsed={collapsed} />
         </Section>
 
-        <Section label="المستخدمين" collapsed={collapsed}>
-          <NavItem href="/admin/users/requests" icon={<UserPlus className="w-5 h-5" />} label="طلبات الانضمام" active={pathname === "/admin/users/requests"} collapsed={collapsed} badge={pendingCount} />
-          <NavItem href="/admin/users"          icon={<Users className="w-5 h-5" />}    label="كل المستخدمين" active={pathname === "/admin/users"}          collapsed={collapsed} />
+        <Section label={t("section.users")} collapsed={collapsed}>
+          <NavItem href="/admin/users/requests" icon={<UserPlus className="w-5 h-5" />} label={t("nav.joinRequests")} active={pathname === "/admin/users/requests"} collapsed={collapsed} badge={pendingCount} />
+          <NavItem href="/admin/users"          icon={<Users className="w-5 h-5" />}    label={t("nav.allUsers")}     active={pathname === "/admin/users"}          collapsed={collapsed} />
         </Section>
       </nav>
 

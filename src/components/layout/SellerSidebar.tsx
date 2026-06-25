@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   LayoutDashboard, ShoppingBag, Box, FileSpreadsheet, PlusCircle,
   FileText, Package, MapPin, Wallet, Bell, LogOut,
@@ -87,6 +88,7 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
       .catch(() => {});
   }, [pathname]);
 
+  const { t } = useLanguage();
   const name       = (session?.user as any)?.name ?? "بائع";
   const initial    = name.charAt(0).toUpperCase();
   const balanceNum = Number(balance);
@@ -153,29 +155,29 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
 
       {/* ── Nav ──────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-2 pt-1 pb-4">
-        <Section label="الرئيسية" collapsed={collapsed}>
-          <NavItem href="/seller/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="لوحة القيادة"
+        <Section label={t("section.main")} collapsed={collapsed}>
+          <NavItem href="/seller/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label={t("nav.dashboard")}
             active={pathname === "/seller/dashboard"} collapsed={collapsed} />
         </Section>
 
-        <Section label="التجارة" collapsed={collapsed}>
-          <NavItem href="/seller/products"      icon={<ShoppingBag className="w-5 h-5" />}     label="سوق المنتجات"  active={pathname === "/seller/products"}      collapsed={collapsed} />
-          <NavItem href="/seller/my-products"   icon={<Box className="w-5 h-5" />}             label="منتجاتي"       active={pathname === "/seller/my-products"}   collapsed={collapsed} />
-          <NavItem href="/seller/orders/import" icon={<FileSpreadsheet className="w-5 h-5" />} label="استيراد Excel" active={pathname === "/seller/orders/import"} collapsed={collapsed} />
+        <Section label={t("section.commerce")} collapsed={collapsed}>
+          <NavItem href="/seller/products"      icon={<ShoppingBag className="w-5 h-5" />}     label={t("nav.marketplace")}  active={pathname === "/seller/products"}      collapsed={collapsed} />
+          <NavItem href="/seller/my-products"   icon={<Box className="w-5 h-5" />}             label={t("nav.myProducts")}   active={pathname === "/seller/my-products"}   collapsed={collapsed} />
+          <NavItem href="/seller/orders/import" icon={<FileSpreadsheet className="w-5 h-5" />} label={t("nav.importExcel")}  active={pathname === "/seller/orders/import"} collapsed={collapsed} />
         </Section>
 
-        <Section label="الطلبات" collapsed={collapsed}>
-          <NavItem href="/seller/orders/new"    icon={<PlusCircle className="w-5 h-5" />} label="إضافة طلب"    active={pathname === "/seller/orders/new"}    collapsed={collapsed} />
-          <NavItem href="/seller/orders/drafts" icon={<FileText className="w-5 h-5" />}   label="المسودات"     active={pathname === "/seller/orders/drafts"} collapsed={collapsed} />
-          <NavItem href="/seller/batches"       icon={<Package className="w-5 h-5" />}    label="الدفعات"      active={pathname === "/seller/batches"}       collapsed={collapsed} />
-          <NavItem href="/seller/tracking"      icon={<MapPin className="w-5 h-5" />}     label="تتبع الطلبات" active={pathname === "/seller/tracking"}      collapsed={collapsed} />
+        <Section label={t("section.orders")} collapsed={collapsed}>
+          <NavItem href="/seller/orders/new"    icon={<PlusCircle className="w-5 h-5" />} label={t("nav.newOrder")}  active={pathname === "/seller/orders/new"}    collapsed={collapsed} />
+          <NavItem href="/seller/orders/drafts" icon={<FileText className="w-5 h-5" />}   label={t("nav.drafts")}    active={pathname === "/seller/orders/drafts"} collapsed={collapsed} />
+          <NavItem href="/seller/batches"       icon={<Package className="w-5 h-5" />}    label={t("nav.batches")}   active={pathname === "/seller/batches"}       collapsed={collapsed} />
+          <NavItem href="/seller/tracking"      icon={<MapPin className="w-5 h-5" />}     label={t("nav.tracking")}  active={pathname === "/seller/tracking"}      collapsed={collapsed} />
         </Section>
 
-        <Section label="الحساب" collapsed={collapsed}>
+        <Section label={t("section.account")} collapsed={collapsed}>
           <NavItem
             href="/seller/wallet"
             icon={<Wallet className="w-5 h-5" />}
-            label="المحفظة"
+            label={t("nav.wallet")}
             active={pathname === "/seller/wallet"}
             collapsed={collapsed}
             badge={collapsed ? undefined : `${balance} د.م`}
@@ -184,12 +186,12 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
           <NavItem
             href="/seller/notifications"
             icon={<Bell className="w-5 h-5" />}
-            label="الإشعارات"
+            label={t("nav.notifications")}
             active={pathname === "/seller/notifications"}
             collapsed={collapsed}
             badge={unread > 0 ? (unread > 9 ? "9+" : unread) : undefined}
           />
-          <NavItem href="/seller/calendar" icon={<CalendarDays className="w-5 h-5" />} label="التقويم"
+          <NavItem href="/seller/calendar" icon={<CalendarDays className="w-5 h-5" />} label={t("nav.calendar")}
             active={pathname === "/seller/calendar"} collapsed={collapsed} />
         </Section>
       </nav>

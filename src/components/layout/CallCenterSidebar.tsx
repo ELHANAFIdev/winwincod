@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { LayoutDashboard, Phone, Users, LogOut, ChevronsLeft, ChevronsRight, Zap } from "lucide-react";
 import type { ReactNode } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface CallCenterSidebarProps {
   collapsed: boolean;
@@ -58,6 +59,7 @@ export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onM
   const pathname = usePathname();
   const { data: session } = useSession();
 
+  const { t } = useLanguage();
   const name    = (session?.user as any)?.name ?? "كول سنتر";
   const initial = name.charAt(0).toUpperCase();
 
@@ -115,14 +117,14 @@ export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onM
 
       {/* ── Nav ──────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-2 pt-1 pb-4">
-        <Section label="الرئيسية" collapsed={collapsed}>
-          <NavItem href="/call-center/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="لوحة التحكم"
+        <Section label={t("section.main")} collapsed={collapsed}>
+          <NavItem href="/call-center/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label={t("nav.controlPanel")}
             active={pathname === "/call-center/dashboard"} collapsed={collapsed} />
         </Section>
 
-        <Section label="العمليات" collapsed={collapsed}>
-          <NavItem href="/call-center/orders"  icon={<Phone className="w-5 h-5" />} label="الطلبات"  active={pathname.startsWith("/call-center/orders")}  collapsed={collapsed} />
-          <NavItem href="/call-center/sellers" icon={<Users className="w-5 h-5" />} label="البائعون" active={pathname.startsWith("/call-center/sellers")} collapsed={collapsed} />
+        <Section label={t("section.operations")} collapsed={collapsed}>
+          <NavItem href="/call-center/orders"  icon={<Phone className="w-5 h-5" />} label={t("nav.orders")}  active={pathname.startsWith("/call-center/orders")}  collapsed={collapsed} />
+          <NavItem href="/call-center/sellers" icon={<Users className="w-5 h-5" />} label={t("nav.sellers")} active={pathname.startsWith("/call-center/sellers")} collapsed={collapsed} />
         </Section>
       </nav>
 
