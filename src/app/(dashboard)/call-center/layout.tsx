@@ -15,7 +15,7 @@ export default function CallCenterLayout({ children }: { children: ReactNode }) 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <div className="flex flex-row-reverse min-h-screen">
+    <div className="flex flex-row min-h-screen">
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
       {mobileOpen && (

@@ -48,7 +48,7 @@ function getTypeIcon(type: string) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function NotificationBell() {
+export default function NotificationBell({ notificationsPath = "/seller/notifications" }: { notificationsPath?: string }) {
   const router = useRouter();
   const [open, setOpen]             = useState(false);
   const [unread, setUnread]         = useState(0);
@@ -239,7 +239,7 @@ export default function NotificationBell() {
             {/* Footer */}
             <div className="border-t border-[#F1F5F9] px-4 py-3 flex-shrink-0">
               <button
-                onClick={() => { setOpen(false); router.push("/seller/notifications"); }}
+                onClick={() => { setOpen(false); router.push(notificationsPath); }}
                 className="w-full text-center text-sm md:text-xs text-[#4361EE] font-bold hover:underline py-1"
               >
                 عرض كل الإشعارات →

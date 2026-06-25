@@ -162,163 +162,186 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E293B]">لوحة التحكم الرئيسية</h1>
-          <p className="text-slate-500 text-sm mt-0.5">نظرة عامة على أداء المنصة</p>
+          <p className="text-slate-400 text-sm">
+            {now.toLocaleDateString("ar-MA", {
+              weekday: "long", year: "numeric", month: "long", day: "numeric",
+            })}
+          </p>
         </div>
-        <div className="text-sm text-slate-500 font-medium bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm w-fit whitespace-nowrap">
-          {now.toLocaleDateString("ar-MA", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </div>
+        <Suspense fallback={<div className="h-10 w-56 bg-white rounded-xl border border-slate-200 animate-pulse" />}>
+          <DateFilter period={period} from={fromStr} to={toStr} />
+        </Suspense>
       </div>
 
-      {/* Date Filter */}
-      <Suspense fallback={<div className="h-14 bg-white rounded-xl border border-slate-200 animate-pulse" />}>
-        <DateFilter period={period} from={fromStr} to={toStr} />
-      </Suspense>
-
-      {/* Row 1 — Period summary */}
+      {/* ── Row 1 — Period summary ──────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={`طلبات ${periodLabel}`}
           value={periodOrders.toLocaleString("ar-MA")}
-          icon={<Package className="w-6 h-6" />}
-          border="border-r-4 border-r-blue-500"
+          icon={<Package className="w-5 h-5" />}
+          iconBg="bg-[#EEF2FF]"
+          iconColor="text-[#4361EE]"
+          accent="border-t-[#4361EE]"
         />
         <StatCard
           label={`إيرادات ${periodLabel}`}
           value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon={<DollarSign className="w-6 h-6" />}
-          border="border-r-4 border-r-green-500"
+          icon={<DollarSign className="w-5 h-5" />}
+          iconBg="bg-[#ECFDF5]"
+          iconColor="text-[#10B981]"
+          accent="border-t-[#10B981]"
         />
         <StatCard
-          label="طلبات قيد الانتظار"
+          label="بانتظار التأكيد"
           value={pendingCount.toLocaleString("ar-MA")}
-          icon={<Clock className="w-6 h-6" />}
-          border="border-r-4 border-r-orange-500"
+          icon={<Clock className="w-5 h-5" />}
+          iconBg="bg-[#FFF7ED]"
+          iconColor="text-[#FB923C]"
+          accent="border-t-[#FB923C]"
         />
         <StatCard
           label={`معدل الإرجاع ${periodLabel}`}
           value={`${returnRate}%`}
-          icon={<RotateCcw className="w-6 h-6" />}
-          border="border-r-4 border-r-red-500"
+          icon={<RotateCcw className="w-5 h-5" />}
+          iconBg="bg-[#FEF2F2]"
+          iconColor="text-[#EF4444]"
+          accent="border-t-[#EF4444]"
         />
       </div>
 
-      {/* Row 2 — Platform KPIs */}
+      {/* ── Row 2 — Platform KPIs ───────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Platform Profit */}
+
         <StatCard
           label={`ربح المنصة — ${periodLabel}`}
           value={`${platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon={<TrendingUp className="w-6 h-6" />}
-          border="border-r-4 border-r-blue-500"
-          sub="الفرق بين سعر المورد وسعر البائع"
+          icon={<TrendingUp className="w-5 h-5" />}
+          iconBg="bg-[#EEF2FF]"
+          iconColor="text-[#4361EE]"
+          accent="border-t-[#4361EE]"
+          sub="الفرق: سعر المورد ← سعر البائع"
         />
 
         {/* Delivery Rate — with progress bar */}
-        <div className="bg-white rounded-xl border border-slate-200 border-r-4 border-r-green-500 p-6 shadow-sm hover:-translate-y-px transition-transform">
-          <CheckCircle className="w-6 h-6 text-slate-400 mb-3" />
-          <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">
-            نسبة التسليم — {periodLabel}
-          </p>
-          <p className="text-3xl font-bold text-[#1E293B]">{deliveryRate}%</p>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
-            <div className="bg-green-500 h-full rounded-full" style={{ width: `${deliveryRate}%` }} />
+        <div className="bg-white rounded-2xl border border-slate-100 border-t-4 border-t-[#10B981] p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+          <div className="w-11 h-11 bg-[#ECFDF5] rounded-xl flex items-center justify-center mb-4">
+            <CheckCircle className="w-5 h-5 text-[#10B981]" />
           </div>
-          <p className="text-[10px] text-slate-400 mt-2">
+          <p className="text-2xl font-bold text-[#1E293B] mb-1">{deliveryRate}%</p>
+          <p className="text-sm text-slate-500 font-medium mb-3">نسبة التسليم — {periodLabel}</p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div className="bg-[#10B981] h-full rounded-full transition-all" style={{ width: `${deliveryRate}%` }} />
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2">
             {deliveredOrders.toLocaleString("ar-MA")} من {(deliveredOrders + returnedOrders).toLocaleString("ar-MA")}
           </p>
         </div>
 
-        {/* Today's Orders — with progress bar */}
-        <div className="bg-white rounded-xl border border-slate-200 border-r-4 border-r-orange-500 p-6 shadow-sm hover:-translate-y-px transition-transform">
-          <TrendingUp className="w-6 h-6 text-slate-400 mb-3" />
-          <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">طلبات اليوم</p>
-          <p className="text-3xl font-bold text-[#1E293B]">{todayOrders.toLocaleString("ar-MA")}</p>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
+        {/* Today Orders */}
+        <div className="bg-white rounded-2xl border border-slate-100 border-t-4 border-t-[#FB923C] p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+          <div className="w-11 h-11 bg-[#FFF7ED] rounded-xl flex items-center justify-center mb-4">
+            <TrendingUp className="w-5 h-5 text-[#FB923C]" />
+          </div>
+          <p className="text-2xl font-bold text-[#1E293B] mb-1">{todayOrders.toLocaleString("ar-MA")}</p>
+          <p className="text-sm text-slate-500 font-medium mb-3">طلبات اليوم</p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
             <div
-              className="bg-orange-500 h-full rounded-full"
+              className="bg-[#FB923C] h-full rounded-full"
               style={{ width: `${totalOrders > 0 ? Math.min((todayOrders / Math.max(periodOrders, 1)) * 30 * 100, 100) : 0}%` }}
             />
           </div>
-          <p className="text-[10px] text-slate-400 mt-2">
+          <p className="text-[11px] text-slate-400 mt-2">
             من إجمالي {totalOrders.toLocaleString("ar-MA")} طلب
           </p>
         </div>
 
-        {/* Active Sellers */}
         <StatCard
           label="البائعون النشطون"
           value={activeSellers.toLocaleString("ar-MA")}
-          icon={<Users className="w-6 h-6" />}
-          border="border-r-4 border-r-blue-500"
+          icon={<Users className="w-5 h-5" />}
+          iconBg="bg-[#F5F3FF]"
+          iconColor="text-[#8B5CF6]"
+          accent="border-t-[#8B5CF6]"
           sub={`سيولة: ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
         />
       </div>
 
-      {/* Row 3 — Status breakdown */}
+      {/* ── Row 3 — Status breakdown ─────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="تم التسليم"
           value={deliveredOrders.toLocaleString("ar-MA")}
-          icon={<CheckCircle className="w-6 h-6" />}
-          border="border-r-4 border-r-green-500"
+          icon={<CheckCircle className="w-5 h-5" />}
+          iconBg="bg-[#ECFDF5]"
+          iconColor="text-[#10B981]"
+          accent="border-t-[#10B981]"
           sub={periodLabel}
         />
         <StatCard
           label="في الطريق"
           value={shippedOrders.toLocaleString("ar-MA")}
-          icon={<Truck className="w-6 h-6" />}
-          border="border-r-4 border-r-blue-500"
+          icon={<Truck className="w-5 h-5" />}
+          iconBg="bg-[#EEF2FF]"
+          iconColor="text-[#4361EE]"
+          accent="border-t-[#4361EE]"
           sub={periodLabel}
         />
         <StatCard
           label="مرتجعات"
           value={returnedOrders.toLocaleString("ar-MA")}
-          icon={<RotateCcw className="w-6 h-6" />}
-          border="border-r-4 border-r-red-500"
+          icon={<RotateCcw className="w-5 h-5" />}
+          iconBg="bg-[#FEF2F2]"
+          iconColor="text-[#EF4444]"
+          accent="border-t-[#EF4444]"
           sub={periodLabel}
         />
         <StatCard
           label="سيولة المحافظ"
           value={`${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
-          icon={<Wallet className="w-6 h-6" />}
-          border="border-r-4 border-r-blue-500"
+          icon={<Wallet className="w-5 h-5" />}
+          iconBg="bg-[#FFF7ED]"
+          iconColor="text-[#FB923C]"
+          accent="border-t-[#FB923C]"
           sub="إجمالي أرصدة البائعين"
         />
       </div>
 
-      {/* Activity Table + Top Sellers */}
+      {/* ── Activity Table + Top Sellers ─────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
           <ActivityTable orders={serializedOrders} />
         </div>
 
         {/* Top 5 Sellers */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h3 className="font-bold text-[#1E293B] text-base mb-1">أفضل 5 بائعين</h3>
-          <p className="text-slate-400 text-xs mb-5">{periodLabel} — مرتبون حسب الطلبات</p>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="font-bold text-[#1E293B] text-base">أفضل 5 بائعين</h3>
+              <p className="text-slate-400 text-xs mt-0.5">{periodLabel} — مرتبون حسب الطلبات</p>
+            </div>
+            <div className="w-9 h-9 bg-[#EEF2FF] rounded-xl flex items-center justify-center">
+              <Users className="w-4.5 h-4.5 text-[#4361EE]" />
+            </div>
+          </div>
 
           {topSellers.length === 0 ? (
-            <div className="text-center py-12">
-              <Users className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+            <div className="text-center py-10">
+              <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Users className="w-7 h-7 text-slate-300" />
+              </div>
               <p className="text-slate-400 text-sm font-medium">لا توجد بيانات بعد</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {topSellers.map((seller, idx) => (
-                <div key={seller.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition">
-                  <div className="w-7 flex-shrink-0 text-center">
+                <div key={seller.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition group">
+                  <div className="w-6 flex-shrink-0 text-center">
                     {idx < 3 ? (
-                      <span className="text-xl">{["🥇", "🥈", "🥉"][idx]}</span>
+                      <span className="text-lg">{["🥇", "🥈", "🥉"][idx]}</span>
                     ) : (
-                      <span className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-400">
+                      <span className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-400">
                         {idx + 1}
                       </span>
                     )}
@@ -351,16 +374,24 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
 // ── Stat Card ─────────────────────────────────────────────────────────────────
 
 function StatCard({
-  label, value, icon, border, sub,
+  label, value, icon, iconBg, iconColor, accent, sub,
 }: {
-  label: string; value: string; icon: React.ReactNode; border: string; sub?: string;
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  accent: string;
+  sub?: string;
 }) {
   return (
-    <div className={`bg-white rounded-xl border border-slate-200 ${border} p-6 shadow-sm hover:-translate-y-px transition-transform`}>
-      <div className="text-slate-400 mb-3">{icon}</div>
-      <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-3xl font-bold text-[#1E293B]">{value}</p>
-      {sub && <p className="text-[10px] text-slate-400 mt-1.5">{sub}</p>}
+    <div className={`bg-white rounded-2xl border border-slate-100 border-t-4 ${accent} p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all`}>
+      <div className={`w-11 h-11 ${iconBg} rounded-xl flex items-center justify-center mb-4`}>
+        <span className={iconColor}>{icon}</span>
+      </div>
+      <p className="text-2xl font-bold text-[#1E293B] mb-1">{value}</p>
+      <p className="text-sm text-slate-500 font-medium">{label}</p>
+      {sub && <p className="text-[11px] text-slate-400 mt-1.5">{sub}</p>}
     </div>
   );
 }

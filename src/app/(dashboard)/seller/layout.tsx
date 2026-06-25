@@ -16,7 +16,7 @@ function SellerLayoutInner({ children }: { children: ReactNode }) {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <div className="flex flex-row-reverse min-h-screen">
+    <div className="flex flex-row min-h-screen">
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 bg-black/40 z-30" onClick={() => setMobileOpen(false)} />
       )}
