@@ -1,99 +1,149 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { Phone, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Phone, Users, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Toaster } from "react-hot-toast";
-import NotificationBell from "@/components/ui/NotificationBell";
+import TopNavbar from "@/components/layout/TopNavbar";
 import MobileNav from "@/components/layout/MobileNav";
+import type { ReactNode } from "react";
 
-export default function CallCenterLayout({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(true);
+// ─── Sidebar nav item ─────────────────────────────────────────────────────────
+
+function SidebarItem({
+  href, icon, label, active, collapsed,
+}: {
+  href: string; icon: ReactNode; label: string; active: boolean; collapsed: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      title={collapsed ? label : undefined}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium
+        ${active ? "bg-white/15 text-white" : "text-blue-200 hover:bg-white/10 hover:text-white"}
+        ${collapsed ? "justify-center px-0" : ""}
+      `}
+    >
+      <span className="w-5 h-5 flex-shrink-0 flex justify-center">{icon}</span>
+      {!collapsed && <span className="truncate">{label}</span>}
+    </Link>
+  );
+}
+
+function SidebarSection({ label, children, collapsed }: { label: string; children: ReactNode; collapsed: boolean }) {
+  return (
+    <div className="space-y-0.5">
+      {!collapsed && (
+        <p className="text-blue-300 text-[11px] font-bold uppercase tracking-wider px-3 pt-5 pb-1.5">
+          {label}
+        </p>
+      )}
+      {collapsed && <div className="border-t border-white/10 my-3 mx-2" />}
+      {children}
+    </div>
+  );
+}
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
+export default function CallCenterLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed]   = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  const sidebarW = collapsed ? "md:w-[70px]" : "md:w-[260px]";
+  const mainMr   = collapsed ? "md:mr-[70px]" : "md:mr-[260px]";
 
   return (
     <div className="flex min-h-screen bg-[#F1F5F9] font-sans" dir="rtl">
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
-      {/* Sidebar — hidden on mobile */}
-      <aside className={`${isOpen ? "w-64" : "w-[72px]"} hidden md:flex md:flex-col bg-[#0F172A] transition-all duration-300 fixed h-full z-40`}>
-        {/* Logo */}
-        <div className="h-16 flex items-center px-4 border-b border-white/5 flex-shrink-0">
-          <div className="w-8 h-8 bg-[#4361EE] rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0">
-            W
-          </div>
-          {isOpen && (
-            <div className="mr-3 min-w-0">
-              <p className="text-white font-black text-sm leading-none">WinWin COD</p>
-              <p className="text-white/40 text-[10px] mt-0.5">كول سنتر</p>
+      {/* ── Mobile backdrop ── */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* ── Sidebar ── */}
+      <aside
+        className={`
+          fixed h-full z-40 bg-[#3254D4] flex flex-col shadow-xl shadow-blue-900/30 transition-all duration-300
+          ${sidebarW}
+          ${mobileOpen ? "translate-x-0 w-[260px]" : "translate-x-full w-[260px]"}
+          md:translate-x-0
+        `}
+      >
+        {/* Logo + collapse */}
+        <div className={`flex items-center border-b border-white/10 flex-shrink-0 ${collapsed ? "justify-center p-4" : "justify-between px-5 py-4"}`}>
+          {!collapsed && (
+            <div>
+              <img src="/logo-white.svg" alt="WinWin COD" className="h-8 w-auto" />
+              <p className="text-[10px] text-white/50 font-medium mt-1">كول سنتر</p>
             </div>
           )}
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="mr-auto text-white/30 hover:text-white/80 p-1.5 rounded-lg hover:bg-white/5 transition flex-shrink-0"
+            onClick={() => setCollapsed((v) => !v)}
+            className="hidden md:flex text-white/60 hover:text-white hover:bg-white/10 p-2 rounded-lg transition flex-shrink-0"
           >
-            {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-4 px-2 space-y-1">
-          {isOpen && (
-            <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest px-3 mb-2">
-              المهام
-            </p>
-          )}
-          <SidebarLink
-            href="/call-center/dashboard"
-            active={pathname.startsWith("/call-center")}
-            isOpen={isOpen}
-            icon={<Phone className="w-5 h-5 flex-shrink-0" />}
-            label="قائمة التأكيد"
-          />
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0">
+          <SidebarSection label="الرئيسية" collapsed={collapsed}>
+            <SidebarItem
+              href="/call-center/dashboard"
+              icon={<LayoutDashboard className="w-5 h-5" />}
+              label="لوحة التحكم"
+              active={pathname === "/call-center/dashboard"}
+              collapsed={collapsed}
+            />
+          </SidebarSection>
+
+          <SidebarSection label="العمليات" collapsed={collapsed}>
+            <SidebarItem
+              href="/call-center/dashboard"
+              icon={<Phone className="w-5 h-5" />}
+              label="الطلبات"
+              active={pathname.startsWith("/call-center/dashboard") && pathname !== "/call-center/dashboard"}
+              collapsed={collapsed}
+            />
+            <SidebarItem
+              href="/call-center/sellers"
+              icon={<Users className="w-5 h-5" />}
+              label="البائعون"
+              active={pathname.startsWith("/call-center/sellers")}
+              collapsed={collapsed}
+            />
+          </SidebarSection>
         </nav>
 
         {/* Footer */}
-        <div className="p-2 border-t border-white/5 flex-shrink-0">
+        <div className="p-2 border-t border-white/10 flex-shrink-0">
           <button
             onClick={() => signOut()}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-400 hover:bg-orange-500/10 transition font-bold text-sm ${!isOpen && "justify-center"}`}
+            title={collapsed ? "تسجيل الخروج" : undefined}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-orange-400 hover:bg-white/10 transition font-medium text-sm ${collapsed ? "justify-center" : ""}`}
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
-            {isOpen && <span>تسجيل الخروج</span>}
+            {!collapsed && <span>تسجيل الخروج</span>}
           </button>
         </div>
       </aside>
 
-      <div className={`flex-1 transition-all duration-300 ${isOpen ? "md:mr-64" : "md:mr-[72px]"} flex flex-col min-h-screen`}>
-        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-end px-4 md:px-6 sticky top-0 z-30 shadow-sm">
-          <NotificationBell />
-        </header>
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      {/* ── Main content ── */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${mainMr}`}>
+        <TopNavbar onMenuToggle={() => setMobileOpen((v) => !v)} role="call-center" />
+        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">{children}</main>
       </div>
 
-      {/* Mobile bottom navigation */}
       <MobileNav role="call-center" />
     </div>
-  );
-}
-
-function SidebarLink({
-  href, active, isOpen, icon, label,
-}: {
-  href: string; active: boolean; isOpen: boolean; icon: React.ReactNode; label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition font-bold text-sm ${
-        active
-          ? "bg-[#4361EE] text-white shadow-lg shadow-blue-900/40"
-          : "text-white/50 hover:text-white hover:bg-white/5"
-      } ${!isOpen ? "justify-center" : ""}`}
-    >
-      {icon}
-      {isOpen && <span>{label}</span>}
-    </Link>
   );
 }
