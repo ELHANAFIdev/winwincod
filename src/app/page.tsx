@@ -7,7 +7,7 @@ import {
   UserPlus, ShoppingBag, Package, DollarSign,
   Wallet, Truck, BarChart3, Bell, FileSpreadsheet, Phone,
   Zap, MapPin, Mail, MessageCircle,
-  CheckCircle, ArrowLeft, Minus, Equal,
+  CheckCircle, ArrowLeft,
 } from "lucide-react";
 
 export default async function HomePage() {
@@ -251,107 +251,28 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            {/* Left: formula */}
-            <div className="space-y-6">
-              <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6">
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">معادلة الربح</p>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-[#1E293B] font-bold">سعر البيع</span>
-                    <span className="text-green-600 font-black text-lg">+ س</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-[#1E293B] font-bold">تكلفة المنتج</span>
-                    <span className="text-red-500 font-black text-lg">- ت</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-[#1E293B] font-bold">رسوم الشحن</span>
-                    <span className="text-red-500 font-black text-lg">- 20 د.م</span>
-                  </div>
-                  <div className="h-px bg-[#E2E8F0]" />
-                  <div className="flex items-center justify-between gap-4 bg-green-50 -mx-2 px-2 py-2 rounded-xl">
-                    <span className="text-green-700 font-black text-base">ربحك الصافي</span>
-                    <span className="text-green-600 font-black text-xl">= س - ت - 20</span>
-                  </div>
-                </div>
-              </div>
-
-              <ul className="space-y-3">
+          <div className="max-w-lg mx-auto">
+            <div className="bg-gradient-to-br from-[#EEF2FF] to-white border border-[#4361EE]/20 rounded-3xl p-10 shadow-xl shadow-blue-100/60 text-center">
+              <ul className="space-y-5 mb-10">
                 {[
-                  "تسجيل مجاني 100% — لا بطاقة بنكية",
-                  "لا حد أقصى لعدد الطلبات",
-                  "وصول كامل لجميع الميزات",
-                  "دعم مخصص مجاناً",
+                  "لا رسوم شهرية",
+                  "لا اشتراكات",
+                  "فقط 20 درهم رسوم شحن لكل طلب مسلم",
                 ].map(item => (
-                  <li key={item} className="flex items-center gap-3 text-sm font-bold text-[#1E293B]">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <li key={item} className="flex items-center justify-center gap-3 text-base font-bold text-[#1E293B]">
+                    <CheckCircle className="w-5 h-5 text-[#4361EE] flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-3 bg-[#4361EE] hover:bg-[#3254D4] text-white px-10 py-4 rounded-2xl text-lg font-black shadow-lg shadow-blue-200 transition hover:-translate-y-0.5"
+              >
+                ابدأ مجاناً الآن
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
             </div>
-
-            {/* Right: example card */}
-            <div className="bg-gradient-to-br from-[#F8FAFC] to-white border border-[#E2E8F0] rounded-3xl p-8 shadow-xl shadow-slate-100">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-[#EEF2FF] rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-4 h-4 text-[#4361EE]" />
-                </div>
-                <p className="font-black text-[#1E293B]">مثال عملي</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
-                  <span className="text-slate-500 text-sm font-bold">سعر البيع</span>
-                  <span className="font-black text-[#1E293B] text-base">150 د.م</span>
-                </div>
-
-                <div className="flex items-center justify-center text-slate-300">
-                  <Minus className="w-5 h-5" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
-                  <span className="text-slate-500 text-sm font-bold">تكلفة المنتج</span>
-                  <span className="font-black text-red-400 text-base">80 د.م</span>
-                </div>
-
-                <div className="flex items-center justify-center text-slate-300">
-                  <Minus className="w-5 h-5" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
-                  <span className="text-slate-500 text-sm font-bold">رسوم الشحن</span>
-                  <span className="font-black text-red-400 text-base">20 د.م</span>
-                </div>
-
-                <div className="flex items-center justify-center text-slate-300">
-                  <Equal className="w-5 h-5" />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg shadow-green-200">
-                  <span className="text-white font-black text-base flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" />
-                    ربحك الصافي
-                  </span>
-                  <span className="text-white font-black text-3xl">50 <span className="text-lg font-bold text-green-200">د.م</span></span>
-                </div>
-              </div>
-
-              <p className="text-center text-xs text-slate-400 font-bold mt-5">
-                كل طلب مسلم يضيف ربحاً مباشراً لمحفظتك
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-3 bg-[#4361EE] hover:bg-[#3254D4] text-white px-10 py-4 rounded-2xl text-lg font-black shadow-lg shadow-blue-200 transition hover:-translate-y-0.5"
-            >
-              ابدأ مجاناً — لا رسوم اشتراك
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
           </div>
         </div>
       </section>
