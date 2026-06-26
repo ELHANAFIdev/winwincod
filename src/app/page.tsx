@@ -4,9 +4,10 @@ import { authOptions } from "@/lib/auth";
 import LandingNavbar from "./LandingNavbar";
 import HeroSection from "./HeroSection";
 import {
-  ClipboardList, ShoppingBag, Upload, Banknote,
-  Package, Truck, DollarSign, BarChart3, Headphones, TrendingUp,
-  UserPlus, CreditCard, Unlock, Mail, Smartphone, MapPin
+  UserPlus, ShoppingBag, Package, DollarSign,
+  Wallet, Truck, BarChart3, Bell, FileSpreadsheet, Phone,
+  Zap, MapPin, Mail, MessageCircle,
+  CheckCircle, ArrowLeft, Minus, Equal,
 } from "lucide-react";
 
 export default async function HomePage() {
@@ -19,8 +20,14 @@ export default async function HomePage() {
       ? "/call-center/dashboard"
       : "/seller/dashboard";
 
+  const cities = [
+    "الدار البيضاء", "الرباط", "مراكش", "فاس", "أكادير",
+    "طنجة", "وجدة", "مكناس", "الجديدة", "تطوان",
+    "القنيطرة", "سلا", "بني ملال", "خريبكة", "سطات",
+  ];
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-['Cairo',sans-serif]" dir="rtl">
+    <div className="min-h-screen bg-white font-['Cairo',sans-serif]" dir="rtl">
       <LandingNavbar isLoggedIn={isLoggedIn} dashboardUrl={dashboardUrl} />
 
       {/* ══════════════════════════════════════════
@@ -29,37 +36,89 @@ export default async function HomePage() {
       <HeroSection isLoggedIn={isLoggedIn} dashboardUrl={dashboardUrl} />
 
       {/* ══════════════════════════════════════════
-          2. HOW IT WORKS
+          2. TRUST BAR — cities
+      ══════════════════════════════════════════ */}
+      <section className="py-14 bg-white border-b border-[#F1F5F9]">
+        <div className="max-w-5xl mx-auto px-6">
+          <p className="text-center text-sm font-bold text-slate-400 mb-7 flex items-center justify-center gap-2">
+            <MapPin className="w-4 h-4 text-[#4361EE]" />
+            يثق بنا بائعون من جميع أنحاء المغرب
+          </p>
+          <div className="flex flex-wrap justify-center gap-2.5">
+            {cities.map(city => (
+              <span
+                key={city}
+                className="bg-[#F8FAFC] border border-[#E2E8F0] text-slate-500 font-bold text-sm px-4 py-2 rounded-full hover:border-[#4361EE]/40 hover:text-[#4361EE] hover:bg-[#EEF2FF] transition-all duration-200 cursor-default select-none"
+              >
+                {city}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          3. HOW IT WORKS
       ══════════════════════════════════════════ */}
       <section id="how-it-works" className="py-24 bg-[#F8FAFC]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#4361EE] font-black text-sm uppercase tracking-widest">خطوات بسيطة</span>
-            <h2 className="text-4xl font-black text-[#1E293B] mt-2">كيف يعمل WinWinCOD؟</h2>
-            <p className="text-slate-400 mt-3 max-w-xl mx-auto text-lg">أربع خطوات فقط تفصلك عن أول ربح</p>
+            <span className="inline-block bg-[#EEF2FF] text-[#4361EE] text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+              خطوات بسيطة
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-black text-[#1E293B] mt-1">
+              كيف يعمل WinWinCOD؟
+            </h2>
+            <p className="text-slate-400 mt-3 max-w-md mx-auto text-lg">
+              أربع خطوات فقط تفصلك عن أول ربح
+            </p>
           </div>
 
-          <div className="relative grid md:grid-cols-4 gap-8">
-            {/* Connecting line (desktop) */}
-            <div className="hidden md:block absolute top-10 right-[12.5%] left-[12.5%] h-0.5 bg-gradient-to-l from-[#4361EE] to-[#FB923C] opacity-20" />
+          <div className="relative grid md:grid-cols-4 gap-6 lg:gap-8">
+            {/* Connector line desktop */}
+            <div className="hidden md:block absolute top-[38px] right-[calc(12.5%+32px)] left-[calc(12.5%+32px)] h-px bg-gradient-to-l from-[#4361EE]/30 to-[#FB923C]/30" />
 
             {[
-              { num: "01", icon: <ClipboardList className="w-8 h-8" />, title: "سجل مجاناً", desc: "أنشئ حسابك في ثوانٍ وانضم لمجتمع الآلاف من البائعين" },
-              { num: "02", icon: <ShoppingBag className="w-8 h-8" />, title: "اختر منتجاتك", desc: "تصفح كتالوجنا المتنوع واختر المنتجات التي تريد بيعها" },
-              { num: "03", icon: <Upload className="w-8 h-8" />, title: "أضف طلباتك", desc: "أدخل طلبات زبائنك بسهولة وتابع حالتها لحظة بلحظة" },
-              { num: "04", icon: <Banknote className="w-8 h-8" />, title: "اسحب أرباحك", desc: "بعد التسليم، احسب أرباحك واسحبها فوراً لحسابك البنكي" },
-            ].map(({ num, icon, title, desc }, i) => (
+              {
+                num: "01",
+                icon: <UserPlus className="w-7 h-7" />,
+                title: "سجل مجاناً",
+                desc: "إنشاء حساب في دقيقتين — لا بطاقة بنكية مطلوبة",
+                color: "text-[#4361EE]", bg: "bg-[#EEF2FF]",
+              },
+              {
+                num: "02",
+                icon: <ShoppingBag className="w-7 h-7" />,
+                title: "اختر منتجاتك",
+                desc: "تصفح كتالوجنا المتنوع واختر ما تريد بيعه",
+                color: "text-[#FB923C]", bg: "bg-[#FFF7ED]",
+              },
+              {
+                num: "03",
+                icon: <Package className="w-7 h-7" />,
+                title: "أضف طلباتك",
+                desc: "فريقنا يتصل بعملائك ويؤكد الطلبات",
+                color: "text-purple-600", bg: "bg-purple-50",
+              },
+              {
+                num: "04",
+                icon: <DollarSign className="w-7 h-7" />,
+                title: "استلم أرباحك",
+                desc: "بعد كل تسليم ناجح — ربحك يضاف فوراً",
+                color: "text-green-600", bg: "bg-green-50",
+              },
+            ].map(({ num, icon, title, desc, color, bg }, i) => (
               <div key={num} className="relative text-center group">
                 <div className="relative w-20 h-20 mx-auto mb-6">
-                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg shadow-blue-100 border border-[#E2E8F0] flex items-center justify-center text-[#4361EE] group-hover:scale-110 group-hover:shadow-blue-200 transition-all duration-300">
+                  <div className={`w-20 h-20 ${bg} rounded-2xl flex items-center justify-center ${color} group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 shadow-sm`}>
                     {icon}
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#4361EE] rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-md">
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#0F172A] rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-md">
                     {i + 1}
                   </div>
                 </div>
-                <h3 className="text-lg font-black text-[#1E293B] mb-2">{title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed max-w-[180px] mx-auto">{desc}</p>
+                <h3 className="text-base font-black text-[#1E293B] mb-2">{title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed max-w-[160px] mx-auto">{desc}</p>
               </div>
             ))}
           </div>
@@ -67,60 +126,72 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════
-          3. FEATURES
+          4. FEATURES
       ══════════════════════════════════════════ */}
       <section id="features" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#4361EE] font-black text-sm uppercase tracking-widest">كل ما تحتاجه</span>
-            <h2 className="text-4xl font-black text-[#1E293B] mt-2">ميزات صُممت للبائع المغربي</h2>
-            <p className="text-slate-400 mt-3 max-w-xl mx-auto text-lg">أدوات احترافية في متناول يدك</p>
+            <span className="inline-block bg-[#EEF2FF] text-[#4361EE] text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+              الميزات
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-black text-[#1E293B] mt-1">
+              كل ما تحتاجه لبدء البيع
+            </h2>
+            <p className="text-slate-400 mt-3 max-w-md mx-auto text-lg">
+              أدوات احترافية صُممت للبائع المغربي
+            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
-                icon: <Package className="w-6 h-6" />, color: "#EEF2FF", iconColor: "#4361EE",
-                title: "بدون مخزون",
-                desc: "لا حاجة لشراء أي منتج مسبقاً. اختر من كتالوجنا وابدأ البيع فوراً بدون أي مخاطرة مالية.",
+                icon: <Wallet className="w-6 h-6" />,
+                bg: "#EEF2FF", ic: "#4361EE",
+                title: "محفظة ذكية",
+                desc: "تتبع أرباحك، إدارة مالية كاملة، وسحب أرباحك متى أردت.",
               },
               {
-                icon: <Truck className="w-6 h-6" />, color: "#ECFDF5", iconColor: "#059669",
-                title: "شحن سريع لكل المغرب",
-                desc: "نغطي أكثر من 50 مدينة مغربية بشركاء توصيل موثوقين وتتبع لحظي للطلبات.",
+                icon: <Truck className="w-6 h-6" />,
+                bg: "#ECFDF5", ic: "#059669",
+                title: "شحن لجميع المدن",
+                desc: "توصيل سريع لـ 40+ مدينة مغربية بـ 20 درهم فقط.",
               },
               {
-                icon: <DollarSign className="w-6 h-6" />, color: "#FFF7ED", iconColor: "#EA580C",
-                title: "أرباح مضمونة",
-                desc: "كل درهم ربحته في حسابك فور تسليم الطلب. سحب فوري بدون تأخير ولا رسوم خفية.",
+                icon: <BarChart3 className="w-6 h-6" />,
+                bg: "#FFF7ED", ic: "#EA580C",
+                title: "لوحة تحكم احترافية",
+                desc: "إحصائيات وتقارير في الوقت الفعلي لاتخاذ قرارات أفضل.",
               },
               {
-                icon: <BarChart3 className="w-6 h-6" />, color: "#F0FDF4", iconColor: "#16A34A",
-                title: "لوحة تحكم ذكية",
-                desc: "تابع طلباتك وأرباحك وإحصاءاتك في الوقت الفعلي من أي جهاز وأي مكان.",
+                icon: <Bell className="w-6 h-6" />,
+                bg: "#FDF4FF", ic: "#9333EA",
+                title: "إشعارات فورية",
+                desc: "تنبيهات لكل تحديث على طلباتك فور حدوثه.",
               },
               {
-                icon: <Headphones className="w-6 h-6" />, color: "#FDF4FF", iconColor: "#9333EA",
-                title: "دعم 24/7",
-                desc: "فريق الدعم متاح على مدار الساعة لحل أي مشكلة وضمان تجربة بيع سلسة دائماً.",
+                icon: <FileSpreadsheet className="w-6 h-6" />,
+                bg: "#F0FDF4", ic: "#16A34A",
+                title: "استيراد Excel",
+                desc: "رفع مئات الطلبات دفعة واحدة بملف Excel واحد.",
               },
               {
-                icon: <TrendingUp className="w-6 h-6" />, color: "#FFF1F2", iconColor: "#E11D48",
-                title: "تقارير مفصلة",
-                desc: "احصل على تقارير يومية وأسبوعية وشهرية عن أداء مبيعاتك لاتخاذ قرارات أفضل.",
+                icon: <Phone className="w-6 h-6" />,
+                bg: "#FFF1F2", ic: "#E11D48",
+                title: "دعم مخصص",
+                desc: "فريق call center يتابع طلباتك ويتواصل مع العملاء.",
               },
-            ].map(({ icon, color, iconColor, title, desc }) => (
+            ].map(({ icon, bg, ic, title, desc }) => (
               <div
                 key={title}
-                className="group bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#4361EE]/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/50 hover:-translate-y-1"
+                className="group bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#4361EE]/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/60 hover:-translate-y-1"
               >
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
-                  style={{ background: color, color: iconColor }}
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-sm"
+                  style={{ background: bg, color: ic }}
                 >
                   {icon}
                 </div>
-                <h3 className="text-lg font-black text-[#1E293B] mb-2">{title}</h3>
+                <h3 className="text-base font-black text-[#1E293B] mb-2">{title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -129,51 +200,222 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════
-          4. TESTIMONIALS
+          5. STATS — dark section
+      ══════════════════════════════════════════ */}
+      <section className="py-20 bg-[#0F172A] relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#4361EE]/10 rounded-full" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-[#FB923C]/8 rounded-full" />
+        </div>
+
+        <div className="relative max-w-5xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl lg:text-3xl font-black text-white">
+              أرقام تتحدث عن نفسها
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { num: "+500",  suffix: "",  label: "بائع نشط",           color: "text-[#4361EE]", bg: "bg-[#4361EE]/10 border-[#4361EE]/20" },
+              { num: "+10K",  suffix: "",  label: "طلب مسلم",           color: "text-green-400", bg: "bg-green-400/10 border-green-400/20" },
+              { num: "85%",   suffix: "",  label: "معدل التسليم",        color: "text-[#FB923C]", bg: "bg-[#FB923C]/10 border-[#FB923C]/20" },
+              { num: "20",    suffix: " د.م", label: "رسوم الشحن فقط", color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
+            ].map(({ num, suffix, label, color, bg }) => (
+              <div key={label} className={`${bg} border rounded-2xl p-6 text-center`}>
+                <p className={`text-4xl lg:text-5xl font-black ${color} mb-2`}>
+                  {num}<span className="text-2xl">{suffix}</span>
+                </p>
+                <p className="text-slate-400 font-bold text-sm">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          6. PRICING
+      ══════════════════════════════════════════ */}
+      <section id="pricing" className="py-24 bg-white">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block bg-[#EEF2FF] text-[#4361EE] text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+              الأسعار
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-black text-[#1E293B] mt-1">
+              أسعار شفافة — بدون مفاجآت
+            </h2>
+            <p className="text-slate-400 mt-3 text-lg">
+              لا رسوم شهرية، لا اشتراكات. فقط شحن بسيط لكل طلب.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            {/* Left: formula */}
+            <div className="space-y-6">
+              <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6">
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">معادلة الربح</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[#1E293B] font-bold">سعر البيع</span>
+                    <span className="text-green-600 font-black text-lg">+ س</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[#1E293B] font-bold">تكلفة المنتج</span>
+                    <span className="text-red-500 font-black text-lg">- ت</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[#1E293B] font-bold">رسوم الشحن</span>
+                    <span className="text-red-500 font-black text-lg">- 20 د.م</span>
+                  </div>
+                  <div className="h-px bg-[#E2E8F0]" />
+                  <div className="flex items-center justify-between gap-4 bg-green-50 -mx-2 px-2 py-2 rounded-xl">
+                    <span className="text-green-700 font-black text-base">ربحك الصافي</span>
+                    <span className="text-green-600 font-black text-xl">= س - ت - 20</span>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3">
+                {[
+                  "تسجيل مجاني 100% — لا بطاقة بنكية",
+                  "لا حد أقصى لعدد الطلبات",
+                  "وصول كامل لجميع الميزات",
+                  "دعم مخصص مجاناً",
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm font-bold text-[#1E293B]">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Right: example card */}
+            <div className="bg-gradient-to-br from-[#F8FAFC] to-white border border-[#E2E8F0] rounded-3xl p-8 shadow-xl shadow-slate-100">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 bg-[#EEF2FF] rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-[#4361EE]" />
+                </div>
+                <p className="font-black text-[#1E293B]">مثال عملي</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
+                  <span className="text-slate-500 text-sm font-bold">سعر البيع</span>
+                  <span className="font-black text-[#1E293B] text-base">150 د.م</span>
+                </div>
+
+                <div className="flex items-center justify-center text-slate-300">
+                  <Minus className="w-5 h-5" />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
+                  <span className="text-slate-500 text-sm font-bold">تكلفة المنتج</span>
+                  <span className="font-black text-red-400 text-base">80 د.م</span>
+                </div>
+
+                <div className="flex items-center justify-center text-slate-300">
+                  <Minus className="w-5 h-5" />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#E2E8F0]">
+                  <span className="text-slate-500 text-sm font-bold">رسوم الشحن</span>
+                  <span className="font-black text-red-400 text-base">20 د.م</span>
+                </div>
+
+                <div className="flex items-center justify-center text-slate-300">
+                  <Equal className="w-5 h-5" />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg shadow-green-200">
+                  <span className="text-white font-black text-base flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    ربحك الصافي
+                  </span>
+                  <span className="text-white font-black text-3xl">50 <span className="text-lg font-bold text-green-200">د.م</span></span>
+                </div>
+              </div>
+
+              <p className="text-center text-xs text-slate-400 font-bold mt-5">
+                كل طلب مسلم يضيف ربحاً مباشراً لمحفظتك
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-3 bg-[#4361EE] hover:bg-[#3254D4] text-white px-10 py-4 rounded-2xl text-lg font-black shadow-lg shadow-blue-200 transition hover:-translate-y-0.5"
+            >
+              ابدأ مجاناً — لا رسوم اشتراك
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          7. TESTIMONIALS
       ══════════════════════════════════════════ */}
       <section className="py-24 bg-[#F8FAFC]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-[#4361EE] font-black text-sm uppercase tracking-widest">قالوا عنا</span>
-            <h2 className="text-4xl font-black text-[#1E293B] mt-2">بائعون حقيقيون، نتائج حقيقية</h2>
+          <div className="text-center mb-14">
+            <span className="inline-block bg-[#EEF2FF] text-[#4361EE] text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+              قالوا عنا
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-black text-[#1E293B] mt-1">
+              ماذا يقول بائعونا؟
+            </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                name: "يونس البكاوي",
+                text: "بدأت ببيع منتجات الجمال وربحت 3000 درهم في أول أسبوع! المنصة سهلة جداً وفريق الدعم رهيب.",
+                name: "سعاد م.",
                 city: "الدار البيضاء",
-                avatar: "ي",
-                color: "bg-[#4361EE]",
-                stars: 5,
-                text: "كنت خايف نبدأ تجارة إلكترونية بسبب رأس المال. مع WinWinCOD بدأت بصفر ودرت 8,000 درهم في الشهر الأول! المنصة سهلة بزاف والدعم دايما موجود.",
-                orders: "+230 طلب",
-              },
-              {
-                name: "سعاد الأمراني",
-                city: "مراكش",
                 avatar: "س",
                 color: "bg-[#FB923C]",
                 stars: 5,
-                text: "كاملة من البيت كنت تجمع آلاف الدراهم! المنتجات باغية، التوصيل سريع، والأرباح تتسحب في نفس اليوم. أنصح بيها كل واحد بغا يبدأ من الصفر.",
-                orders: "+180 طلب",
+                tag: "+120 طلب",
               },
               {
-                name: "محمد الإدريسي",
+                text: "المنصة سهلة جداً، فريق الدعم دائماً متواجد. بدأت من الصفر والآن عندي دخل شهري ثابت.",
+                name: "أيمن ب.",
+                city: "مراكش",
+                avatar: "أ",
+                color: "bg-[#4361EE]",
+                stars: 5,
+                tag: "+200 طلب",
+              },
+              {
+                text: "أفضل منصة COD في المغرب، نسبة التسليم عالية جداً والأرباح تسحب في نفس اليوم.",
+                name: "فاطمة ز.",
                 city: "فاس",
-                avatar: "م",
+                avatar: "ف",
                 color: "bg-purple-500",
                 stars: 5,
-                text: "دربت في عدة منصات وما لقيت أسهل من WinWinCOD. لوحة التحكم واضحة، التقارير مفيدة، والشحن موثوق. الأن عندي 15,000 درهم ربح شهري منتظم.",
-                orders: "+390 طلب",
+                tag: "+350 طلب",
               },
-            ].map(({ name, city, avatar, color, stars, text, orders }) => (
-              <div key={name} className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 flex flex-col gap-4 hover:shadow-lg hover:border-[#4361EE]/20 transition-all duration-300">
-                <div className="flex text-[#FB923C] gap-0.5 text-lg">
-                  {"★".repeat(stars)}
+            ].map(({ text, name, city, avatar, color, stars, tag }) => (
+              <div
+                key={name}
+                className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 flex flex-col gap-4 hover:shadow-lg hover:border-[#4361EE]/20 hover:-translate-y-1 transition-all duration-300"
+              >
+                {/* Stars */}
+                <div className="flex gap-0.5">
+                  {Array.from({ length: stars }).map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-[#FB923C]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
                 </div>
+
                 <p className="text-slate-600 text-sm leading-relaxed flex-1">"{text}"</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-[#E2E8F0]">
+
+                <div className="flex items-center gap-3 pt-4 border-t border-[#F1F5F9]">
                   <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0`}>
                     {avatar}
                   </div>
@@ -181,9 +423,9 @@ export default async function HomePage() {
                     <p className="font-black text-[#1E293B] text-sm">{name}</p>
                     <p className="text-slate-400 text-xs">{city}</p>
                   </div>
-                  <div className="bg-[#EEF2FF] text-[#4361EE] text-[10px] font-black px-2.5 py-1 rounded-full flex-shrink-0">
-                    {orders}
-                  </div>
+                  <span className="bg-[#EEF2FF] text-[#4361EE] text-[10px] font-black px-2.5 py-1 rounded-full flex-shrink-0">
+                    {tag}
+                  </span>
                 </div>
               </div>
             ))}
@@ -192,102 +434,109 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════
-          5. PRICING
+          8. CTA
       ══════════════════════════════════════════ */}
-      <section id="pricing" className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <span className="text-[#4361EE] font-black text-sm uppercase tracking-widest">بسيط وشفاف</span>
-          <h2 className="text-4xl font-black text-[#1E293B] mt-2 mb-4">الانضمام مجاني 100%</h2>
-          <p className="text-slate-400 text-lg mb-12 max-w-xl mx-auto">
-            لا رسوم شهرية، لا اشتراكات — تدفع فقط عمولة صغيرة على كل طلب مسلّم بنجاح.
-          </p>
-
-          <div className="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            {[
-              { icon: <UserPlus className="w-7 h-7 text-[#4361EE]" />, title: "تسجيل مجاني", desc: "أنشئ حسابك بدون أي رسوم أو بطاقة بنكية مطلوبة" },
-              { icon: <CreditCard className="w-7 h-7 text-[#4361EE]" />, title: "ادفع عند البيع فقط", desc: "عمولة رمزية فقط عند تسليم الطلب بنجاح. لا مبيعات = لا رسوم" },
-              { icon: <Unlock className="w-7 h-7 text-[#4361EE]" />, title: "بدون قيود", desc: "أضف طلبات غير محدودة، وصول كامل لجميع الميزات من اليوم الأول" },
-            ].map(({ icon, title, desc }) => (
-              <div key={title} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6 text-center hover:border-[#4361EE]/40 hover:shadow-lg transition-all duration-300">
-                <div className="flex justify-center mb-4">{icon}</div>
-                <h3 className="font-black text-[#1E293B] mb-2">{title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          6. CTA
-      ══════════════════════════════════════════ */}
-      <section className="py-24 bg-gradient-to-br from-[#4361EE] to-[#3254D4] relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-[#4361EE] via-[#3a58e8] to-[#3254D4] relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/5 rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-[#FB923C]/10 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full" />
         </div>
+
         <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-white/80 text-sm font-bold mb-8">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            المنصة تعمل الآن
+          </div>
+
           <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
-            انضم إلى آلاف البائعين<br />
-            <span className="text-[#FB923C]">المغاربة الناجحين</span>
+            جاهز تبدأ؟
           </h2>
-          <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto">
-            ابدأ رحلتك في التجارة الإلكترونية اليوم. مجاني تماماً، لا خطر، لا مخزون.
+          <p className="text-white/70 text-lg mb-10 max-w-lg mx-auto font-bold">
+            انضم لأكثر من 500 بائع مغربي يربحون كل يوم مع WinWinCOD
           </p>
+
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/register"
-              className="bg-[#FB923C] hover:bg-orange-500 text-white px-10 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-orange-500/30 transition hover:-translate-y-0.5"
+              className="inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-[#4361EE] px-10 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-black/20 transition hover:-translate-y-0.5"
             >
-              أنشئ حسابك مجاناً ←
+              ابدأ مجاناً الآن
+              <ArrowLeft className="w-5 h-5" />
             </Link>
             <Link
               href="/login"
-              className="border-2 border-white/30 hover:border-white/60 text-white px-8 py-4 rounded-2xl text-base font-bold transition hover:bg-white/5"
+              className="inline-flex items-center gap-2 border-2 border-white/30 hover:border-white/60 text-white px-8 py-4 rounded-2xl text-base font-bold transition hover:bg-white/5"
             >
               تسجيل الدخول
             </Link>
           </div>
+
           <p className="text-white/40 text-xs mt-6 font-bold">
-            لا بطاقة بنكية مطلوبة · إلغاء في أي وقت
+            لا بطاقة بنكية · لا رسوم شهرية · إلغاء في أي وقت
           </p>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════
-          7. FOOTER
+          9. FOOTER
       ══════════════════════════════════════════ */}
-      <footer className="bg-[#0F172A] text-white py-16">
-        <div className="max-w-6xl mx-auto px-6">
+      <footer className="bg-[#0F172A] text-white">
+        <div className="max-w-6xl mx-auto px-6 pt-16 pb-8">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+
             {/* Brand */}
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-1 mb-4">
-                <span className="text-2xl font-black text-white">WinWin</span>
-                <span className="text-2xl font-black text-[#FB923C]">COD</span>
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-9 h-9 bg-gradient-to-br from-[#4361EE] to-[#FB923C] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-4.5 h-4.5 text-white" fill="white" />
+                </div>
+                <div className="leading-none">
+                  <span className="text-2xl font-black text-white">WinWin</span>
+                  <span className="text-2xl font-black text-[#FB923C]">COD</span>
+                </div>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-                منصة الدروب شيبينغ الأولى في المغرب بنظام الدفع عند الاستلام. ابدأ البيع بدون رأس مال اليوم.
+              <p className="text-slate-400 text-sm leading-relaxed max-w-xs mb-6">
+                منصة COD الأولى في المغرب — ابدأ البيع بدون رأس مال اليوم.
               </p>
-              <div className="flex gap-3 mt-5">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="w-9 h-9 bg-white/10 hover:bg-[#4361EE] rounded-xl flex items-center justify-center text-sm cursor-pointer transition" />
-                ))}
+              <div className="flex gap-3">
+                {/* Instagram */}
+                <a href="#" aria-label="Instagram"
+                  className="w-9 h-9 bg-white/[0.08] hover:bg-gradient-to-br hover:from-purple-500 hover:to-pink-500 rounded-xl flex items-center justify-center transition-all duration-300">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
+                </a>
+                {/* Facebook */}
+                <a href="#" aria-label="Facebook"
+                  className="w-9 h-9 bg-white/[0.08] hover:bg-blue-600 rounded-xl flex items-center justify-center transition-all duration-300">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                {/* WhatsApp */}
+                <a href="#" aria-label="WhatsApp"
+                  className="w-9 h-9 bg-white/[0.08] hover:bg-green-600 rounded-xl flex items-center justify-center transition-all duration-300">
+                  <MessageCircle className="w-4 h-4" />
+                </a>
               </div>
             </div>
 
             {/* Links */}
             <div>
-              <h4 className="font-black text-white mb-4 text-sm">المنصة</h4>
-              <ul className="space-y-2.5">
+              <h4 className="font-black text-white mb-5 text-sm">المنصة</h4>
+              <ul className="space-y-3">
                 {[
-                  { label: "الميزات", href: "#features" },
-                  { label: "كيف يعمل", href: "#how-it-works" },
-                  { label: "الأسعار", href: "#pricing" },
-                  { label: "إنشاء حساب", href: "/register" },
+                  { label: "الميزات",        href: "#features"     },
+                  { label: "كيف يعمل",      href: "#how-it-works" },
+                  { label: "الأسعار",        href: "#pricing"      },
+                  { label: "تسجيل الدخول",  href: "/login"        },
+                  { label: "إنشاء حساب",    href: "/register"     },
                 ].map(({ label, href }) => (
                   <li key={label}>
-                    <a href={href} className="text-slate-400 hover:text-white text-sm transition">{label}</a>
+                    <a href={href} className="text-slate-400 hover:text-white text-sm transition-colors font-medium">
+                      {label}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -295,15 +544,16 @@ export default async function HomePage() {
 
             {/* Contact */}
             <div>
-              <h4 className="font-black text-white mb-4 text-sm">تواصل معنا</h4>
-              <ul className="space-y-2.5">
+              <h4 className="font-black text-white mb-5 text-sm">تواصل معنا</h4>
+              <ul className="space-y-3">
                 {[
-                  { icon: <Mail className="w-4 h-4" />, text: "support@winwincod.ma" },
-                  { icon: <Smartphone className="w-4 h-4" />, text: "واتساب 24/7" },
-                  { icon: <MapPin className="w-4 h-4" />, text: "المغرب" },
+                  { icon: <Mail className="w-4 h-4" />,           text: "support@winwincod.ma" },
+                  { icon: <MessageCircle className="w-4 h-4" />,  text: "واتساب — دعم 24/7"    },
+                  { icon: <MapPin className="w-4 h-4" />,         text: "المغرب"                },
                 ].map(({ icon, text }) => (
-                  <li key={text} className="flex items-center gap-2 text-slate-400 text-sm">
-                    <span className="text-slate-500">{icon}</span> {text}
+                  <li key={text} className="flex items-center gap-2.5 text-slate-400 text-sm font-medium">
+                    <span className="text-slate-500 flex-shrink-0">{icon}</span>
+                    {text}
                   </li>
                 ))}
               </ul>
@@ -311,10 +561,12 @@ export default async function HomePage() {
           </div>
 
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} WinWinCOD. جميع الحقوق محفوظة.</p>
+            <p className="text-slate-500 text-sm">
+              © {new Date().getFullYear()} WinWinCOD. جميع الحقوق محفوظة.
+            </p>
             <div className="flex gap-5">
-              {["سياسة الخصوصية", "الشروط والأحكام"].map((t) => (
-                <a key={t} href="#" className="text-slate-500 hover:text-slate-300 text-xs transition">{t}</a>
+              {["سياسة الخصوصية", "الشروط والأحكام"].map(t => (
+                <a key={t} href="#" className="text-slate-500 hover:text-slate-300 text-xs transition-colors">{t}</a>
               ))}
             </div>
           </div>
