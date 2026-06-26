@@ -138,14 +138,14 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
             className="flex items-center justify-center gap-2 w-full bg-[#4361EE] hover:bg-[#3254D4] text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-[.98]"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>+ طلب جديد</span>
+            <span>{t("sidebar.newOrderBtn")}</span>
           </Link>
         </div>
       ) : (
         <div className="px-2 pt-4 pb-2">
           <Link
             href="/seller/orders/new"
-            title="+ طلب جديد"
+            title={t("sidebar.newOrderBtn")}
             className="flex items-center justify-center w-full bg-[#4361EE] hover:bg-[#3254D4] text-white py-2.5 rounded-xl transition-all"
           >
             <PlusCircle className="w-4 h-4" />
@@ -205,11 +205,11 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-slate-800 truncate">{name}</p>
-              <p className="text-[11px] text-slate-400">بائع</p>
+              <p className="text-[11px] text-slate-400">{t("sidebar.sellerRole")}</p>
             </div>
             <button
               onClick={() => signOut()}
-              title="تسجيل الخروج"
+              title={t("nav.logout")}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0"
             >
               <LogOut className="w-4 h-4" />
@@ -222,7 +222,7 @@ export default function SellerSidebar({ collapsed, onToggle, mobileOpen, onMobil
             </div>
             <button
               onClick={() => signOut()}
-              title="تسجيل الخروج"
+              title={t("nav.logout")}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition"
             >
               <LogOut className="w-4 h-4" />

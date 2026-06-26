@@ -184,7 +184,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           <div className="flex items-center gap-3">
             <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
               <p className="text-2xl font-black leading-none">{periodOrders.toLocaleString("ar-MA")}</p>
-              <p className="text-blue-200 text-[11px] font-semibold mt-1">{lang === "fr" ? "Commandes" : "طلبات الفترة"}</p>
+              <p className="text-blue-200 text-[11px] font-semibold mt-1">{msgs.dashboard.periodOrders}</p>
             </div>
             <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[88px] border border-white/10">
               <p className="text-2xl font-black leading-none">{activeSellers.toLocaleString("ar-MA")}</p>
@@ -208,7 +208,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
       {/* ── Row 1 — Period summary ──────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label={lang === "fr" ? `Commandes ${periodLabel}` : `طلبات ${periodLabel}`}
+          label={`${msgs.dashboard.periodOrdersLabel} ${periodLabel}`}
           value={periodOrders.toLocaleString("ar-MA")}
           icon={<Package className="w-5 h-5" />}
           iconBg="bg-[#EEF2FF]"
@@ -216,7 +216,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           accent="border-t-[#4361EE]"
         />
         <StatCard
-          label={lang === "fr" ? `Revenus ${periodLabel}` : `إيرادات ${periodLabel}`}
+          label={`${msgs.dashboard.revenueLabel} ${periodLabel}`}
           value={`${periodRev.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon={<DollarSign className="w-5 h-5" />}
           iconBg="bg-[#ECFDF5]"
@@ -232,7 +232,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           accent="border-t-[#FB923C]"
         />
         <StatCard
-          label={lang === "fr" ? `Taux de retour ${periodLabel}` : `معدل الإرجاع ${periodLabel}`}
+          label={`${msgs.dashboard.returnRate} ${periodLabel}`}
           value={`${returnRate}%`}
           icon={<RotateCcw className="w-5 h-5" />}
           iconBg="bg-[#FEF2F2]"
@@ -245,13 +245,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         <StatCard
-          label={lang === "fr" ? `Profit plateforme — ${periodLabel}` : `ربح المنصة — ${periodLabel}`}
+          label={`${msgs.dashboard.platformProfit} — ${periodLabel}`}
           value={`${platformProfit.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
           icon={<TrendingUp className="w-5 h-5" />}
           iconBg="bg-[#EEF2FF]"
           iconColor="text-[#4361EE]"
           accent="border-t-[#4361EE]"
-          sub={lang === "fr" ? "Différence: prix fournisseur ← prix vendeur" : "الفرق: سعر المورد ← سعر البائع"}
+          sub={msgs.dashboard.profitFormula}
         />
 
         {/* Delivery Rate — with progress bar */}
@@ -294,7 +294,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           iconBg="bg-[#F5F3FF]"
           iconColor="text-[#8B5CF6]"
           accent="border-t-[#8B5CF6]"
-          sub={`${lang === "fr" ? "Liquidité:" : "سيولة:"} ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
+          sub={`${msgs.dashboard.liquidityColon} ${walletBalance.toLocaleString("ar-MA", { maximumFractionDigits: 0 })} د.م`}
         />
       </div>
 
@@ -349,7 +349,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="font-black text-[#1E293B] text-base">{msgs.dashboard.topSellers}</h3>
-              <p className="text-slate-400 text-xs mt-0.5">{periodLabel} — مرتبون حسب الطلبات</p>
+              <p className="text-slate-400 text-xs mt-0.5">{periodLabel} — {msgs.dashboard.sortedByOrders}</p>
             </div>
             <div className="w-10 h-10 bg-[#EEF2FF] rounded-2xl flex items-center justify-center">
               <Users className="w-5 h-5 text-[#4361EE]" />

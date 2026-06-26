@@ -6,49 +6,10 @@ import { Menu, Search, ChevronDown, LogOut, User, Settings, Command } from "luci
 import NotificationBell from "@/components/ui/NotificationBell";
 import { useLanguage } from "@/context/LanguageContext";
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN:       "مدير النظام",
-  SELLER:      "بائع",
-  CALL_CENTER: "كول سنتر",
-};
-
 const PROFILE_PATHS: Record<string, string> = {
   admin:         "/admin/users",
   seller:        "/seller/dashboard",
   "call-center": "/call-center/dashboard",
-};
-
-const PAGE_TITLES: Record<string, string> = {
-  "/admin/dashboard":         "الإحصائيات",
-  "/admin/calendar":          "التقويم",
-  "/admin/orders":            "إدارة الطلبات",
-  "/admin/logistics":         "شحن الطلبيات",
-  "/admin/logistics/update":  "تحديث التوصيل",
-  "/admin/products":          "المنتجات",
-  "/admin/products/new":      "منتج جديد",
-  "/admin/suppliers":         "الموردين",
-  "/admin/deposits":          "إدارة المحافظ",
-  "/admin/withdrawals":       "سحوبات الأرباح",
-  "/admin/transactions":      "المعاملات المالية",
-  "/admin/users":             "كل المستخدمين",
-  "/admin/users/requests":    "طلبات الانضمام",
-  "/seller/dashboard":        "لوحة القيادة",
-  "/seller/products":         "سوق المنتجات",
-  "/seller/my-products":      "منتجاتي",
-  "/seller/orders":           "الطلبات",
-  "/seller/orders/new":       "إضافة طلب",
-  "/seller/orders/import":    "استيراد Excel",
-  "/seller/orders/drafts":    "المسودات",
-  "/seller/orders/cart":      "السلة",
-  "/seller/orders/checkout":  "إتمام الطلب",
-  "/seller/batches":          "الدفعات",
-  "/seller/tracking":         "تتبع الطلبات",
-  "/seller/wallet":           "المحفظة",
-  "/seller/notifications":    "الإشعارات",
-  "/seller/calendar":         "التقويم",
-  "/call-center/dashboard":   "لوحة التحكم",
-  "/call-center/orders":      "الطلبات",
-  "/call-center/sellers":     "البائعون",
 };
 
 interface TopNavbarProps {
@@ -64,8 +25,47 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
 
+  const ROLE_LABELS: Record<string, string> = {
+    ADMIN:       t("sidebar.adminRole"),
+    SELLER:      t("sidebar.sellerRole"),
+    CALL_CENTER: t("sidebar.callCenterRole"),
+  };
+
+  const PAGE_TITLES: Record<string, string> = {
+    "/admin/dashboard":         t("nav.statistics"),
+    "/admin/calendar":          t("nav.calendar"),
+    "/admin/orders":            t("nav.manageOrders"),
+    "/admin/logistics":         t("nav.logistics"),
+    "/admin/logistics/update":  t("nav.deliveryUpdate"),
+    "/admin/products":          t("nav.products"),
+    "/admin/products/new":      t("nav.newProduct"),
+    "/admin/suppliers":         t("nav.suppliers"),
+    "/admin/deposits":          t("nav.wallets"),
+    "/admin/withdrawals":       t("nav.withdrawals"),
+    "/admin/transactions":      t("nav.transactions"),
+    "/admin/users":             t("nav.allUsers"),
+    "/admin/users/requests":    t("nav.joinRequests"),
+    "/seller/dashboard":        t("nav.dashboard"),
+    "/seller/products":         t("nav.marketplace"),
+    "/seller/my-products":      t("nav.myProducts"),
+    "/seller/orders":           t("nav.orders"),
+    "/seller/orders/new":       t("nav.newOrder"),
+    "/seller/orders/import":    t("nav.importExcel"),
+    "/seller/orders/drafts":    t("nav.drafts"),
+    "/seller/orders/cart":      t("nav.cart"),
+    "/seller/orders/checkout":  t("nav.checkout"),
+    "/seller/batches":          t("nav.batches"),
+    "/seller/tracking":         t("nav.tracking"),
+    "/seller/wallet":           t("nav.wallet"),
+    "/seller/notifications":    t("nav.notifications"),
+    "/seller/calendar":         t("nav.calendar"),
+    "/call-center/dashboard":   t("nav.controlPanel"),
+    "/call-center/orders":      t("nav.orders"),
+    "/call-center/sellers":     t("nav.sellers"),
+  };
+
   const userName    = (session?.user as any)?.name ?? "مستخدم";
-  const userRole    = ROLE_LABELS[(session?.user as any)?.role ?? ""] ?? "مستخدم";
+  const userRole    = ROLE_LABELS[(session?.user as any)?.role ?? ""] ?? t("sidebar.sellerRole");
   const userInitial = userName.charAt(0).toUpperCase();
 
   const pageTitle = PAGE_TITLES[pathname]
@@ -103,7 +103,7 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
         <button
           onClick={onMenuToggle}
           className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition md:hidden"
-          aria-label="تبديل القائمة"
+          aria-label={t("nav.toggleMenu")}
         >
           <Menu className="w-5 h-5" />
         </button>

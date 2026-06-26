@@ -108,8 +108,8 @@ export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onM
               <Phone className="w-3.5 h-3.5 text-white" />
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#4361EE]">كول سنتر</p>
-              <p className="text-[10px] text-slate-400">متصل الآن</p>
+              <p className="text-[12px] font-bold text-[#4361EE]">{t("sidebar.callCenterRole")}</p>
+              <p className="text-[10px] text-slate-400">{t("sidebar.connected")}</p>
             </div>
           </div>
         </div>
@@ -137,11 +137,11 @@ export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onM
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-slate-800 truncate">{name}</p>
-              <p className="text-[11px] text-slate-400">كول سنتر</p>
+              <p className="text-[11px] text-slate-400">{t("sidebar.callCenterRole")}</p>
             </div>
             <button
               onClick={() => signOut()}
-              title="تسجيل الخروج"
+              title={t("nav.logout")}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0"
             >
               <LogOut className="w-4 h-4" />
@@ -154,7 +154,7 @@ export default function CallCenterSidebar({ collapsed, onToggle, mobileOpen, onM
             </div>
             <button
               onClick={() => signOut()}
-              title="تسجيل الخروج"
+              title={t("nav.logout")}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition"
             >
               <LogOut className="w-4 h-4" />
