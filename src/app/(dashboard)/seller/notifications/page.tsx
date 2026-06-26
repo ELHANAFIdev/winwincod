@@ -1,11 +1,10 @@
 "use client";
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { CheckCircle, XCircle, DollarSign, Truck, Package, Bell } from "lucide-react";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { Bell } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Notification {
   id: string;
@@ -19,17 +18,6 @@ interface Notification {
 
 type FilterTab = "all" | "unread" | "read";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const TYPE_ICON: Record<string, ReactNode> = {
-  DEPOSIT_APPROVED: <CheckCircle className="w-5 h-5 text-green-500" />,
-  DEPOSIT_REJECTED: <XCircle className="w-5 h-5 text-red-500" />,
-  PROFIT_CREDITED:  <DollarSign className="w-5 h-5 text-amber-500" />,
-  ORDER_STATUS:     <Truck className="w-5 h-5 text-blue-500" />,
-  WALLET_DEDUCTED:  <Package className="w-5 h-5 text-slate-500" />,
-  NEW_ORDER:        <Bell className="w-5 h-5 text-[#4361EE]" />,
-};
-
 const TYPE_COLOR: Record<string, string> = {
   DEPOSIT_APPROVED: "bg-green-50 border-green-100",
   DEPOSIT_REJECTED: "bg-red-50 border-red-100",
@@ -39,12 +27,29 @@ const TYPE_COLOR: Record<string, string> = {
   NEW_ORDER:        "bg-[#EEF2FF] border-[#4361EE]/10",
 };
 
-function timeAgo(dateStr: string): string {
+const TYPE_EMOJI: Record<string, string> = {
+  DEPOSIT_APPROVED: "✅",
+  DEPOSIT_REJECTED: "❌",
+  PROFIT_CREDITED:  "💰",
+  ORDER_STATUS:     "🚚",
+  WALLET_DEDUCTED:  "📦",
+  NEW_ORDER:        "🔔",
+};
+
+function timeAgo(dateStr: string, lang: string): string {
   const diff  = Date.now() - new Date(dateStr).getTime();
   const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days  = Math.floor(diff / 86400000);
 
+  if (lang === "fr") {
+    if (mins  <  1) return "À l'instant";
+    if (mins  < 60) return `Il y a ${mins} min`;
+    if (hours <  2) return "Il y a 1 heure";
+    if (hours < 24) return `Il y a ${hours} heures`;
+    if (days  <  2) return "Il y a 1 jour";
+    return `Il y a ${days} jours`;
+  }
   if (mins  <  1) return "الآن";
   if (mins  < 60) return `منذ ${mins} دقيقة`;
   if (hours <  2) return "منذ ساعة";
@@ -53,15 +58,7 @@ function timeAgo(dateStr: string): string {
   return `منذ ${days} أيام`;
 }
 
-// ─── Notification row ─────────────────────────────────────────────────────────
-
-function NotifRow({
-  item,
-  onRead,
-}: {
-  item: Notification;
-  onRead: (id: string) => void;
-}) {
+function NotifRow({ item, onRead, lang }: { item: Notification; onRead: (id: string) => void; lang: string }) {
   const router = useRouter();
 
   const handleClick = async () => {
@@ -83,7 +80,6 @@ function NotifRow({
           : `${TYPE_COLOR[item.type] ?? "bg-[#EEF2FF] border-[#4361EE]/20"} hover:border-[#4361EE]/40`
       }`}
     >
-      {/* Unread indicator */}
       <div className="flex-shrink-0 mt-2">
         {item.isRead
           ? <div className="w-2.5 h-2.5 rounded-full bg-transparent" />
@@ -91,38 +87,37 @@ function NotifRow({
         }
       </div>
 
-      {/* Icon bubble */}
-      <div className="w-11 h-11 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-center flex-shrink-0 shadow-sm">
-        {TYPE_ICON[item.type] ?? <Bell className="w-5 h-5 text-[#4361EE]" />}
+      <div className="w-11 h-11 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+        {TYPE_EMOJI[item.type] ?? "🔔"}
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3">
           <p className={`text-sm leading-snug ${item.isRead ? "text-slate-600 font-medium" : "text-[#1E293B] font-bold"}`}>
             {item.title}
           </p>
-          <span className="text-[11px] text-slate-300 whitespace-nowrap flex-shrink-0">{timeAgo(item.createdAt)}</span>
+          <span className="text-[11px] text-slate-300 whitespace-nowrap flex-shrink-0">{timeAgo(item.createdAt, lang)}</span>
         </div>
         <p className="text-xs text-slate-400 mt-1 leading-relaxed">{item.message}</p>
         <p className="text-[11px] text-slate-300 mt-1">
-          {new Date(item.createdAt).toLocaleDateString("ar-MA", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+          {new Date(item.createdAt).toLocaleDateString(lang === "fr" ? "fr-FR" : "ar-MA", {
+            day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+          })}
         </p>
       </div>
     </div>
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-
 export default function NotificationsPage() {
-  const [tab, setTab]             = useState<FilterTab>("all");
-  const [items, setItems]         = useState<Notification[]>([]);
+  const { t, lang } = useLanguage();
+  const [tab, setTab]               = useState<FilterTab>("all");
+  const [items, setItems]           = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [page, setPage]           = useState(1);
+  const [page, setPage]             = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal]         = useState(0);
-  const [loading, setLoading]     = useState(true);
+  const [total, setTotal]           = useState(0);
+  const [loading, setLoading]       = useState(true);
 
   const fetchData = useCallback(async (p = 1, currentTab = tab) => {
     setLoading(true);
@@ -138,11 +133,11 @@ export default function NotificationsPage() {
       setTotalPages(res.data.totalPages);
       setTotal(res.data.total);
     } catch {
-      toast.error("فشل جلب الإشعارات");
+      toast.error(lang === "fr" ? "Erreur de chargement" : "فشل جلب الإشعارات");
     } finally {
       setLoading(false);
     }
-  }, [tab]);
+  }, [tab, lang]);
 
   useEffect(() => { fetchData(1, tab); }, [tab]);
 
@@ -157,53 +152,53 @@ export default function NotificationsPage() {
   };
 
   const markAll = async () => {
-    const tid = toast.loading("جاري التحديث...");
+    const tid = toast.loading(lang === "fr" ? "Mise à jour..." : "جاري التحديث...");
     try {
       await axios.post("/api/notifications/read-all");
-      toast.success("تم تحديد الكل كمقروء", { id: tid });
+      toast.success(lang === "fr" ? "Tout marqué comme lu" : "تم تحديد الكل كمقروء", { id: tid });
       fetchData(page, tab);
     } catch {
-      toast.error("حدث خطأ", { id: tid });
+      toast.error(lang === "fr" ? "Erreur" : "حدث خطأ", { id: tid });
     }
   };
 
   const TAB_LABELS: Record<FilterTab, string> = {
-    all:    `الكل (${total})`,
-    unread: `غير مقروءة (${unreadCount})`,
-    read:   "مقروءة",
+    all:    `${t("notifications.all")} (${total})`,
+    unread: `${t("notifications.unread")} (${unreadCount})`,
+    read:   t("notifications.read"),
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto" dir="rtl">
+    <div className="space-y-6 max-w-2xl mx-auto" dir={lang === "fr" ? "ltr" : "rtl"}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-[#1E293B]">الإشعارات</h2>
-          <p className="text-slate-400 text-sm mt-0.5">تتبع تحديثات طلباتك ومحفظتك</p>
+          <h2 className="text-2xl font-black text-[#1E293B]">{t("notifications.title")}</h2>
+          <p className="text-slate-400 text-sm mt-0.5">{t("notifications.trackUpdates")}</p>
         </div>
         {unreadCount > 0 && (
           <button
             onClick={markAll}
             className="text-sm text-[#4361EE] font-bold hover:underline px-3 py-2 rounded-xl hover:bg-[#EEF2FF] transition"
           >
-            تحديد الكل كمقروء ✓
+            {t("notifications.markAllRead")}
           </button>
         )}
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-[#F1F5F9] p-1 rounded-xl w-fit">
-        {(["all", "unread", "read"] as FilterTab[]).map((t) => (
+        {(["all", "unread", "read"] as FilterTab[]).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => handleTabChange(t)}
+            key={tabKey}
+            onClick={() => handleTabChange(tabKey)}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-              tab === t
+              tab === tabKey
                 ? "bg-white text-[#4361EE] shadow-sm"
                 : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            {TAB_LABELS[t]}
+            {TAB_LABELS[tabKey]}
           </button>
         ))}
       </div>
@@ -218,15 +213,15 @@ export default function NotificationsPage() {
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <Bell className="w-7 h-7 text-slate-400" />
           </div>
-          <p className="text-slate-400 font-bold text-lg">لا توجد إشعارات</p>
+          <p className="text-slate-400 font-bold text-lg">{t("notifications.noNotifications")}</p>
           <p className="text-slate-300 text-sm mt-1">
-            {tab === "unread" ? "أنت محدّث تماماً!" : "ستظهر إشعاراتك هنا عند وصولها"}
+            {tab === "unread" ? t("notifications.upToDate") : t("notifications.willAppear")}
           </p>
         </div>
       ) : (
         <div className="space-y-2">
           {items.map((item) => (
-            <NotifRow key={item.id} item={item} onRead={handleRead} />
+            <NotifRow key={item.id} item={item} onRead={handleRead} lang={lang} />
           ))}
         </div>
       )}
@@ -239,7 +234,7 @@ export default function NotificationsPage() {
             disabled={page <= 1}
             className="px-4 py-2 rounded-xl border border-[#E2E8F0] text-sm font-bold text-slate-600 hover:bg-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            ← السابق
+            {t("common.previous")}
           </button>
           <span className="text-sm text-slate-400 font-medium px-3">{page} / {totalPages}</span>
           <button
@@ -247,7 +242,7 @@ export default function NotificationsPage() {
             disabled={page >= totalPages}
             className="px-4 py-2 rounded-xl border border-[#E2E8F0] text-sm font-bold text-slate-600 hover:bg-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            التالي →
+            {t("common.next")}
           </button>
         </div>
       )}

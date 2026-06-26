@@ -12,17 +12,6 @@ import DateDropdown, { PERIOD_LABELS } from "@/components/ui/DateDropdown";
 
 const COLORS = ["#4361EE", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"];
 
-const STATUS_AR: Record<string, string> = {
-  DELIVERED: "تم التسليم",
-  RETURNED: "مرتجع",
-  SHIPPED: "في الطريق",
-  PROCESSING: "قيد التجهيز",
-  DRAFT: "مسودة",
-  CONFIRMED: "مؤكد",
-  CANCELLED: "ملغي",
-  PENDING_CONFIRMATION: "بانتظار التأكيد",
-  WAITING_PAYMENT: "بانتظار الدفع",
-};
 
 function getDefaultDates() {
   const now = new Date();
@@ -41,8 +30,20 @@ export default function SellerDashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
-  const { t } = useLanguage();
-  const sellerName = (session?.user as any)?.name ?? "بائع";
+  const { t, lang } = useLanguage();
+  const sellerName = (session?.user as any)?.name ?? (lang === "fr" ? "Vendeur" : "بائع");
+
+  const STATUS_LABELS: Record<string, string> = {
+    DELIVERED:            t("orders.statusDelivered"),
+    RETURNED:             t("orders.statusReturned"),
+    SHIPPED:              t("orders.statusShipped"),
+    PROCESSING:           t("orders.statusProcessing"),
+    DRAFT:                t("orders.statusDraft"),
+    CONFIRMED:            t("orders.statusConfirmed"),
+    CANCELLED:            t("orders.statusCancelled"),
+    PENDING_CONFIRMATION: t("orders.statusPending"),
+    WAITING_PAYMENT:      t("orders.statusWaitingPayment"),
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -200,7 +201,7 @@ export default function SellerDashboard() {
                     <Pie
                       data={data.pieData.map((d: any) => ({
                         ...d,
-                        name: STATUS_AR[d.name] ?? d.name,
+                        name: STATUS_LABELS[d.name] ?? d.name,
                       }))}
                       cx="50%"
                       cy="50%"

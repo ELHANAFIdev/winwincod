@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, CheckCircle, XCircle, DollarSign, Package, Minus, X } from "lucide-react";
 import axios from "axios";
+import { useLanguage } from "@/context/LanguageContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,12 +19,20 @@ interface Notification {
 
 // ─── Time-ago helper ──────────────────────────────────────────────────────────
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgo(dateStr: string, lang: string): string {
+  const diff  = Date.now() - new Date(dateStr).getTime();
   const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days  = Math.floor(diff / 86400000);
 
+  if (lang === "fr") {
+    if (mins  <  1) return "À l'instant";
+    if (mins  < 60) return `Il y a ${mins} min`;
+    if (hours <  2) return "Il y a 1 heure";
+    if (hours < 24) return `Il y a ${hours} heures`;
+    if (days  <  2) return "Il y a 1 jour";
+    return `Il y a ${days} jours`;
+  }
   if (mins  <  1) return "الآن";
   if (mins  < 60) return `منذ ${mins} دقيقة`;
   if (hours <  2) return "منذ ساعة";
@@ -50,6 +59,7 @@ function getTypeIcon(type: string) {
 
 export default function NotificationBell({ notificationsPath = "/seller/notifications" }: { notificationsPath?: string }) {
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const [open, setOpen]             = useState(false);
   const [unread, setUnread]         = useState(0);
   const [prevUnread, setPrevUnread] = useState(0);
@@ -148,7 +158,7 @@ export default function NotificationBell({ notificationsPath = "/seller/notifica
       <button
         onClick={() => setOpen((v) => !v)}
         className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-[#EEF2FF] hover:bg-[#4361EE] text-[#4361EE] hover:text-white transition"
-        aria-label="الإشعارات"
+        aria-label={t("notifications.title")}
       >
         <Bell className={`w-5 h-5 ${pulse ? "animate-bounce" : ""}`} />
         {unread > 0 && (
@@ -176,14 +186,14 @@ export default function NotificationBell({ notificationsPath = "/seller/notifica
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#F1F5F9] flex-shrink-0">
-              <span className="font-black text-[#1E293B] text-base md:text-sm">الإشعارات</span>
+              <span className="font-black text-[#1E293B] text-base md:text-sm">{t("notifications.title")}</span>
               <div className="flex items-center gap-3">
                 {unread > 0 && (
                   <button
                     onClick={markAllRead}
                     className="text-xs text-[#4361EE] font-bold hover:underline"
                   >
-                    تحديد الكل كمقروء
+                    {t("notifications.markAllRead")}
                   </button>
                 )}
                 <button
@@ -204,7 +214,7 @@ export default function NotificationBell({ notificationsPath = "/seller/notifica
               ) : items.length === 0 ? (
                 <div className="text-center py-16 flex flex-col items-center gap-2">
                   <Bell className="w-10 h-10 text-slate-200" />
-                  <p className="text-slate-400 text-sm font-medium">لا توجد إشعارات</p>
+                  <p className="text-slate-400 text-sm font-medium">{t("notifications.noNotifications")}</p>
                 </div>
               ) : (
                 items.map((item) => (
@@ -229,7 +239,7 @@ export default function NotificationBell({ notificationsPath = "/seller/notifica
                       <p className="text-xs text-slate-400 mt-0.5 leading-relaxed line-clamp-2">
                         {item.message}
                       </p>
-                      <p className="text-[11px] text-slate-300 mt-1">{timeAgo(item.createdAt)}</p>
+                      <p className="text-[11px] text-slate-300 mt-1">{timeAgo(item.createdAt, lang)}</p>
                     </div>
                   </button>
                 ))
@@ -242,7 +252,7 @@ export default function NotificationBell({ notificationsPath = "/seller/notifica
                 onClick={() => { setOpen(false); router.push(notificationsPath); }}
                 className="w-full text-center text-sm md:text-xs text-[#4361EE] font-bold hover:underline py-1"
               >
-                عرض كل الإشعارات →
+                {t("notifications.viewAll")}
               </button>
             </div>
           </div>
