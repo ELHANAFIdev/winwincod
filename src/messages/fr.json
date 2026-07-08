@@ -299,5 +299,114 @@
     "hoursAgo": "Il y a {n} heures",
     "dayAgo": "Il y a 1 jour",
     "daysAgo": "Il y a {n} jours"
+  },
+  "landing": {
+    "nav": {
+      "features": "Fonctionnalités",
+      "howItWorks": "Comment ça marche",
+      "pricing": "Tarifs",
+      "login": "Se connecter",
+      "start": "Commencer gratuitement",
+      "dashboard": "Tableau de bord"
+    },
+    "hero": {
+      "badge": "Plateforme COD N°1 au Maroc",
+      "title1": "Commencez à vendre en paiement",
+      "title2": "à la livraison — 0 MAD",
+      "subtitle": "Sans stock, sans capital. Rejoignez des milliers de vendeurs marocains.",
+      "cta1": "Commencer gratuitement",
+      "cta2": "Voir comment ça marche",
+      "stat1": "vendeurs actifs",
+      "stat2": "commandes livrées",
+      "stat3": "taux de livraison",
+      "stat4": "villes marocaines",
+      "discover": "Découvrir"
+    },
+    "trust": "Des vendeurs de confiance de tout le Maroc",
+    "howItWorks": {
+      "badge": "Étapes simples",
+      "title": "Comment fonctionne WinWinCOD ?",
+      "subtitle": "Seulement 4 étapes vous séparent de votre premier gain",
+      "step1title": "Inscrivez-vous gratuitement",
+      "step1desc": "Créez un compte en 2 minutes — sans carte bancaire",
+      "step2title": "Choisissez vos produits",
+      "step2desc": "Parcourez notre catalogue et choisissez ce que vous vendez",
+      "step3title": "Ajoutez vos commandes",
+      "step3desc": "Notre équipe contacte vos clients et confirme les commandes",
+      "step4title": "Recevez vos gains",
+      "step4desc": "Après chaque livraison réussie — vos gains s'ajoutent immédiatement"
+    },
+    "features": {
+      "badge": "Fonctionnalités",
+      "title": "Tout ce qu'il vous faut pour vendre",
+      "subtitle": "Des outils professionnels conçus pour le vendeur marocain",
+      "f1title": "Portefeuille intelligent",
+      "f1desc": "Suivez vos gains, gestion financière complète, retirez quand vous voulez.",
+      "f2title": "Livraison nationale",
+      "f2desc": "Livraison rapide dans 40+ villes marocaines pour seulement 20 MAD.",
+      "f3title": "Tableau de bord pro",
+      "f3desc": "Statistiques et rapports en temps réel pour de meilleures décisions.",
+      "f4title": "Notifications instantanées",
+      "f4desc": "Alertes pour chaque mise à jour de vos commandes dès qu'elle se produit.",
+      "f5title": "Import Excel",
+      "f5desc": "Importez des centaines de commandes en une seule fois avec un fichier Excel.",
+      "f6title": "Support dédié",
+      "f6desc": "Une équipe call center qui suit vos commandes et contacte vos clients."
+    },
+    "stats": {
+      "title": "Des chiffres qui parlent d'eux-mêmes",
+      "s1label": "vendeurs actifs",
+      "s2label": "commandes livrées",
+      "s3label": "taux de livraison",
+      "s4label": "frais de livraison"
+    },
+    "pricing": {
+      "badge": "Tarifs",
+      "title": "Tarifs transparents — sans surprises",
+      "subtitle": "Pas de frais mensuels, pas d'abonnements. Juste une livraison par commande.",
+      "formula": "Formule de rentabilité",
+      "example": "Exemple concret",
+      "sellingPrice": "Prix de vente",
+      "productCost": "Coût du produit",
+      "shipping": "Frais de livraison",
+      "yourProfit": "Votre bénéfice net",
+      "perOrder": "Chaque commande livrée ajoute des gains à votre portefeuille",
+      "cta": "Commencer gratuitement — sans abonnement",
+      "free1": "Inscription 100% gratuite — sans carte bancaire",
+      "free2": "Aucune limite de commandes",
+      "free3": "Accès complet à toutes les fonctionnalités",
+      "free4": "Support dédié gratuit"
+    },
+    "testimonials": {
+      "badge": "Témoignages",
+      "title": "Ce que disent nos vendeurs",
+      "t1": "J'ai commencé à vendre des produits de beauté et j'ai gagné 3000 MAD la première semaine ! La plateforme est très simple.",
+      "t1name": "Souad M.",
+      "t1city": "Casablanca",
+      "t2": "La plateforme est très simple, le support est toujours disponible. J'ai commencé de zéro et j'ai maintenant un revenu stable.",
+      "t2name": "Aymen B.",
+      "t2city": "Marrakech",
+      "t3": "Meilleure plateforme COD au Maroc, taux de livraison très élevé et les gains se retirent le jour même.",
+      "t3name": "Fatima Z.",
+      "t3city": "Fès"
+    },
+    "cta": {
+      "live": "Plateforme en ligne",
+      "title": "Prêt à commencer ?",
+      "subtitle": "Rejoignez plus de 500 vendeurs marocains qui gagnent chaque jour avec WinWinCOD",
+      "button": "Commencer gratuitement",
+      "login": "Se connecter",
+      "fine": "Sans carte bancaire · Sans frais mensuels · Annulez à tout moment"
+    },
+    "footer": {
+      "tagline": "La 1ère plateforme COD au Maroc — vendez sans capital.",
+      "platform": "Plateforme",
+      "contact": "Nous contacter",
+      "whatsapp": "WhatsApp — Support 24/7",
+      "location": "Maroc",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "copyright": "© 2026 WinWinCOD. Tous droits réservés."
+    }
   }
 }

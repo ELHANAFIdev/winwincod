@@ -12,9 +12,9 @@ export default function LandingNavbar({
   isLoggedIn: boolean;
   dashboardUrl: string;
 }) {
-  const [scrolled, setScrolled]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const { lang, setLang }         = useLanguage();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { lang, setLang, t }    = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -31,7 +31,7 @@ export default function LandingNavbar({
   }`;
 
   return (
-    <nav dir="rtl" className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${navBg}`}>
+    <nav dir={lang === "fr" ? "ltr" : "rtl"} className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${navBg}`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -46,12 +46,12 @@ export default function LandingNavbar({
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features"     className={linkCls}>الميزات</a>
-          <a href="#how-it-works" className={linkCls}>كيف يعمل</a>
-          <a href="#pricing"      className={linkCls}>الأسعار</a>
+          <a href="#features"     className={linkCls}>{t("landing.nav.features")}</a>
+          <a href="#how-it-works" className={linkCls}>{t("landing.nav.howItWorks")}</a>
+          <a href="#pricing"      className={linkCls}>{t("landing.nav.pricing")}</a>
         </div>
 
-        {/* Desktop: Lang + CTAs */}
+        {/* Desktop: Lang toggle + CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <button
             onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
@@ -67,25 +67,16 @@ export default function LandingNavbar({
           </button>
 
           {isLoggedIn ? (
-            <Link
-              href={dashboardUrl}
-              className="bg-[#FB923C] hover:bg-orange-500 text-white px-5 py-2 rounded-xl text-sm font-black transition shadow-md shadow-orange-200"
-            >
-              لوحة التحكم
+            <Link href={dashboardUrl} className="bg-[#FB923C] hover:bg-orange-500 text-white px-5 py-2 rounded-xl text-sm font-black transition shadow-md shadow-orange-200">
+              {t("landing.nav.dashboard")}
             </Link>
           ) : (
             <>
-              <Link
-                href="/login"
-                className={`text-sm font-bold transition ${scrolled ? "text-slate-500 hover:text-[#4361EE]" : "text-white/80 hover:text-white"}`}
-              >
-                دخول
+              <Link href="/login" className={`text-sm font-bold transition ${scrolled ? "text-slate-500 hover:text-[#4361EE]" : "text-white/80 hover:text-white"}`}>
+                {t("landing.nav.login")}
               </Link>
-              <Link
-                href="/register"
-                className="bg-[#FB923C] hover:bg-orange-500 text-white px-5 py-2 rounded-xl text-sm font-black transition shadow-md shadow-orange-200"
-              >
-                ابدأ مجاناً
+              <Link href="/register" className="bg-[#FB923C] hover:bg-orange-500 text-white px-5 py-2 rounded-xl text-sm font-black transition shadow-md shadow-orange-200">
+                {t("landing.nav.start")}
               </Link>
             </>
           )}
@@ -95,7 +86,7 @@ export default function LandingNavbar({
         <button
           className={`md:hidden p-2 rounded-lg transition ${scrolled ? "text-[#1E293B]" : "text-white"}`}
           onClick={() => setMenuOpen(v => !v)}
-          aria-label="القائمة"
+          aria-label="menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
             {menuOpen
@@ -108,9 +99,9 @@ export default function LandingNavbar({
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-[#E2E8F0] px-6 py-4 space-y-1 shadow-xl">
-          <a href="#features"     onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">الميزات</a>
-          <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">كيف يعمل</a>
-          <a href="#pricing"      onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">الأسعار</a>
+          <a href="#features"     onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">{t("landing.nav.features")}</a>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">{t("landing.nav.howItWorks")}</a>
+          <a href="#pricing"      onClick={() => setMenuOpen(false)} className="block text-sm font-bold text-[#1E293B] py-2.5 border-b border-slate-50">{t("landing.nav.pricing")}</a>
           <div className="pt-3 space-y-2">
             <div className="flex items-center justify-between py-1">
               <span className="text-xs font-bold text-slate-400">اللغة / Langue</span>
@@ -125,13 +116,13 @@ export default function LandingNavbar({
             </div>
             {isLoggedIn ? (
               <Link href={dashboardUrl} className="block bg-[#FB923C] text-white px-5 py-3 rounded-xl text-sm font-black text-center">
-                لوحة التحكم
+                {t("landing.nav.dashboard")}
               </Link>
             ) : (
               <>
-                <Link href="/login"    className="block text-center text-sm font-bold text-slate-500 py-2">دخول</Link>
+                <Link href="/login"    className="block text-center text-sm font-bold text-slate-500 py-2">{t("landing.nav.login")}</Link>
                 <Link href="/register" className="block bg-[#FB923C] text-white px-5 py-3 rounded-xl text-sm font-black text-center">
-                  ابدأ مجاناً
+                  {t("landing.nav.start")}
                 </Link>
               </>
             )}
