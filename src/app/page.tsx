@@ -27,7 +27,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white font-['Cairo',sans-serif]" dir="rtl">
+    <div className="min-h-screen bg-white">
       <LandingNavbar isLoggedIn={isLoggedIn} dashboardUrl={dashboardUrl} />
 
       {/* ══════════════════════════════════════════
@@ -183,7 +183,7 @@ export default async function HomePage() {
             ].map(({ icon, bg, ic, title, desc }) => (
               <div
                 key={title}
-                className="group bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#4361EE]/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/60 hover:-translate-y-1"
+                className="group bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#4361EE]/30 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-blue-100/60 hover:-translate-y-1"
               >
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-sm"
@@ -267,7 +267,7 @@ export default async function HomePage() {
               </ul>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-3 bg-[#4361EE] hover:bg-[#3254D4] text-white px-10 py-4 rounded-2xl text-lg font-black shadow-lg shadow-blue-200 transition hover:-translate-y-0.5"
+                className="inline-flex items-center gap-3 bg-[#4361EE] hover:bg-[#3254D4] text-white px-10 py-4 rounded-2xl text-lg font-black shadow-lg shadow-blue-200 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:-translate-y-0.5"
               >
                 ابدأ مجاناً الآن
                 <ArrowLeft className="w-5 h-5" />
@@ -380,14 +380,14 @@ export default async function HomePage() {
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/register"
-              className="inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-[#4361EE] px-10 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-black/20 transition hover:-translate-y-0.5"
+              className="inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-[#4361EE] px-10 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-black/20 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-0.5"
             >
               ابدأ مجاناً الآن
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 border-2 border-white/30 hover:border-white/60 text-white px-8 py-4 rounded-2xl text-base font-bold transition hover:bg-white/5"
+              className="inline-flex items-center gap-2 border-2 border-white/30 hover:border-white/70 text-white px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 hover:bg-white/10"
             >
               تسجيل الدخول
             </Link>

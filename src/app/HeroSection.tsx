@@ -71,7 +71,6 @@ export default function HeroSection({
 
   return (
     <section
-      dir="rtl"
       className="relative bg-gradient-to-br from-[#4361EE] via-[#3a58e8] to-[#3254D4] min-h-screen flex flex-col justify-center overflow-hidden pt-16"
     >
       {/* ── Background: grid ── */}
@@ -122,14 +121,14 @@ export default function HeroSection({
           <div className="anim-fsu-4 flex flex-wrap gap-4">
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 bg-[#FB923C] hover:bg-orange-500 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-orange-500/30 transition-all hover:-translate-y-0.5"
+              className="group inline-flex items-center gap-2 bg-[#FB923C] hover:bg-orange-500 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-2xl shadow-orange-500/30 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
             >
               ابدأ مجاناً الآن
               <span className="anim-arrow inline-block">←</span>
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex items-center gap-3 border-2 border-white/30 hover:border-white/65 text-white px-6 py-4 rounded-2xl text-base font-bold transition hover:bg-white/5"
+              className="inline-flex items-center gap-3 border-2 border-white/30 hover:border-white/70 text-white px-6 py-4 rounded-2xl text-base font-bold transition-all duration-300 hover:bg-white/10"
             >
               <span className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center text-sm flex-shrink-0">▶</span>
               شاهد كيف تعمل
@@ -150,7 +149,7 @@ export default function HeroSection({
 
           {/* ① Notification: تم التسليم — bounce-in from top */}
           <div className="anim-bounce-in absolute top-2 right-2 z-30">
-            <div className="bg-white rounded-2xl shadow-2xl shadow-blue-900/40 px-4 py-3 flex items-center gap-3 border border-green-100 w-60">
+            <div className="backdrop-blur-md bg-white/80 rounded-2xl shadow-2xl shadow-blue-900/40 px-4 py-3 flex items-center gap-3 border border-white/20 w-60">
               <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0"><CheckCircle className="w-5 h-5 text-green-500" /></div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-black text-green-600 uppercase tracking-wide">تم التسليم!</p>
@@ -161,7 +160,7 @@ export default function HeroSection({
           </div>
 
           {/* ② Main dashboard card — continuous float */}
-          <div className="animate-float absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl shadow-blue-900/30 p-5 w-72 z-20 border border-slate-100">
+          <div className="animate-float absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-md bg-white/80 rounded-3xl shadow-2xl shadow-blue-900/30 p-5 w-72 z-20 border border-white/20">
             {/* card header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -215,7 +214,7 @@ export default function HeroSection({
 
           {/* ③ New order card — slides in from right */}
           <div className="anim-slide-right absolute bottom-10 right-0 z-30">
-            <div className="bg-white rounded-2xl shadow-xl shadow-blue-900/25 p-4 w-56 border border-[#E2E8F0]">
+            <div className="backdrop-blur-md bg-white/80 rounded-2xl shadow-xl shadow-blue-900/25 p-4 w-56 border border-white/20">
               <div className="flex items-center gap-2 mb-2.5">
                 <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0"><Bell className="w-4 h-4 text-[#FB923C]" /></div>
                 <div className="flex-1 min-w-0">
@@ -233,7 +232,7 @@ export default function HeroSection({
 
           {/* ④ Daily bar chart mini-card — float2 */}
           <div className="animate-float2 absolute top-12 left-0 z-10">
-            <div className="bg-gradient-to-br from-[#4361EE] to-[#3254D4] rounded-2xl shadow-xl p-4 w-44 text-white">
+            <div className="backdrop-blur-md bg-gradient-to-br from-[#4361EE]/90 to-[#3254D4]/90 rounded-2xl shadow-xl p-4 w-44 text-white border border-white/20">
               <p className="text-[10px] font-black text-blue-200 uppercase tracking-wider mb-1">طلبات اليوم</p>
               <p className="text-2xl font-black mb-3">12 <span className="text-sm font-bold text-blue-200">طلب</span></p>
               <div className="flex items-end gap-1 h-10">
