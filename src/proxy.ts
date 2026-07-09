@@ -1,4 +1,4 @@
-// src/middleware.ts
+// src/proxy.ts — Next.js 16 route-guard convention (formerly "middleware.ts")
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
@@ -31,6 +31,15 @@ export default withAuth(
     if (path.startsWith("/seller")) {
       if (role !== "SELLER") {
         return NextResponse.redirect(new URL("/login", req.url));
+      }
+
+      // Defense-in-depth: today a pending seller (isActive: false) can never reach this
+      // point at all — authorize() throws and the Google signIn() callback redirects
+      // before NextAuth ever issues a token for them. This check is a safety net in case
+      // that upstream gating is ever changed or bypassed, so route access doesn't silently
+      // rely on a single point of enforcement.
+      if (token?.isActive === false) {
+        return NextResponse.redirect(new URL("/login?error=PendingApproval", req.url));
       }
 
       // Onboarding guard — sellers must complete the wizard before accessing any seller page

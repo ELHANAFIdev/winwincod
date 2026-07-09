@@ -88,6 +88,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
+          isActive: user.isActive,
         };
       },
     }),
@@ -116,6 +117,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        token.isActive = (user as any).isActive;
         // Fetch onboarding flag immediately so middleware has it from the first request
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
@@ -138,12 +140,13 @@ export const authOptions: NextAuthOptions = {
       if (!token.role && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, id: true, hasCompletedOnboarding: true },
+          select: { role: true, id: true, hasCompletedOnboarding: true, isActive: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
           token.id = dbUser.id;
           token.hasCompletedOnboarding = dbUser.hasCompletedOnboarding;
+          token.isActive = dbUser.isActive;
         }
       }
       return token;

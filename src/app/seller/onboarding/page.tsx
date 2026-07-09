@@ -10,18 +10,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
-
-// ─── Moroccan cities list ──────────────────────────────────────────────────────
-
-const CITIES = [
-  "الدار البيضاء", "الرباط", "فاس", "مراكش", "أكادير", "طنجة", "مكناس",
-  "وجدة", "القنيطرة", "تطوان", "سلا", "الجديدة", "بني ملال", "خريبكة",
-  "سطات", "برشيد", "تيزنيت", "ورزازات", "طانطان", "العيون", "الداخلة",
-  "الناظور", "الحسيمة", "تازة", "بركان", "الرشيدية", "إفران", "خنيفرة",
-  "أزيلال", "زاكورة", "ميدلت", "صفرو", "جرادة", "الدريوش",
-  "الفقيه بن صالح", "قلعة السراغنة", "تارودانت", "تيفلت", "الخميسات",
-  "العرائش", "أصيلة", "بوجدور", "الصخيرات", "تمارة",
-].sort();
+import CitySelector from "@/components/CitySelector";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -184,14 +173,11 @@ function Step2({
         <label className="text-xs font-bold text-slate-500 block mb-1.5">
           المدينة <span className="text-red-500">*</span>
         </label>
-        <select
+        <CitySelector
           value={form.city}
-          onChange={(e) => { onChange({ city: e.target.value }); setErrors((ev) => ({ ...ev, city: undefined })); }}
-          className={`w-full border ${errors.city ? "border-red-400 bg-red-50" : "border-[#E2E8F0] bg-[#F8FAFC]"} focus:border-[#4361EE] focus:bg-white p-3.5 rounded-xl outline-none text-sm font-medium transition appearance-none`}
-        >
-          <option value="">اختر مدينتك...</option>
-          {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
+          onChange={(city) => { onChange({ city }); setErrors((ev) => ({ ...ev, city: undefined })); }}
+          error={!!errors.city}
+        />
         {errors.city && <p className="text-red-500 text-xs mt-1 font-medium">{errors.city}</p>}
       </div>
 

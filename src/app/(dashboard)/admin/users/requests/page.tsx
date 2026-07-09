@@ -21,7 +21,11 @@ export default function UserRequestsPage() {
     try {
       await axios.post("/api/admin/users/requests/action", { userId, action });
       fetchRequests();
-    } catch { alert("حدث خطأ"); }
+    } catch (err: any) {
+      const message = err?.response?.data?.error || err?.message || "حدث خطأ غير معروف";
+      alert(`فشلت العملية: ${message}`);
+      console.error("[admin/users/requests] action failed:", err?.response?.status, message);
+    }
   };
 
   if (loading) return (
