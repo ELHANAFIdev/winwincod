@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   Rocket, Package, DollarSign, User, BookOpen,
-  ClipboardList, Phone, Truck, Lightbulb, CheckCircle,
+  Megaphone, Phone, Lightbulb, CheckCircle,
   AlertTriangle, Landmark, CreditCard
 } from "lucide-react";
 import Image from "next/image";
@@ -226,10 +226,10 @@ function Step2({
 
 function Step3({ onNext }: { onNext: () => void }) {
   const steps = [
-    { icon: <ClipboardList className="w-5 h-5 text-[#4361EE]" />, title: "أضف منتجاتك",             desc: "حدد سعر البيع والتكلفة لكل منتج" },
-    { icon: <Phone className="w-5 h-5 text-[#4361EE]" />,         title: "فريقنا يتصل بالعملاء",    desc: "نؤكد الطلبات مع عملائك نيابة عنك" },
-    { icon: <Truck className="w-5 h-5 text-[#4361EE]" />,         title: "نرسل للعميل",              desc: "شركة التوصيل تتكفل بإيصال الطلب" },
-    { icon: <DollarSign className="w-5 h-5 text-[#4361EE]" />,    title: "تستلم أرباحك",             desc: "الربح = سعر البيع - التكلفة - رسوم الشحن" },
+    { icon: <Package className="w-5 h-5 text-[#4361EE]" />,    title: "اختر منتجك",           desc: "تصفح الكتالوج واختر المنتج المناسب لجمهورك - السعر والتكلفة محددين مسبقاً" },
+    { icon: <Megaphone className="w-5 h-5 text-[#4361EE]" />,  title: "سوّق وسجل الطلبات",    desc: "روّج للمنتج بطريقتك (سوشيال ميديا، إعلانات...) وسجل طلبات عملائك في المنصة" },
+    { icon: <Phone className="w-5 h-5 text-[#4361EE]" />,      title: "فريقنا يأكد الطلب",     desc: "نتصل بعملائك لتأكيد الطلبية نيابة عنك" },
+    { icon: <DollarSign className="w-5 h-5 text-[#4361EE]" />, title: "نشحن ونعطيك أرباحك",   desc: "نتكفل بالشحن، وبعد التسليم كتوصلك أرباحك: الربح = سعر البيع - التكلفة - رسوم الشحن" },
   ];
 
   return (
@@ -241,17 +241,23 @@ function Step3({ onNext }: { onNext: () => void }) {
       </div>
 
       {/* Steps */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-stretch">
         {steps.map((s, i) => (
-          <div key={i} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-4 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#4361EE] text-white font-black text-sm flex items-center justify-center flex-shrink-0">
-              {i + 1}
+          <div
+            key={i}
+            className="h-full flex flex-col gap-3 bg-white border border-[#E2E8F0] rounded-2xl p-4 transition-all duration-200 hover:border-[#4361EE]/30 hover:shadow-md hover:shadow-blue-100/60"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#4361EE]/10 flex items-center justify-center flex-shrink-0">
+                {s.icon}
+              </div>
+              <div className="w-6 h-6 rounded-full bg-[#4361EE] text-white font-black text-[11px] flex items-center justify-center flex-shrink-0">
+                {i + 1}
+              </div>
             </div>
             <div>
-              <p className="font-black text-[#1E293B] text-sm flex items-center gap-1">
-                {s.icon} {s.title}
-              </p>
-              <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">{s.desc}</p>
+              <p className="font-black text-[#1E293B] text-sm leading-snug">{s.title}</p>
+              <p className="text-slate-400 text-xs mt-1 leading-relaxed">{s.desc}</p>
             </div>
           </div>
         ))}
