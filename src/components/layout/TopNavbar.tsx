@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, Search, ChevronDown, LogOut, User, Settings, Command } from "lucide-react";
 import NotificationBell from "@/components/ui/NotificationBell";
+import CartButton from "@/components/seller/CartButton";
 import { useLanguage } from "@/context/LanguageContext";
 
 const PROFILE_PATHS: Record<string, string> = {
@@ -137,6 +138,8 @@ export default function TopNavbar({ onMenuToggle, role }: TopNavbarProps) {
           <span className="text-slate-300 select-none">|</span>
           <span className={lang === "fr" ? "font-bold text-[#4361EE]" : "text-slate-400"}>FR</span>
         </button>
+
+        {role === "seller" && <CartButton />}
 
         <NotificationBell notificationsPath={
           role === "seller" ? "/seller/notifications" : `/${role}/dashboard`

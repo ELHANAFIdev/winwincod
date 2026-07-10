@@ -61,7 +61,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <CartContext.Provider value={{
       items, addItem, removeItem, updateQty, clearAll,
-      totalCount: items.length,
+      totalCount: items.reduce((sum, i) => sum + i.quantity, 0),
       drawerOpen,
       openDrawer: () => setDrawerOpen(true),
       closeDrawer: () => setDrawerOpen(false),
